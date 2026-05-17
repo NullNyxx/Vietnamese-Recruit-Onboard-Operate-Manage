@@ -82,8 +82,21 @@ a real project supplies one.
 - `docs/FEATURE_INTAKE.md`: tiny, normal, and high-risk work classification.
 - `docs/ARCHITECTURE.md`: generic architecture discovery and boundary rules.
 - `docs/HARNESS_BACKLOG.md`: proposed harness improvements.
-- `docs/templates/`: reusable spec-intake, story, decision, and validation
-  templates.
+- `docs/templates/`: reusable story, decision, and validation templates.
+- `specs/`: workspace for human-agent spec collaboration.
+
+## Spec Workflow
+
+The `specs/` directory is where humans and agents collaborate on specifications
+before work enters the harness pipeline:
+
+- `specs/project/`: project-level spec (one per project, created once).
+- `specs/features/`: feature-level specs (one per feature, created as needed).
+
+Each directory contains a `README.md` with the template and workflow guide.
+Human describes intent, agent asks questions and proposes, both sides iterate
+until agreement, then agent writes the final spec and feeds it into the harness
+intake loop.
 
 ## Repository Structure
 
@@ -91,6 +104,11 @@ a real project supplies one.
 project/
   AGENTS.md
   README.md
+  specs/
+    project/
+      README.md
+    features/
+      README.md
   docs/
     HARNESS.md
     FEATURE_INTAKE.md

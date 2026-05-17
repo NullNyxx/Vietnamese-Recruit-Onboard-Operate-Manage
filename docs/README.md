@@ -19,8 +19,16 @@ future user-provided spec.
 - `decisions/`: durable decisions and tradeoffs.
 - `demo/`: concrete walkthroughs that show how the harness transforms input
   into agent-ready work.
-- `templates/`: reusable spec-intake, story, plan, decision, and validation
-  formats.
+- `templates/`: reusable story, decision, and validation formats.
+
+## Spec Workspace
+
+Spec collaboration lives in `specs/` (sibling to `docs/`):
+
+- `specs/project/`: project-level spec template and output.
+- `specs/features/`: feature-level spec templates and outputs.
+
+See each directory's `README.md` for workflow and template details.
 
 ## Current State
 
