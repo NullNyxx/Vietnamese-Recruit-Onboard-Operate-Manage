@@ -55,4 +55,6 @@ Tradeoffs:
 
 ## Follow-Up
 
-- Add a spec-intake template if repeated projects reveal a stable format.
+- ~~Add a spec-intake template if repeated projects reveal a stable format.~~
+  Done: `specs/project/README.md` and `specs/features/README.md` now provide
+  structured templates for project-level and feature-level spec collaboration.

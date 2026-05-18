@@ -83,11 +83,14 @@ Those should arrive only when a selected story needs them.
 ## Source Hierarchy
 
 ```text
-User-provided spec or prompt
-  input material for first buildout or future changes
+specs/project/
+  project-level spec — input material for first buildout
+
+specs/features/
+  feature-level specs — input material for each feature
 
 docs/product/*
-  current product contract derived from accepted input
+  current product contract derived from accepted specs
 
 docs/stories/*
   story-sized work packets and historical evidence
@@ -104,22 +107,29 @@ product docs plus executable tests become the living contract.
 
 ## Spec Lifecycle
 
-Harness v0 starts without a tracked project spec. When the human provides a
-specification, treat it as input material, not as a permanent operating manual.
-Use it to populate product docs, story packets, architecture decisions, and
-validation expectations during the first buildout.
+Specs live in `specs/` and follow a discussion-first workflow:
 
-After the specification has been decomposed, do not keep extending it as the
-living product plan. Ongoing work should update the smaller product docs,
-stories, test matrix, and decision records.
+1. **Project spec** (`specs/project/`): human describes the project idea, agent
+   discusses and proposes, both iterate until agreement. Agent writes the final
+   spec, then runs Feature Intake to decompose it into product docs, stories,
+   architecture decisions, and validation expectations.
+
+2. **Feature specs** (`specs/features/`): for each new feature, human and agent
+   follow the same discussion workflow. Agent does not implement until the spec
+   reaches `Agreed` status.
+
+After a spec has been decomposed, do not keep extending it as the living
+product plan. Ongoing work should update the smaller product docs, stories,
+test matrix, and decision records.
 
 Ongoing work should enter the harness as one of these input types:
 
-- New spec: a project specification that needs to become product docs and
-  initial story candidates.
-- Spec slice: a selected behavior from the provided spec.
+- New spec: a project specification via `specs/project/` that needs to become
+  product docs and initial story candidates.
+- Spec slice: a feature specification via `specs/features/` implementing
+  selected behavior.
 - Change request: a bounded behavior change, bug fix, or product refinement.
-- New initiative: a larger product area that needs multiple stories.
+- New initiative: a larger product area that needs multiple feature specs.
 - Maintenance request: dependency, architecture, performance, security, or
   operational work.
 - Harness improvement: a process, template, proof, or agent-instruction change.

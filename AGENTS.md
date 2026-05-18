@@ -14,18 +14,26 @@ Read in this order:
 1. `README.md` for project status.
 2. `docs/HARNESS.md` for the human-agent operating model.
 3. `docs/FEATURE_INTAKE.md` before turning any prompt into work.
-4. The user-provided spec or prompt, when one exists.
+4. `specs/` for spec collaboration workspace (project and feature specs).
 5. `docs/product/` for current product contracts.
 6. `docs/ARCHITECTURE.md` before proposing implementation shape.
 7. `docs/stories/` for story packets and backlog.
 8. `docs/TEST_MATRIX.md` for proof status.
 9. `docs/decisions/` for why important choices were made.
 
-This harness does not ship with a project-specific `SPEC.md`. When the human
-provides a spec for a new project, treat that spec as input material for the
-first buildout. Derive product docs, story packets, architecture decisions, and
-validation expectations from it. Product docs, stories, tests, and decisions
-then become the living contract that agents should update as the system evolves.
+## Spec Workflow
+
+Specs live in `specs/` and follow a discussion-first workflow:
+
+- `specs/project/`: project-level spec. Human describes the project idea, agent
+  asks questions and proposes, both iterate until agreement. Agent then writes
+  the final spec and runs Feature Intake to decompose it.
+- `specs/features/`: feature-level specs. Same discussion workflow per feature.
+  Agent does not implement until the spec status reaches `Agreed`.
+
+Each directory contains a `README.md` with the template and detailed workflow.
+After a spec is written and decomposed, product docs, story packets, and
+decisions become the living contract that agents update as the system evolves.
 
 ## Task Loop
 

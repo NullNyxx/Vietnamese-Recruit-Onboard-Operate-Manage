@@ -24,8 +24,9 @@ inspectable.
 The input is classified as a new spec because it introduces a new product idea
 with no existing product contract.
 
-The first output should not be app code. It should be a spec-intake note using
-`docs/templates/spec-intake.md`.
+The first output should not be app code. The agent should follow the spec
+workflow in `specs/project/README.md`: discuss with the human, write a project
+spec, then run Feature Intake to decompose it into harness artifacts.
 
 Example intake shape:
 
