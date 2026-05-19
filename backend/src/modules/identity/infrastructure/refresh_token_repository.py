@@ -146,3 +146,50 @@ class RefreshTokenRepository:
 
         if tokens:
             await self.session.flush()
+
+    async def store(
+        self,
+        user_id: UUID,
+        token_hash: str,
+        expires_at: datetime,
+        user_agent: str | None = None,
+    ) -> RefreshToken:
+        """Store a new refresh token hash in the database.
+
+        Alias for :meth:`create` to satisfy the TokenService protocol.
+
+        Args:
+            user_id: The UUID of the user who owns this token.
+            token_hash: The SHA-256 hex digest of the raw token.
+            expires_at: When the token should expire.
+            user_agent: Optional HTTP User-Agent string from the client.
+
+        Returns:
+            The newly created RefreshToken entity.
+        """
+        return await self.create(
+            user_id=user_id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+            user_agent=user_agent,
+        )
+
+    async def revoke(self, token_hash: str) -> None:
+        """Revoke a single refresh token by its hash.
+
+        Sets revoked_at to the current UTC time on the token matching
+        the given hash.
+
+        Args:
+            token_hash: The SHA-256 hex digest of the token to revoke.
+        """
+        statement = select(RefreshToken).where(
+            RefreshToken.token_hash == token_hash
+        )
+        result = await self.session.execute(statement)
+        token = result.scalars().first()
+
+        if token is not None:
+            token.revoked_at = datetime.now(UTC)
+            self.session.add(token)
+            await self.session.flush()

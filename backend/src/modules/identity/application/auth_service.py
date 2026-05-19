@@ -191,7 +191,7 @@ class AuthService:
             code_verifier=code_verifier,
         )
 
-    async def handle_callback(self, code: str, state: str) -> AuthResult:
+    async def handle_callback(self, code: str, state: str, code_verifier: str) -> AuthResult:
         """Process the OAuth2 callback after user consent.
 
         Validates the CSRF state token, exchanges the authorization code
@@ -202,6 +202,7 @@ class AuthService:
         Args:
             code: The authorization code from Google's OAuth2 callback.
             state: The CSRF state token to validate.
+            code_verifier: The PKCE code verifier stored during login initiation.
 
         Returns:
             An AuthResult containing session tokens, user entity, and
@@ -216,10 +217,7 @@ class AuthService:
         self._jwt_utils.verify_state_token(state)
 
         # 2. Exchange authorization code for Google tokens.
-        # Note: code_verifier should be passed from session storage.
-        # For now, we accept it won't have the verifier in this method
-        # signature — the router layer handles passing it.
-        google_tokens = await self._oauth_service.exchange_code(code, "")
+        google_tokens = await self._oauth_service.exchange_code(code, code_verifier)
 
         # 3. Decode Google ID token to get user info.
         # We decode without verification since we just received it from Google.
