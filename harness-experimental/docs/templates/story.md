@@ -14,7 +14,7 @@ Describe the behavior this story must make true.
 
 ## Relevant Product Docs
 
-- `docs/product/...`
+- `harness-experimental/docs/product/...`
 
 ## Acceptance Criteria
 

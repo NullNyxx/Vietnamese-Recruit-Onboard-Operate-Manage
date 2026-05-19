@@ -83,22 +83,22 @@ Those should arrive only when a selected story needs them.
 ## Source Hierarchy
 
 ```text
-specs/project/
+harness-experimental/specs/project/
   project-level spec — input material for first buildout
 
-specs/features/
+harness-experimental/specs/features/
   feature-level specs — input material for each feature
 
-docs/product/*
+harness-experimental/docs/product/*
   current product contract derived from accepted specs
 
-docs/stories/*
+harness-experimental/docs/stories/*
   story-sized work packets and historical evidence
 
-docs/TEST_MATRIX.md
+harness-experimental/docs/TEST_MATRIX.md
   behavior-to-proof control panel
 
-docs/decisions/*
+harness-experimental/docs/decisions/*
   why the contract changed
 ```
 
@@ -107,14 +107,14 @@ product docs plus executable tests become the living contract.
 
 ## Spec Lifecycle
 
-Specs live in `specs/` and follow a discussion-first workflow:
+Specs live in `harness-experimental/specs/` and follow a discussion-first workflow:
 
-1. **Project spec** (`specs/project/`): human describes the project idea, agent
+1. **Project spec** (`harness-experimental/specs/project/`): human describes the project idea, agent
    discusses and proposes, both iterate until agreement. Agent writes the final
    spec, then runs Feature Intake to decompose it into product docs, stories,
    architecture decisions, and validation expectations.
 
-2. **Feature specs** (`specs/features/`): for each new feature, human and agent
+2. **Feature specs** (`harness-experimental/specs/features/`): for each new feature, human and agent
    follow the same discussion workflow. Agent does not implement until the spec
    reaches `Agreed` status.
 
@@ -124,9 +124,9 @@ test matrix, and decision records.
 
 Ongoing work should enter the harness as one of these input types:
 
-- New spec: a project specification via `specs/project/` that needs to become
+- New spec: a project specification via `harness-experimental/specs/project/` that needs to become
   product docs and initial story candidates.
-- Spec slice: a feature specification via `specs/features/` implementing
+- Spec slice: a feature specification via `harness-experimental/specs/features/` implementing
   selected behavior.
 - Change request: a bounded behavior change, bug fix, or product refinement.
 - New initiative: a larger product area that needs multiple feature specs.
@@ -151,7 +151,7 @@ Large product areas should use scoped initiative notes instead of a second
 monolithic specification. An initiative should explain the goal, affected
 product docs, candidate stories, validation shape, open decisions, and exit
 criteria. If initiative work becomes a repeated pattern, add a template or
-proposal to `docs/HARNESS_BACKLOG.md`.
+proposal to `harness-experimental/docs/HARNESS_BACKLOG.md`.
 
 ## Growth Rule
 

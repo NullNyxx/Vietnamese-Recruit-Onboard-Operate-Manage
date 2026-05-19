@@ -13,7 +13,7 @@ chuyển vào luồng harness.
 2. Human mô tả ý tưởng dự án (qua chat)
 3. Agent đặt câu hỏi, đề xuất stack, architecture, domain map
 4. Human + Agent trao đổi cho đến khi thống nhất
-5. Agent viết file spec hoàn chỉnh: specs/project/{ten-du-an}.md
+5. Agent viết file spec hoàn chỉnh: harness-experimental/specs/project/{ten-du-an}.md
 6. Agent chạy Feature Intake → "New spec"
 7. Agent decompose → sinh product docs, architecture, decisions
 8. Agent khởi tạo project structure
@@ -22,10 +22,10 @@ chuyển vào luồng harness.
 ## Sau khi hoàn thành
 
 File spec project trở thành snapshot lịch sử. Living truth nằm ở:
-- `docs/product/` — product contracts
-- `docs/ARCHITECTURE.md` — architecture decisions
-- `docs/decisions/` — decision records
-- `docs/stories/backlog.md` — candidate epics
+- `harness-experimental/docs/product/` — product contracts
+- `harness-experimental/docs/ARCHITECTURE.md` — architecture decisions
+- `harness-experimental/docs/decisions/` — decision records
+- `harness-experimental/docs/stories/backlog.md` — candidate epics
 
 Bước tiếp theo: human tạo SPEC-FEATURE cho feature đầu tiên.
 
@@ -113,14 +113,14 @@ Bước tiếp theo: human tạo SPEC-FEATURE cho feature đầu tiên.
 ## Quy ước đặt tên file spec
 
 ```text
-specs/project/{ten-du-an}.md
+harness-experimental/specs/project/{ten-du-an}.md
 ```
 
 Ví dụ:
 ```text
-specs/project/hr-ai-platform.md
-specs/project/ecommerce-backend.md
-specs/project/task-tracker.md
+harness-experimental/specs/project/hr-ai-platform.md
+harness-experimental/specs/project/ecommerce-backend.md
+harness-experimental/specs/project/task-tracker.md
 ```
 
 Chỉ có 1 file spec project cho mỗi dự án.

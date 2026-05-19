@@ -29,9 +29,9 @@ through the same harness loop as one of these input types:
 - Maintenance request.
 - Harness improvement.
 
-Product docs under `docs/product/`, story packets under `docs/stories/`,
-validation evidence in `docs/TEST_MATRIX.md`, and decision records under
-`docs/decisions/` become the living operating surface.
+Product docs under `harness-experimental/docs/product/`, story packets under `harness-experimental/docs/stories/`,
+validation evidence in `harness-experimental/docs/TEST_MATRIX.md`, and decision records under
+`harness-experimental/docs/decisions/` become the living operating surface.
 
 Large future product areas should be captured as scoped initiative notes instead
 of appended to the seed specification or rewritten as a second monolithic spec.

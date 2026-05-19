@@ -13,7 +13,7 @@ này rồi chuyển vào luồng harness.
 2. Human mô tả feature muốn build (qua chat)
 3. Agent đặt câu hỏi, đề xuất approach, contracts, business rules
 4. Human + Agent trao đổi cho đến khi thống nhất
-5. Agent viết file spec hoàn chỉnh: specs/features/{domain}-{feature}.md
+5. Agent viết file spec hoàn chỉnh: harness-experimental/specs/features/{domain}-{feature}.md
 6. Agent chạy Feature Intake → classify risk, chọn lane
 7. Agent tạo story packet(s)
 8. Agent implement theo stories
@@ -23,7 +23,7 @@ này rồi chuyển vào luồng harness.
 ## Quan trọng
 
 - Agent KHÔNG được implement trước khi viết spec và human confirm
-- Mỗi feature spec phải reference epic từ `specs/project/`
+- Mỗi feature spec phải reference epic từ `harness-experimental/specs/project/`
 - Khi feature xong, file giữ nguyên làm tài liệu lịch sử
 - Nếu cần thay đổi feature đã xong, tạo spec mới hoặc update version
 
@@ -135,15 +135,15 @@ Discussing → Agreed → In Progress → Done
 ## Quy ước đặt tên file spec
 
 ```text
-specs/features/{domain}-{feature-name}.md
+harness-experimental/specs/features/{domain}-{feature-name}.md
 ```
 
 Ví dụ:
 ```text
-specs/features/recruitment-cv-parser.md
-specs/features/recruitment-interview-scheduler.md
-specs/features/onboarding-checklist.md
-specs/features/onboarding-document-processor.md
-specs/features/leave-request.md
-specs/features/attendance-processor.md
+harness-experimental/specs/features/recruitment-cv-parser.md
+harness-experimental/specs/features/recruitment-interview-scheduler.md
+harness-experimental/specs/features/onboarding-checklist.md
+harness-experimental/specs/features/onboarding-document-processor.md
+harness-experimental/specs/features/leave-request.md
+harness-experimental/specs/features/attendance-processor.md
 ```

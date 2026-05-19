@@ -25,7 +25,7 @@ The input is classified as a new spec because it introduces a new product idea
 with no existing product contract.
 
 The first output should not be app code. The agent should follow the spec
-workflow in `specs/project/README.md`: discuss with the human, write a project
+workflow in `harness-experimental/specs/project/README.md`: discuss with the human, write a project
 spec, then run Feature Intake to decompose it into harness artifacts.
 
 Example intake shape:
@@ -75,7 +75,7 @@ Changing assignee does not change task status.
 ## Story Packet
 
 Once the product contract is clear enough, the agent creates a story packet from
-`docs/templates/story.md`.
+`harness-experimental/docs/templates/story.md`.
 
 Example story:
 
@@ -97,7 +97,7 @@ Validation:
 
 ## Test Matrix
 
-The story then appears in `docs/TEST_MATRIX.md` so behavior and proof stay
+The story then appears in `harness-experimental/docs/TEST_MATRIX.md` so behavior and proof stay
 linked.
 
 Example row:
@@ -111,7 +111,7 @@ The row should not be marked implemented until proof exists.
 ## Decision Record
 
 If the team chooses a stack, data model direction, or important product rule,
-the agent records that decision under `docs/decisions/`.
+the agent records that decision under `harness-experimental/docs/decisions/`.
 
 Example decision:
 
@@ -143,4 +143,4 @@ Add a reusable example-spec walkthrough or starter fixture.
 ```
 
 Small improvements can be made directly. Larger process changes should be
-proposed in `docs/HARNESS_BACKLOG.md`.
+proposed in `harness-experimental/docs/HARNESS_BACKLOG.md`.

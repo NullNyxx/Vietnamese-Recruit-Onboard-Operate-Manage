@@ -49,15 +49,16 @@ engineering questions without relying only on chat history:
 - What proof will show the work is done?
 - What decision or lesson should future agents inherit?
 
-In this repo, those answers live in `AGENTS.md`, `docs/HARNESS.md`,
-`docs/FEATURE_INTAKE.md`, `docs/ARCHITECTURE.md`, `docs/TEST_MATRIX.md`,
-`docs/stories/`, `docs/decisions/`, and `docs/templates/`.
+In this repo, those answers live in `AGENTS.md`, `harness-experimental/docs/HARNESS.md`,
+`harness-experimental/docs/FEATURE_INTAKE.md`, `harness-experimental/docs/ARCHITECTURE.md`,
+`harness-experimental/docs/TEST_MATRIX.md`, `harness-experimental/docs/stories/`,
+`harness-experimental/docs/decisions/`, and `harness-experimental/docs/templates/`.
 
 ## Try The Flow
 
 The fastest way to understand the harness is to inspect a tiny example:
 
-- `docs/demo/README.md`: shows how a simple product idea becomes product docs,
+- `harness-experimental/docs/demo/README.md`: shows how a simple product idea becomes product docs,
   stories, validation expectations, and decisions before implementation starts.
 
 ## Product Sources
@@ -67,10 +68,10 @@ No product contract is currently defined.
 When a user provides a project specification, add or reference it as the input
 spec for the first buildout, then derive smaller living artifacts from it:
 
-- `docs/product/`: current product contract files, created from the spec.
-- `docs/stories/`: story packets and backlog created from selected work.
-- `docs/TEST_MATRIX.md`: behavior-to-proof control panel.
-- `docs/decisions/`: durable decisions and tradeoffs.
+- `harness-experimental/docs/product/`: current product contract files, created from the spec.
+- `harness-experimental/docs/stories/`: story packets and backlog created from selected work.
+- `harness-experimental/docs/TEST_MATRIX.md`: behavior-to-proof control panel.
+- `harness-experimental/docs/decisions/`: durable decisions and tradeoffs.
 
 Do not keep a project-specific spec or product breakdown in this harness until
 a real project supplies one.
@@ -78,20 +79,20 @@ a real project supplies one.
 ## Harness Sources
 
 - `AGENTS.md`: agent entrypoint and operating rules.
-- `docs/HARNESS.md`: human-agent collaboration model.
-- `docs/FEATURE_INTAKE.md`: tiny, normal, and high-risk work classification.
-- `docs/ARCHITECTURE.md`: generic architecture discovery and boundary rules.
-- `docs/HARNESS_BACKLOG.md`: proposed harness improvements.
-- `docs/templates/`: reusable story, decision, and validation templates.
-- `specs/`: workspace for human-agent spec collaboration.
+- `harness-experimental/docs/HARNESS.md`: human-agent collaboration model.
+- `harness-experimental/docs/FEATURE_INTAKE.md`: tiny, normal, and high-risk work classification.
+- `harness-experimental/docs/ARCHITECTURE.md`: generic architecture discovery and boundary rules.
+- `harness-experimental/docs/HARNESS_BACKLOG.md`: proposed harness improvements.
+- `harness-experimental/docs/templates/`: reusable story, decision, and validation templates.
+- `harness-experimental/specs/`: workspace for human-agent spec collaboration.
 
 ## Spec Workflow
 
-The `specs/` directory is where humans and agents collaborate on specifications
+The `harness-experimental/specs/` directory is where humans and agents collaborate on specifications
 before work enters the harness pipeline:
 
-- `specs/project/`: project-level spec (one per project, created once).
-- `specs/features/`: feature-level specs (one per feature, created as needed).
+- `harness-experimental/specs/project/`: project-level spec (one per project, created once).
+- `harness-experimental/specs/features/`: feature-level specs (one per feature, created as needed).
 
 Each directory contains a `README.md` with the template and workflow guide.
 Human describes intent, agent asks questions and proposes, both sides iterate
@@ -104,24 +105,29 @@ intake loop.
 project/
   AGENTS.md
   README.md
-  specs/
-    project/
+  .kiro/
+    specs/
+  harness-experimental/
+    docs/
+      HARNESS.md
+      FEATURE_INTAKE.md
+      ARCHITECTURE.md
+      TEST_MATRIX.md
+      HARNESS_BACKLOG.md
+      product/
+      stories/
+      decisions/
+      demo/
+      templates/
+    specs/
+      project/
+        README.md
+      features/
+        README.md
+    scripts/
       README.md
-    features/
-      README.md
-  docs/
-    HARNESS.md
-    FEATURE_INTAKE.md
-    ARCHITECTURE.md
-    TEST_MATRIX.md
-    HARNESS_BACKLOG.md
-    product/
-    stories/
-    decisions/
-    demo/
-    templates/
-  scripts/
-    README.md
+  backend/
+  frontend/
 ```
 
 ## Working Rule

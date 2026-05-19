@@ -14,7 +14,7 @@ Describe the behavior after the story is complete.
 
 ## Affected Product Docs
 
-- `docs/product/...`
+- `harness-experimental/docs/product/...`
 
 ## Non-Goals
 

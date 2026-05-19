@@ -12,23 +12,23 @@ moves the project into implementation.
 Read in this order:
 
 1. `README.md` for project status.
-2. `docs/HARNESS.md` for the human-agent operating model.
-3. `docs/FEATURE_INTAKE.md` before turning any prompt into work.
-4. `specs/` for spec collaboration workspace (project and feature specs).
-5. `docs/product/` for current product contracts.
-6. `docs/ARCHITECTURE.md` before proposing implementation shape.
-7. `docs/stories/` for story packets and backlog.
-8. `docs/TEST_MATRIX.md` for proof status.
-9. `docs/decisions/` for why important choices were made.
+2. `harness-experimental/docs/HARNESS.md` for the human-agent operating model.
+3. `harness-experimental/docs/FEATURE_INTAKE.md` before turning any prompt into work.
+4. `harness-experimental/specs/` for spec collaboration workspace (project and feature specs).
+5. `harness-experimental/docs/product/` for current product contracts.
+6. `harness-experimental/docs/ARCHITECTURE.md` before proposing implementation shape.
+7. `harness-experimental/docs/stories/` for story packets and backlog.
+8. `harness-experimental/docs/TEST_MATRIX.md` for proof status.
+9. `harness-experimental/docs/decisions/` for why important choices were made.
 
 ## Spec Workflow
 
-Specs live in `specs/` and follow a discussion-first workflow:
+Specs live in `harness-experimental/specs/` and follow a discussion-first workflow:
 
-- `specs/project/`: project-level spec. Human describes the project idea, agent
+- `harness-experimental/specs/project/`: project-level spec. Human describes the project idea, agent
   asks questions and proposes, both iterate until agreement. Agent then writes
   the final spec and runs Feature Intake to decompose it.
-- `specs/features/`: feature-level specs. Same discussion workflow per feature.
+- `harness-experimental/specs/features/`: feature-level specs. Same discussion workflow per feature.
   Agent does not implement until the spec status reaches `Agreed`.
 
 Each directory contains a `README.md` with the template and detailed workflow.
@@ -39,11 +39,11 @@ decisions become the living contract that agents update as the system evolves.
 
 For every task:
 
-1. Classify the request with `docs/FEATURE_INTAKE.md`.
+1. Classify the request with `harness-experimental/docs/FEATURE_INTAKE.md`.
 2. Identify whether the input is a new spec, spec slice, change request, new
    initiative, maintenance request, or harness improvement.
 3. Locate the affected product docs and story files.
-4. Check `docs/TEST_MATRIX.md` for existing proof and gaps.
+4. Check `harness-experimental/docs/TEST_MATRIX.md` for existing proof and gaps.
 5. Work only inside the selected lane: tiny, normal, or high-risk.
 6. Before finishing, ask:
    - Did product truth change?
@@ -52,14 +52,14 @@ For every task:
    - Did we discover a repeated failure pattern?
    - Did the next agent need a clearer instruction?
 7. Update routine harness files directly, or add a proposal to
-   `docs/HARNESS_BACKLOG.md` when the change is structural.
+   `harness-experimental/docs/HARNESS_BACKLOG.md` when the change is structural.
 
 ## Harness Change Policy
 
 Agents may update directly:
 
 - Story status and evidence.
-- `docs/TEST_MATRIX.md` rows.
+- `harness-experimental/docs/TEST_MATRIX.md` rows.
 - Links from story packets to product docs.
 - Validation notes and reports.
 - Small clarifications tied to the current task.
@@ -79,5 +79,5 @@ A task is done only when:
 - The requested change is completed or the blocker is documented.
 - Relevant docs, stories, and test matrix entries remain current.
 - Validation commands were run when they exist.
-- Missing harness capabilities were added to `docs/HARNESS_BACKLOG.md`.
+- Missing harness capabilities were added to `harness-experimental/docs/HARNESS_BACKLOG.md`.
 - The final response says what changed and what was not attempted.

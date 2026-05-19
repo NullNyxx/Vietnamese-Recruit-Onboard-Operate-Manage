@@ -23,10 +23,10 @@ future user-provided spec.
 
 ## Spec Workspace
 
-Spec collaboration lives in `specs/` (sibling to `docs/`):
+Spec collaboration lives in `harness-experimental/specs/` (sibling to `harness-experimental/docs/`):
 
-- `specs/project/`: project-level spec template and output.
-- `specs/features/`: feature-level spec templates and outputs.
+- `harness-experimental/specs/project/`: project-level spec template and output.
+- `harness-experimental/specs/features/`: feature-level spec templates and outputs.
 
 See each directory's `README.md` for workflow and template details.
 
