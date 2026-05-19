@@ -35,6 +35,12 @@ class AuthSettings(BaseSettings):
 
     model_config = SettingsConfigDict(env_prefix="AUTH_")
 
+    # Database
+    database_url: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/vroom_hr"
+
+    # Redis
+    redis_url: str = "redis://localhost:6379/0"
+
     # Google OAuth2
     google_client_id: str
     google_client_secret: str

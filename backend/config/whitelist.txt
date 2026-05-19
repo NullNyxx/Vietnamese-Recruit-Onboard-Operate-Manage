@@ -1,0 +1,6 @@
+# Email whitelist for Vroom HR
+# One email per line. Lines starting with # are comments.
+# Case-insensitive matching.
+
+# Add authorized HR emails below:
+nthengoc.dev@gmail.com

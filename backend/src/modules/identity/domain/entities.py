@@ -7,7 +7,7 @@ that map to PostgreSQL tables used for authentication and authorization.
 from datetime import UTC, datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Column, String
+from sqlalchemy import Column, DateTime, String
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlmodel import Field, SQLModel
 
@@ -28,10 +28,12 @@ class User(SQLModel, table=True):
     avatar_url: str | None = Field(default=None)
     google_sub: str = Field(max_length=255, unique=True, nullable=False, index=True)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), nullable=False
+        default_factory=lambda: datetime.now(UTC),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     last_login: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), nullable=False
+        default_factory=lambda: datetime.now(UTC),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     is_active: bool = Field(default=True, nullable=False)
 
@@ -54,13 +56,17 @@ class OAuthGrant(SQLModel, table=True):
     scopes: list[str] = Field(
         sa_column=Column(ARRAY(String), nullable=False)
     )
-    token_expires_at: datetime = Field(nullable=False)
+    token_expires_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False),
+    )
     is_valid: bool = Field(default=True, nullable=False)
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), nullable=False
+        default_factory=lambda: datetime.now(UTC),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), nullable=False
+        default_factory=lambda: datetime.now(UTC),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
 
 
@@ -77,9 +83,15 @@ class RefreshToken(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(foreign_key="users.id", nullable=False, index=True)
     token_hash: str = Field(max_length=64, unique=True, nullable=False, index=True)
-    expires_at: datetime = Field(nullable=False)
-    revoked_at: datetime | None = Field(default=None)
+    expires_at: datetime = Field(
+        sa_column=Column(DateTime(timezone=True), nullable=False),
+    )
+    revoked_at: datetime | None = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )
     created_at: datetime = Field(
-        default_factory=lambda: datetime.now(UTC), nullable=False
+        default_factory=lambda: datetime.now(UTC),
+        sa_column=Column(DateTime(timezone=True), nullable=False),
     )
     user_agent: str | None = Field(default=None)

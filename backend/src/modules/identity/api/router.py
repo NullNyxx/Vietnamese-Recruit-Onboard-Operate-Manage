@@ -8,18 +8,23 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import APIRouter, Cookie, Depends, Request, Response
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 
 from src.modules.identity.api.schemas import GrantStatusResponse, UserResponse
 from src.modules.identity.application.auth_service import AuthService
 from src.modules.identity.application.oauth_service import OAuthService
 from src.modules.identity.application.token_service import TokenService
-from src.modules.identity.domain.entities import User
-from src.modules.identity.domain.exceptions import (
-    InvalidTokenError,
-    RateLimitExceededError,
+from src.modules.identity.container import (
+    get_auth_service,
+    get_current_user,
+    get_oauth_service,
+    get_rate_limiter,
+    get_settings,
+    get_token_service,
 )
+from src.modules.identity.domain.entities import User
+from src.modules.identity.domain.exceptions import InvalidTokenError, RateLimitExceededError
 from src.modules.identity.infrastructure.config import AuthSettings
 from src.modules.identity.infrastructure.rate_limiter import RateLimiter
 
@@ -29,91 +34,6 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 _ACCESS_TOKEN_MAX_AGE = 15 * 60  # 15 minutes
 _REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
 _CODE_VERIFIER_MAX_AGE = 10 * 60  # 10 minutes
-
-
-# ---------------------------------------------------------------------------
-# Placeholder dependency functions
-# ---------------------------------------------------------------------------
-# These will be wired up to real instances via FastAPI's dependency override
-# or a proper DI container in a later task.
-
-
-async def get_auth_service() -> AuthService:
-    """Provide the AuthService instance.
-
-    Returns:
-        The AuthService singleton for the application.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("AuthService dependency not wired")
-
-
-async def get_token_service() -> TokenService:
-    """Provide the TokenService instance.
-
-    Returns:
-        The TokenService singleton for the application.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("TokenService dependency not wired")
-
-
-async def get_oauth_service() -> OAuthService:
-    """Provide the OAuthService instance.
-
-    Returns:
-        The OAuthService singleton for the application.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("OAuthService dependency not wired")
-
-
-async def get_rate_limiter() -> RateLimiter:
-    """Provide the RateLimiter instance.
-
-    Returns:
-        The RateLimiter singleton for the application.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("RateLimiter dependency not wired")
-
-
-async def get_settings() -> AuthSettings:
-    """Provide the AuthSettings instance.
-
-    Returns:
-        The AuthSettings loaded from environment variables.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("AuthSettings dependency not wired")
-
-
-async def get_current_user(request: Request) -> User:
-    """Extract and validate the current authenticated user from the request.
-
-    Reads the JWT access token from the ``access_token`` cookie, decodes
-    and validates it, then looks up the corresponding user.
-
-    Args:
-        request: The incoming FastAPI request object.
-
-    Returns:
-        The authenticated User entity.
-
-    Raises:
-        NotImplementedError: Placeholder until DI wiring is complete.
-    """
-    raise NotImplementedError("get_current_user dependency not wired")
 
 
 # ---------------------------------------------------------------------------
@@ -220,7 +140,12 @@ async def callback(
     if not allowed:
         raise RateLimitExceededError()
 
-    auth_result = await auth_service.handle_callback(code=code, state=state)
+    # Retrieve the PKCE code_verifier from the cookie set during login.
+    code_verifier = request.cookies.get("code_verifier", "")
+
+    auth_result = await auth_service.handle_callback(
+        code=code, state=state, code_verifier=code_verifier
+    )
 
     response = RedirectResponse(url=settings.frontend_url, status_code=302)
 
