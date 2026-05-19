@@ -26,6 +26,8 @@ node_modules/
 .next/
 out/
 *.tsbuildinfo
+package-lock.json
+pnpm-workspace.yaml
 
 # ---- Logs ----
 *.log
