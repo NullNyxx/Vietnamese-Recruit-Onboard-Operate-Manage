@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowLeft, Reply } from "lucide-react";
+import { ArrowLeft, Reply, ChevronDown, ChevronUp } from "lucide-react";
 import type { EmailMessage, MessageBodyResponse } from "@/lib/api/types";
 import { ApiError } from "@/lib/api/types";
 import { getMessageBody } from "@/lib/api/gmail";
@@ -36,22 +36,12 @@ function formatDetailDate(isoDate: string): string {
 
 function EmailDetailSkeleton() {
   return (
-    <div className="animate-pulse p-6">
-      {/* Metadata skeleton */}
-      <div className="mb-6 space-y-3">
-        <div className="h-6 w-3/4 rounded bg-gray-200" />
-        <div className="h-4 w-1/2 rounded bg-gray-200" />
-        <div className="h-4 w-1/3 rounded bg-gray-200" />
-        <div className="h-4 w-1/4 rounded bg-gray-100" />
-      </div>
-      {/* Body skeleton */}
-      <div className="space-y-2">
-        <div className="h-4 w-full rounded bg-gray-100" />
-        <div className="h-4 w-full rounded bg-gray-100" />
-        <div className="h-4 w-5/6 rounded bg-gray-100" />
-        <div className="h-4 w-4/6 rounded bg-gray-100" />
-        <div className="h-4 w-full rounded bg-gray-100" />
-        <div className="h-4 w-3/4 rounded bg-gray-100" />
+    <div className="flex h-full items-center justify-center">
+      <div className="animate-pulse space-y-3 w-full max-w-md px-6">
+        <div className="h-4 w-3/4 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="h-4 w-full rounded bg-gray-100 dark:bg-gray-600" />
+        <div className="h-4 w-5/6 rounded bg-gray-100 dark:bg-gray-600" />
+        <div className="h-4 w-2/3 rounded bg-gray-100 dark:bg-gray-600" />
       </div>
     </div>
   );
@@ -65,6 +55,7 @@ export function EmailDetail({ email, onBack, onReply }: EmailDetailProps) {
   const [body, setBody] = React.useState<MessageBodyResponse | null>(null);
   const [bodyLoading, setBodyLoading] = React.useState(false);
   const [bodyError, setBodyError] = React.useState<string | null>(null);
+  const [headerExpanded, setHeaderExpanded] = React.useState(false);
 
   // Fetch email body when email changes
   React.useEffect(() => {
@@ -108,6 +99,11 @@ export function EmailDetail({ email, onBack, onReply }: EmailDetailProps) {
     };
   }, [email]);
 
+  // Collapse header when switching emails
+  React.useEffect(() => {
+    setHeaderExpanded(false);
+  }, [email?.id]);
+
   // Retry handler for 502 errors
   function handleRetry() {
     if (!email) return;
@@ -136,7 +132,7 @@ export function EmailDetail({ email, onBack, onReply }: EmailDetailProps) {
   if (!email) {
     return (
       <div className="flex h-full items-center justify-center p-8">
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Chọn một email để xem nội dung
         </p>
       </div>
@@ -145,74 +141,93 @@ export function EmailDetail({ email, onBack, onReply }: EmailDetailProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      {/* Top bar: Back button (mobile) + Reply button */}
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <button
-          type="button"
-          onClick={onBack}
-          className="flex items-center gap-1 text-sm text-gray-600 hover:text-gray-900 lg:hidden"
-          aria-label="Quay lại"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Quay lại</span>
-        </button>
+      {/* Compact header: subject + sender + actions */}
+      <div className="shrink-0 border-b border-gray-200 dark:border-gray-700 px-4 py-3">
+        {/* Row 1: Back (mobile) + Subject + Reply */}
+        <div className="flex items-start gap-3">
+          <button
+            type="button"
+            onClick={onBack}
+            className="mt-0.5 shrink-0 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 lg:hidden"
+            aria-label="Quay lại"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
 
-        <button
-          type="button"
-          onClick={() => onReply(email)}
-          className="ml-auto flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
-        >
-          <Reply className="h-4 w-4" />
-          <span>Trả lời</span>
-        </button>
-      </div>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+              {email.subject}
+            </h2>
 
-      {/* Email metadata header */}
-      <div className="border-b px-6 py-4">
-        {/* Subject */}
-        <h2 className="text-lg font-semibold text-gray-900">
-          {email.subject}
-        </h2>
+            {/* Row 2: Sender info (compact) */}
+            <div className="mt-1 flex items-center gap-2 text-sm">
+              <span className="font-medium text-gray-700 dark:text-gray-300">
+                {email.sender_name}
+              </span>
+              <span className="text-gray-400 dark:text-gray-500">·</span>
+              <span className="text-gray-500 dark:text-gray-400 text-xs">
+                {formatDetailDate(email.received_at)}
+              </span>
 
-        {/* Sender */}
-        <div className="mt-2 text-sm text-gray-700">
-          <span className="font-medium">{email.sender_name}</span>
-          <span className="ml-1 text-gray-500">
-            &lt;{email.sender_email}&gt;
-          </span>
-        </div>
+              {/* Expand/collapse details */}
+              <button
+                type="button"
+                onClick={() => setHeaderExpanded(!headerExpanded)}
+                className="ml-1 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300"
+                aria-label={headerExpanded ? "Thu gọn chi tiết" : "Xem chi tiết"}
+              >
+                {headerExpanded ? (
+                  <ChevronUp className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+              </button>
+            </div>
 
-        {/* Recipients */}
-        <div className="mt-1 text-sm text-gray-600">
-          <span className="font-medium">Đến: </span>
-          <span>{email.recipient_emails.join(", ")}</span>
-        </div>
-
-        {/* CC (if present) */}
-        {email.cc_emails.length > 0 && (
-          <div className="mt-1 text-sm text-gray-600">
-            <span className="font-medium">CC: </span>
-            <span>{email.cc_emails.join(", ")}</span>
+            {/* Expanded details */}
+            {headerExpanded && (
+              <div className="mt-2 space-y-0.5 text-xs text-gray-500 dark:text-gray-400">
+                <div>
+                  <span className="text-gray-600 dark:text-gray-300">Từ: </span>
+                  {email.sender_name} &lt;{email.sender_email}&gt;
+                </div>
+                <div>
+                  <span className="text-gray-600 dark:text-gray-300">Đến: </span>
+                  {email.recipient_emails.join(", ")}
+                </div>
+                {email.cc_emails.length > 0 && (
+                  <div>
+                    <span className="text-gray-600 dark:text-gray-300">CC: </span>
+                    {email.cc_emails.join(", ")}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
 
-        {/* Date */}
-        <div className="mt-1 text-sm text-gray-500">
-          {formatDetailDate(email.received_at)}
+          {/* Reply button */}
+          <button
+            type="button"
+            onClick={() => onReply(email)}
+            className="shrink-0 flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 transition-colors"
+          >
+            <Reply className="h-4 w-4" />
+            <span className="hidden sm:inline">Trả lời</span>
+          </button>
         </div>
       </div>
 
-      {/* Email body */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Email body — takes all remaining space */}
+      <div className="flex-1 overflow-y-auto min-h-0">
         {bodyLoading && <EmailDetailSkeleton />}
 
         {bodyError && (
-          <div className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-            <p className="text-sm text-red-600">{bodyError}</p>
+          <div className="flex flex-col items-center justify-center gap-3 p-8 text-center h-full">
+            <p className="text-sm text-red-600 dark:text-red-400">{bodyError}</p>
             <button
               type="button"
               onClick={handleRetry}
-              className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="rounded-md border border-gray-300 dark:border-gray-600 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               Thử lại
             </button>
@@ -220,38 +235,28 @@ export function EmailDetail({ email, onBack, onReply }: EmailDetailProps) {
         )}
 
         {!bodyLoading && !bodyError && body && (
-          <div className="p-6">
+          <>
             {body.html ? (
               <iframe
                 srcDoc={body.html}
                 sandbox=""
                 title="Nội dung email"
-                className="w-full border-0"
-                style={{ minHeight: "300px" }}
-                onLoad={(e) => {
-                  // Auto-resize iframe to fit content
-                  const iframe = e.currentTarget;
-                  try {
-                    const height =
-                      iframe.contentDocument?.documentElement?.scrollHeight;
-                    if (height) {
-                      iframe.style.height = `${height}px`;
-                    }
-                  } catch {
-                    // Cross-origin restrictions may prevent access
-                  }
-                }}
+                className="h-full w-full border-0"
               />
             ) : body.plain_text ? (
-              <pre className="whitespace-pre-wrap break-words text-sm text-gray-800 font-sans">
-                {body.plain_text}
-              </pre>
+              <div className="p-5">
+                <pre className="whitespace-pre-wrap break-words text-sm text-gray-800 dark:text-gray-200 font-sans leading-relaxed">
+                  {body.plain_text}
+                </pre>
+              </div>
             ) : (
-              <p className="text-sm text-gray-500 italic">
-                Không có nội dung email
-              </p>
+              <div className="flex h-full items-center justify-center">
+                <p className="text-sm text-gray-500 dark:text-gray-400 italic">
+                  Không có nội dung email
+                </p>
+              </div>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>

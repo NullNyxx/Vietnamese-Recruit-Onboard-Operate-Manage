@@ -60,8 +60,9 @@ function GmailPageContent() {
     [emails, selectedEmailId]
   );
 
-  // --- Error handler ---
-  const handleApiError = React.useCallback(
+  // --- Error handler (stable ref to avoid re-render loops) ---
+  const handleApiErrorRef = React.useRef<(err: unknown) => void>(() => {});
+  handleApiErrorRef.current = React.useCallback(
     (err: unknown) => {
       if (err instanceof ApiError) {
         if (err.statusCode === 401) {
@@ -75,6 +76,10 @@ function GmailPageContent() {
     },
     [addToast]
   );
+
+  const handleApiError = React.useCallback((err: unknown) => {
+    handleApiErrorRef.current(err);
+  }, []);
 
   // --- Fetch connection status ---
   const fetchStatus = React.useCallback(async () => {
@@ -238,10 +243,10 @@ function GmailPageContent() {
   const isConnected = connectionStatus === "connected";
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col">
+    <div className="gmail-fullbleed flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b px-4 py-3 sm:px-6">
-        <h1 className="text-xl font-semibold text-gray-900">Gmail</h1>
+      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Gmail</h1>
         {isConnected && (
           <SyncIndicator
             onSyncComplete={handleSyncComplete}
@@ -275,14 +280,14 @@ function GmailPageContent() {
 
           {/* Left panel: Email List */}
           <div
-            className={`flex flex-col border-r ${
+            className={`flex flex-col border-r border-gray-200 dark:border-gray-700 ${
               selectedEmailId
                 ? "hidden lg:flex"
                 : "flex"
             } w-full lg:w-[380px] lg:shrink-0`}
           >
             {/* Connection status bar (compact, when connected) */}
-            <div className="border-b px-3 py-2">
+            <div className="border-b border-gray-200 dark:border-gray-700 px-3 py-2">
               <ConnectionPanel
                 status={connectionStatus}
                 email={connectedEmail}
@@ -323,27 +328,10 @@ function GmailPageContent() {
                   onBack={handleBack}
                   onReply={handleReply}
                 />
-
-                {/* Label Manager */}
-                {selectedEmail.label_ids.length > 0 && (
-                  <div className="border-t px-6 py-3">
-                    <LabelManager
-                      messageId={selectedEmail.gmail_message_id}
-                      labelIds={selectedEmail.label_ids}
-                      onLabelsChange={handleLabelsChange}
-                    />
-                  </div>
-                )}
-
-                {/* Attachment Viewer */}
-                <AttachmentViewer
-                  messageId={selectedEmail.gmail_message_id}
-                  hasAttachments={selectedEmail.has_attachments}
-                />
               </div>
             ) : (
               <div className="flex h-full items-center justify-center">
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   Chọn một email để xem nội dung
                 </p>
               </div>

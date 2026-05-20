@@ -10,10 +10,10 @@
 // ---------------------------------------------------------------------------
 
 export const LABEL_COLORS: Record<string, { bg: string; text: string }> = {
-  processed: { bg: "bg-gray-100", text: "text-gray-700" },
-  recruitment: { bg: "bg-blue-100", text: "text-blue-700" },
-  interview: { bg: "bg-orange-100", text: "text-orange-700" },
-  onboarding: { bg: "bg-green-100", text: "text-green-700" },
+  processed: { bg: "bg-gray-100 dark:bg-gray-700", text: "text-gray-700 dark:text-gray-300" },
+  recruitment: { bg: "bg-blue-100 dark:bg-blue-900/40", text: "text-blue-700 dark:text-blue-300" },
+  interview: { bg: "bg-orange-100 dark:bg-orange-900/40", text: "text-orange-700 dark:text-orange-300" },
+  onboarding: { bg: "bg-green-100 dark:bg-green-900/40", text: "text-green-700 dark:text-green-300" },
 };
 
 // ---------------------------------------------------------------------------

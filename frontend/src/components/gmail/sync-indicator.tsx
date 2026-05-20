@@ -142,8 +142,8 @@ export function SyncIndicator({
         className={cn(
           "inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors",
           isDisabled
-            ? "cursor-not-allowed border-gray-200 bg-gray-50 text-gray-400"
-            : "border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+            ? "cursor-not-allowed border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-400 dark:text-gray-500"
+            : "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
         )}
         aria-label="Đồng bộ email"
       >
@@ -158,7 +158,7 @@ export function SyncIndicator({
       </button>
 
       {successMessage && (
-        <span className="text-sm text-green-600">{successMessage}</span>
+        <span className="text-sm text-green-600 dark:text-green-400">{successMessage}</span>
       )}
     </div>
   );

@@ -1,0 +1,18 @@
+# Development overrides — auto-merged by Docker Compose.
+# Enables hot-reload for both frontend and backend without rebuilding.
+services:
+  frontend:
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    environment:
+      - WATCHPACK_POLLING=true
+
+  backend:
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
+      - ./backend/config:/app/config
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src"

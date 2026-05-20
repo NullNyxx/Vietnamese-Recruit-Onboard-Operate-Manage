@@ -40,16 +40,16 @@ function EmailListSkeleton() {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="animate-pulse rounded-lg border bg-white p-4"
+          className="animate-pulse rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
         >
           <div className="flex items-center justify-between">
-            <div className="h-4 w-32 rounded bg-gray-200" />
-            <div className="h-3 w-16 rounded bg-gray-200" />
+            <div className="h-4 w-32 rounded bg-gray-200 dark:bg-gray-700" />
+            <div className="h-3 w-16 rounded bg-gray-200 dark:bg-gray-700" />
           </div>
-          <div className="mt-2 h-4 w-48 rounded bg-gray-200" />
-          <div className="mt-2 h-3 w-full rounded bg-gray-100" />
+          <div className="mt-2 h-4 w-48 rounded bg-gray-200 dark:bg-gray-700" />
+          <div className="mt-2 h-3 w-full rounded bg-gray-100 dark:bg-gray-600" />
           <div className="mt-2 flex gap-1">
-            <div className="h-5 w-16 rounded bg-gray-100" />
+            <div className="h-5 w-16 rounded bg-gray-100 dark:bg-gray-600" />
           </div>
         </div>
       ))}
@@ -87,7 +87,7 @@ export function EmailList({
   if (sortedEmails.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-sm text-gray-500">Không có email nào</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Không có email nào</p>
       </div>
     );
   }
@@ -108,39 +108,40 @@ export function EmailList({
             type="button"
             onClick={() => onSelect(email.id)}
             className={cn(
-              "w-full rounded-lg border p-3 text-left transition-colors hover:bg-gray-50",
+              "w-full rounded-lg border p-3 text-left transition-colors",
+              "hover:bg-gray-50 dark:hover:bg-gray-700",
               isSelected
-                ? "border-blue-300 bg-blue-50"
-                : "border-gray-200 bg-white"
+                ? "border-blue-300 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
+                : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
             )}
           >
             {/* Header: sender + date */}
             <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0 flex-1">
-                <span className="truncate text-sm font-medium text-gray-900">
+              <div className="min-w-0 flex-1 truncate">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {email.sender_name}
                 </span>
-                <span className="ml-1 truncate text-xs text-gray-500">
+                <span className="ml-1 text-xs text-gray-500 dark:text-gray-400 hidden sm:inline">
                   &lt;{email.sender_email}&gt;
                 </span>
               </div>
               <div className="flex shrink-0 items-center gap-1">
                 {email.has_attachments && (
-                  <Paperclip className="h-3.5 w-3.5 text-gray-400" />
+                  <Paperclip className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" />
                 )}
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                   {formatRelativeDate(email.received_at)}
                 </span>
               </div>
             </div>
 
             {/* Subject */}
-            <p className="mt-1 truncate text-sm font-medium text-gray-800">
+            <p className="mt-1 truncate text-sm font-medium text-gray-800 dark:text-gray-200">
               {email.subject}
             </p>
 
             {/* Snippet */}
-            <p className="mt-0.5 text-xs text-gray-500 line-clamp-2">
+            <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400 line-clamp-2">
               {truncateSnippet(email.snippet)}
             </p>
 
