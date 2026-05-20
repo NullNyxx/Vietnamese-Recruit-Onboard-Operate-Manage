@@ -5,13 +5,14 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Building2, Briefcase } from "lucide-react";
+import { LayoutDashboard, Users, Building2, Briefcase, Mail } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/employees", label: "Employees", icon: Users },
   { href: "/settings/departments", label: "Departments", icon: Building2 },
   { href: "/settings/positions", label: "Positions", icon: Briefcase },
+  { href: "/gmail", label: "Gmail", icon: Mail },
 ];
 
 export default function DashboardLayout({

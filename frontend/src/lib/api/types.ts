@@ -86,3 +86,95 @@ export interface PositionCreateData {
   name: string;
   department_id?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Gmail Integration Types
+// ---------------------------------------------------------------------------
+
+export type ConnectionStatus = "connected" | "disconnected" | "token_expired";
+
+export interface ConnectionStatusResponse {
+  status: ConnectionStatus;
+  email: string | null;
+}
+
+export interface ConnectResponse {
+  status: ConnectionStatus | null;
+  redirect_url: string | null;
+}
+
+export interface EmailMessage {
+  id: string;
+  gmail_message_id: string;
+  gmail_thread_id: string;
+  subject: string;
+  sender_email: string;
+  sender_name: string;
+  recipient_emails: string[];
+  cc_emails: string[];
+  received_at: string; // ISO datetime
+  snippet: string;
+  label_ids: string[];
+  has_attachments: boolean;
+}
+
+export interface MessageBodyResponse {
+  plain_text: string | null;
+  html: string | null;
+}
+
+export interface SendEmailRequest {
+  to: string[];
+  cc?: string[];
+  subject: string;
+  body_html?: string;
+  body_text?: string;
+  reply_to_message_id?: string;
+}
+
+export interface SendEmailResponse {
+  message_id: string;
+  thread_id: string;
+}
+
+export interface LabelRemoveRequest {
+  label_name: string;
+}
+
+export interface SyncResponse {
+  synced_count: number;
+  status: string;
+}
+
+export interface AttachmentMetadata {
+  attachment_id: string;
+  filename: string;
+  mime_type: string;
+  size_bytes: number;
+}
+
+export interface AttachmentsResponse {
+  fetched_count: number;
+  skipped_count: number;
+  total_count: number;
+  attachments: AttachmentMetadata[];
+}
+
+export class ApiError extends Error {
+  public statusCode: number;
+  public errorCode: string;
+  public details?: Record<string, unknown>;
+
+  constructor(
+    statusCode: number,
+    errorCode: string,
+    message: string,
+    details?: Record<string, unknown>
+  ) {
+    super(message);
+    this.name = "ApiError";
+    this.statusCode = statusCode;
+    this.errorCode = errorCode;
+    this.details = details;
+  }
+}

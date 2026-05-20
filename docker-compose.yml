@@ -39,6 +39,7 @@ services:
     environment:
       AUTH_DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/vroom_hr
       AUTH_REDIS_URL: redis://redis:6379/0
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/vroom_hr
     volumes:
       - ./backend/config:/app/config
     depends_on:

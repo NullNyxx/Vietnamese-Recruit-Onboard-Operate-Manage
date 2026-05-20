@@ -97,6 +97,30 @@ class OAuthGrantRepository:
         await self.session.flush()
         return new_grant
 
+    async def get_all_valid_with_scopes(self, required_scopes: list[str]) -> list[OAuthGrant]:
+        """Retrieve all valid OAuth grants that contain the specified scopes.
+
+        Used by the ARQ worker to find all users with active Gmail connections.
+
+        Args:
+            required_scopes: List of scope strings that must all be present.
+
+        Returns:
+            List of OAuthGrant entities matching the criteria.
+        """
+        statement = select(OAuthGrant).where(
+            OAuthGrant.is_valid == True,  # noqa: E712
+        )
+        result = await self.session.execute(statement)
+        grants = result.scalars().all()
+
+        # Filter in Python since ARRAY containment varies by dialect
+        return [
+            grant
+            for grant in grants
+            if all(scope in grant.scopes for scope in required_scopes)
+        ]
+
     async def mark_invalid(self, user_id: UUID) -> None:
         """Mark the user's OAuth grant as invalid.
 

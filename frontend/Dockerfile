@@ -7,9 +7,9 @@ RUN corepack enable
 WORKDIR /app
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml* ./
+COPY package.json pnpm-lock.yaml* .npmrc* ./
 
-# Install dependencies
+# Install dependencies (--ignore-scripts is safe for this project)
 RUN pnpm install --ignore-scripts
 
 # Copy application code
