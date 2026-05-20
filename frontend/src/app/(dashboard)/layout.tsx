@@ -1,81 +1,81 @@
 "use client";
 
-import { useCallback } from "react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { LayoutDashboard, Users, Building2, Briefcase, Mail } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search } from "lucide-react";
 
-const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/employees", label: "Employees", icon: Users },
-  { href: "/settings/departments", label: "Departments", icon: Building2 },
-  { href: "/settings/positions", label: "Positions", icon: Briefcase },
-  { href: "/gmail", label: "Gmail", icon: Mail },
-];
+import { AppSidebar } from "@/components/app-sidebar";
+import { MobileNav } from "@/components/mobile-nav";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { CommandBar } from "@/components/command-bar";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
+  const [commandOpen, setCommandOpen] = useState(false);
 
-  const handleLogout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.href = "/login";
+  // Register ⌘K / Ctrl+K keyboard shortcut
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+        e.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-border bg-white shadow-sm">
-        <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-primary-foreground">
-              <span className="text-sm font-bold">V</span>
-            </div>
-            <span className="text-lg font-semibold text-foreground">
-              Vroom HR
-            </span>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleLogout}
-            aria-label="Log out"
-          >
-            Logout
-          </Button>
-        </div>
-      </header>
-      <div className="flex">
-        <aside className="hidden w-64 border-r border-border bg-white md:block">
-          <nav className="flex flex-col gap-1 p-4">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = pathname === item.href || 
-                (item.href !== "/" && pathname.startsWith(item.href));
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                    isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
-        <main className="flex-1">{children}</main>
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Sidebar — hidden on mobile, fixed height */}
+      <div className="hidden md:block shrink-0">
+        <AppSidebar />
       </div>
+
+      {/* Main area */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        {/* Header */}
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          {/* Mobile menu trigger */}
+          <MobileNav />
+
+          {/* Breadcrumbs */}
+          <Breadcrumbs />
+
+          {/* Spacer */}
+          <div className="flex-1" />
+
+          {/* Command bar trigger */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden gap-2 text-muted-foreground sm:flex"
+            onClick={() => setCommandOpen(true)}
+            aria-label="Tìm kiếm (⌘K)"
+          >
+            <Search className="h-4 w-4" aria-hidden="true" />
+            <span className="text-xs">Tìm kiếm...</span>
+            <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
+              <span className="text-xs">⌘</span>K
+            </kbd>
+          </Button>
+
+          {/* Theme toggle */}
+          <ThemeToggle />
+        </header>
+
+        {/* Main content */}
+        <main className="relative flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 has-[.gmail-fullbleed]:p-0 has-[.gmail-fullbleed]:overflow-hidden">
+          {children}
+        </main>
+      </div>
+
+      {/* Command bar dialog */}
+      <CommandBar open={commandOpen} onOpenChange={setCommandOpen} />
     </div>
   );
 }
