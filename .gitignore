@@ -40,3 +40,6 @@ yarn-error.log*
 Thumbs.db
 .idea/
 *.swp
+
+# ---- MCP (local config) ----
+.mcp.json

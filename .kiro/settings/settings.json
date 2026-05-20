@@ -1,0 +1,21 @@
+{
+  "statusLine": {
+    "type": "command",
+    "command": "node .kiro/statusline.js"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": ".*",
+        "command": "node .kiro/hooks/scout-block.js"
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": ".*",
+        "command": "node .kiro/hooks/modularization-hook.js"
+      }
+    ]
+  },
+  "includeCoAuthoredBy": false
+}
