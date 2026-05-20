@@ -78,9 +78,69 @@ backend/src/modules/{module_name}/
 | Docs | `docs/` (GIT_WORKFLOW, TECH_STACK, GETTING_STARTED) |
 | Harness docs | `harness-experimental/docs/` |
 
+## Package Managers
+
+### Backend — uv
+
+- **LUÔN dùng `uv`** thay vì `pip`, `pip install`, `pip freeze`
+- Thêm dependency: `uv add <package>`
+- Thêm dev dependency: `uv add --dev <package>`
+- Chạy script: `uv run python ...` hoặc `uv run pytest ...`
+- Sync dependencies: `uv sync`
+- Lock file: `uv.lock` (commit vào repo)
+- Config: `pyproject.toml` (section `[project]` + `[tool.uv]`)
+- **KHÔNG dùng**: `pip install`, `pip freeze`, `requirements.txt`, `poetry`
+
+### Frontend — pnpm
+
+- **LUÔN dùng `pnpm`** thay vì `npm`, `yarn`
+- Thêm dependency: `pnpm add <package>`
+- Thêm dev dependency: `pnpm add -D <package>`
+- Chạy script: `pnpm run <script>` hoặc `pnpm <script>`
+- Install dependencies: `pnpm install`
+- Lock file: `pnpm-lock.yaml` (commit vào repo)
+- **KHÔNG dùng**: `npm install`, `npm run`, `yarn add`, `yarn`
+
+### Khởi chạy dự án — Docker Compose
+
+- **LUÔN dùng Docker Compose** để khởi chạy và test dự án
+- Start toàn bộ: `docker compose up --build`
+- Start riêng service: `docker compose up --build backend`
+- Rebuild sau khi đổi code: `docker compose up --build`
+- Xem logs: `docker compose logs -f <service>`
+- Chạy migration: `docker compose exec backend uv run alembic upgrade head`
+- File config: `docker-compose.yml` (root)
+- **KHÔNG chạy trực tiếp** `uv run uvicorn ...` hay `pnpm dev` trên host — luôn qua Docker
+
+## Git Workflow
+
+### Khi user yêu cầu push code & tạo PR:
+
+1. Stage các file liên quan: `git add <files>`
+2. Commit với conventional commit message: `git commit -m "feat(module): mô tả ngắn"`
+3. Push lên nhánh feature: `git push -u origin <branch-name>`
+4. Tạo Pull Request bằng GitHub CLI: `gh pr create --title "..." --body "..."`
+   - Title ngắn gọn < 70 ký tự
+   - Body gồm: tóm tắt thay đổi, những gì đã test, ghi chú nếu có
+5. Thông báo cho user link PR để review
+
+### Khi user review done (merge xong):
+
+1. Chuyển về nhánh main: `git checkout main`
+2. Pull code mới nhất: `git pull origin main`
+3. Xoá nhánh feature local (nếu đã merge): `git branch -d <branch-name>`
+4. Thông báo cho user đã sẵn sàng cho task tiếp theo
+
+### Quy tắc:
+
+- **KHÔNG push trực tiếp lên main** — luôn qua PR
+- Branch naming: `feat/`, `fix/`, `refactor/`, `docs/` + tên ngắn gọn (ví dụ: `feat/gmail-integration`)
+- Commit message: conventional commits (feat, fix, refactor, docs, chore)
+- Mỗi PR chỉ chứa 1 feature/fix, không gộp nhiều thay đổi không liên quan
+
 ## Conventions
 
-- **Git**: Branch per feature (`feat/`, `fix/`, `refactor/`), conventional commits, PR to main
+- **Git**: Branch per feature, conventional commits, PR to main (xem chi tiết ở section Git Workflow)
 - **Python**: snake_case, Google docstrings, type hints mandatory, ruff + mypy
 - **TypeScript**: camelCase, strict mode, eslint
 - **Testing**: pytest + pytest-asyncio, testcontainers for integration
