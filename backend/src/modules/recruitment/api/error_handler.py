@@ -1,0 +1,91 @@
+"""Error handler for the Recruitment CV Pipeline module.
+
+Registers FastAPI exception handlers that catch domain-specific
+RecruitmentError exceptions and return consistent JSON error responses.
+
+Requirements: 6.8, 7.3-7.5, 8.2-8.5, 9.3, 9.5-9.7, 10.4-10.8,
+11.3, 11.5-11.6, 12.3, 12.5, 13.5-13.6, 14.3, 14.8
+"""
+
+from __future__ import annotations
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+from src.modules.recruitment.application.candidate_service import (
+    CandidateValidationError,
+)
+from src.modules.recruitment.application.review_service import (
+    ReviewValidationError,
+)
+from src.modules.recruitment.domain.exceptions import RecruitmentError
+
+
+def register_recruitment_error_handlers(app: FastAPI) -> None:
+    """Register exception handlers for recruitment-related errors on the FastAPI app.
+
+    Adds handlers for:
+    - ``RecruitmentError`` base class (catches all domain exceptions)
+    - ``CandidateValidationError`` (422 with field-level details)
+    - ``ReviewValidationError`` (422 with field-level details)
+    - ``ValueError`` (422 for general validation errors)
+
+    Args:
+        app: The FastAPI application instance to register handlers on.
+    """
+
+    @app.exception_handler(RecruitmentError)
+    async def _recruitment_error_handler(
+        request: Request, exc: RecruitmentError
+    ) -> JSONResponse:
+        """Handle RecruitmentError exceptions and return a JSON error response."""
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={
+                "error_code": exc.error_code,
+                "message": exc.message,
+                "details": None,
+            },
+        )
+
+    @app.exception_handler(CandidateValidationError)
+    async def _candidate_validation_error_handler(
+        request: Request, exc: CandidateValidationError
+    ) -> JSONResponse:
+        """Handle CandidateValidationError with 422 and field-level details."""
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error_code": "CANDIDATE_VALIDATION_ERROR",
+                "message": "Candidate validation failed",
+                "details": {"errors": exc.errors},
+            },
+        )
+
+    @app.exception_handler(ReviewValidationError)
+    async def _review_validation_error_handler(
+        request: Request, exc: ReviewValidationError
+    ) -> JSONResponse:
+        """Handle ReviewValidationError with 422 and field-level details."""
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error_code": "REVIEW_VALIDATION_ERROR",
+                "message": "Review validation failed",
+                "details": {"errors": exc.errors},
+            },
+        )
+
+    @app.exception_handler(ValueError)
+    async def _value_error_handler(
+        request: Request, exc: ValueError
+    ) -> JSONResponse:
+        """Handle ValueError with 422 for general validation errors."""
+        return JSONResponse(
+            status_code=422,
+            content={
+                "error_code": "VALIDATION_ERROR",
+                "message": str(exc),
+                "details": None,
+            },
+        )
