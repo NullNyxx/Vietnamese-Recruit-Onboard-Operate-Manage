@@ -89,7 +89,10 @@ class LeaveRequest(SQLModel, table=True):
     reason: str | None = Field(default=None)
     status: str = Field(default="pending", max_length=20)
     approved_by: UUID | None = Field(default=None, foreign_key="users.id")
-    approved_at: datetime | None = Field(default=None)
+    approved_at: datetime | None = Field(
+        default=None,
+        sa_column=Column(DateTime(timezone=True), nullable=True),
+    )
     rejection_reason: str | None = Field(default=None)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),

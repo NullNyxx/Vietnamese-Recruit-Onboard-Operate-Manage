@@ -4,3 +4,4 @@
 
 # Add authorized HR emails below:
 nthengoc.dev@gmail.com
+hoangxuannguyen1234@gmail.com

@@ -160,8 +160,14 @@ class LeaveService:
         request.approved_at = datetime.now(UTC)
         request.updated_at = datetime.now(UTC)
 
-        updated = await self._request_repo.update(request)
-        await self._session.commit()
+        try:
+            updated = await self._request_repo.update(request)
+            await self._session.commit()
+        except Exception as exc:
+            await self._session.rollback()
+            import logging
+            logging.getLogger(__name__).error("approve_request commit failed: %s", exc, exc_info=True)
+            raise
         return updated
 
     async def reject_request(

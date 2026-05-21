@@ -146,10 +146,10 @@ export default function EmployeeDetailPage() {
         </Link>
       </div>
 
-      {/* Employee Details */}
+     {/* Employee Details */}
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Personal Info Card */}
-        <div className="rounded-md border border-border bg-white p-6">
+        <div className="rounded-md border border-border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold text-foreground">Personal Information</h2>
           <dl className="space-y-3">
             <DetailRow label="Full Name" value={employee.full_name} />
@@ -162,8 +162,9 @@ export default function EmployeeDetailPage() {
           </dl>
         </div>
 
+       
         {/* Employment Info Card */}
-        <div className="rounded-md border border-border bg-white p-6">
+        <div className="rounded-md border border-border bg-card p-6">
           <h2 className="mb-4 text-lg font-semibold text-foreground">Employment Information</h2>
           <dl className="space-y-3">
             <DetailRow label="Department" value={getDepartmentName(employee.department_id)} />
@@ -175,7 +176,7 @@ export default function EmployeeDetailPage() {
               label="Status"
               value={
                 <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  employee.is_active ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                  employee.is_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
                 }`}>
                   {employee.is_active ? "Active" : "Inactive"}
                 </span>
@@ -185,8 +186,9 @@ export default function EmployeeDetailPage() {
         </div>
       </div>
 
+
       {/* Documents Section */}
-      <div className="rounded-md border border-border bg-white p-6">
+      <div className="rounded-md border border-border bg-card p-6">
         <h2 className="mb-4 text-lg font-semibold text-foreground">Documents</h2>
 
         {/* Document List */}
