@@ -12,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
 from src.modules.identity.api.schemas import GoogleUserInfo
-from src.modules.identity.domain.entities import User
+from src.modules.identity.domain.entities import User, UserRole
 
 
 class UserRepository:
@@ -56,7 +56,7 @@ class UserRepository:
         result = await self.session.execute(statement)
         return result.scalars().first()
 
-    async def upsert(self, google_user_info: GoogleUserInfo) -> User:
+    async def upsert(self, google_user_info: GoogleUserInfo, role: UserRole | None = None) -> User:
         """Create a new user or update an existing one from Google profile data.
 
         If a user with the same email or google_sub already exists, updates
@@ -65,6 +65,8 @@ class UserRepository:
 
         Args:
             google_user_info: The user profile extracted from a Google ID token.
+            role: Optional role to assign to a newly created user. If None,
+                defaults to UserRole.USER. Ignored for existing users.
 
         Returns:
             The created or updated User entity.
@@ -86,12 +88,13 @@ class UserRepository:
             await self.session.flush()
             return existing_user
 
-        # Create new user
+        # Create new user with specified role (or default USER).
         new_user = User(
             email=google_user_info.email,
             name=google_user_info.name,
             avatar_url=google_user_info.picture,
             google_sub=google_user_info.sub,
+            role=role if role is not None else UserRole.USER,
         )
         self.session.add(new_user)
         await self.session.flush()

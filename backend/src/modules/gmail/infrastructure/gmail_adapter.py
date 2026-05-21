@@ -171,6 +171,19 @@ class GmailAdapter:
                     max_retries + 1,
                 )
                 await asyncio.sleep(base_delay * (2**attempt))
+            except (httpx.ConnectError, httpx.ConnectTimeout, OSError) as exc:
+                # Network/DNS errors are transient and retryable
+                if attempt == max_retries:
+                    raise GmailFetchError(
+                        f"Connection failed after {max_retries + 1} attempts: {exc}"
+                    ) from exc
+                logger.warning(
+                    "Connection error (attempt %d/%d): %s",
+                    attempt + 1,
+                    max_retries + 1,
+                    str(exc),
+                )
+                await asyncio.sleep(base_delay * (2**attempt))
             except httpx.HTTPStatusError as exc:
                 status_code = exc.response.status_code
 

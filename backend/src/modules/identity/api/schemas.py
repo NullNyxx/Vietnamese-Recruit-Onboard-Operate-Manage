@@ -5,9 +5,12 @@ internal services for structured data validation and serialization.
 """
 
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
+
+from src.modules.identity.domain.entities import UserRole, WhitelistEntryType
 
 
 class TokenPayload(BaseModel):
@@ -96,6 +99,7 @@ class UserResponse(BaseModel):
         email: The user's email address.
         name: The user's display name.
         avatar_url: URL to the user's avatar image, if available.
+        role: The user's role (admin or user).
         gmail_grant_valid: True if Gmail scopes are active.
         calendar_grant_valid: True if Calendar scope is active.
         created_at: When the user account was created.
@@ -108,6 +112,7 @@ class UserResponse(BaseModel):
     email: str
     name: str
     avatar_url: str | None = None
+    role: UserRole
     gmail_grant_valid: bool
     calendar_grant_valid: bool
     created_at: datetime
@@ -146,3 +151,144 @@ class LoginRedirect(BaseModel):
     redirect_url: str
     state_token: str
     code_verifier: str
+
+
+# --- Admin Whitelist Schemas ---
+
+
+class WhitelistAddRequest(BaseModel):
+    """Request schema for adding a whitelist entry.
+
+    The value can be either a full email address (e.g., user@example.com)
+    or a domain pattern (e.g., @example.com). The entry type is auto-detected
+    from the value format.
+
+    Attributes:
+        value: The email address or domain pattern to whitelist.
+    """
+
+    value: str = Field(
+        ...,
+        min_length=3,
+        max_length=255,
+        description="Email address or domain pattern (@domain.com) to whitelist",
+    )
+
+
+class WhitelistEntrySchema(BaseModel):
+    """Response schema for a single whitelist entry.
+
+    Represents a merged view of whitelist entries from both database
+    and file sources. File-based entries are marked as read-only.
+
+    Attributes:
+        id: Unique identifier (None for file-based entries).
+        value: The email or domain pattern value.
+        entry_type: Whether this is an exact email or domain pattern.
+        added_by_email: Email of the admin who added the entry.
+        created_at: When the entry was created (None for file-based).
+        source: Origin of the entry ('database' or 'file').
+        is_readonly: Whether the entry can be modified via the API.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID | None
+    value: str
+    entry_type: WhitelistEntryType
+    added_by_email: str
+    created_at: datetime | None
+    source: Literal["database", "file"]
+    is_readonly: bool
+
+
+class WhitelistEntryCreatedResponse(BaseModel):
+    """Response schema for a newly created whitelist entry.
+
+    Returned after successfully adding a new whitelist entry.
+
+    Attributes:
+        id: The unique identifier of the new entry.
+        value: The email or domain pattern value.
+        entry_type: The detected entry type.
+        created_at: When the entry was created.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    value: str
+    entry_type: WhitelistEntryType
+    created_at: datetime
+
+
+class WhitelistListResponse(BaseModel):
+    """Response schema for listing all whitelist entries.
+
+    Attributes:
+        items: The list of all whitelist entries (merged file + DB).
+        total: The total number of entries.
+    """
+
+    items: list[WhitelistEntrySchema]
+    total: int
+
+
+# --- Admin OAuth Config Schemas ---
+
+
+class OAuthConfigUpdateRequest(BaseModel):
+    """Request schema for updating OAuth credentials.
+
+    All fields are required. The client_secret is provided in plaintext
+    and will be encrypted before storage. The redirect_uri must be a
+    valid HTTP or HTTPS URL.
+
+    Attributes:
+        client_id: The OAuth client ID (must be non-empty).
+        client_secret: The OAuth client secret (plaintext).
+        redirect_uri: The OAuth redirect URI (must be a valid URL).
+    """
+
+    client_id: str = Field(
+        ...,
+        min_length=1,
+        max_length=255,
+        description="OAuth client ID",
+    )
+    client_secret: str = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="OAuth client secret (plaintext)",
+    )
+    redirect_uri: str = Field(
+        ...,
+        min_length=1,
+        max_length=500,
+        description="OAuth redirect URI (must be a valid URL)",
+    )
+
+
+class OAuthConfigResponse(BaseModel):
+    """Response schema for OAuth configuration with masked secret.
+
+    The client_secret is always masked, showing only the last 4 characters.
+    The source field indicates whether the config comes from the database
+    or from environment variables (fallback).
+
+    Attributes:
+        client_id: The OAuth client ID.
+        client_secret_masked: The masked client secret (e.g., '****abcd').
+        redirect_uri: The OAuth redirect URI.
+        updated_at: When the config was last updated (None for env source).
+        source: Origin of the config ('database' or 'environment').
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    client_id: str
+    client_secret_masked: str
+    redirect_uri: str
+    updated_at: datetime | None
+    source: str

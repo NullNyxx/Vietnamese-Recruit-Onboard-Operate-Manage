@@ -132,29 +132,29 @@ describe("getLabelCategory", () => {
 describe("LABEL_COLORS", () => {
   it("has correct colors for processed", () => {
     expect(LABEL_COLORS.processed).toEqual({
-      bg: "bg-gray-100",
-      text: "text-gray-700",
+      bg: "bg-gray-100 dark:bg-gray-700",
+      text: "text-gray-700 dark:text-gray-300",
     });
   });
 
   it("has correct colors for recruitment", () => {
     expect(LABEL_COLORS.recruitment).toEqual({
-      bg: "bg-blue-100",
-      text: "text-blue-700",
+      bg: "bg-blue-100 dark:bg-blue-900/40",
+      text: "text-blue-700 dark:text-blue-300",
     });
   });
 
   it("has correct colors for interview", () => {
     expect(LABEL_COLORS.interview).toEqual({
-      bg: "bg-orange-100",
-      text: "text-orange-700",
+      bg: "bg-orange-100 dark:bg-orange-900/40",
+      text: "text-orange-700 dark:text-orange-300",
     });
   });
 
   it("has correct colors for onboarding", () => {
     expect(LABEL_COLORS.onboarding).toEqual({
-      bg: "bg-green-100",
-      text: "text-green-700",
+      bg: "bg-green-100 dark:bg-green-900/40",
+      text: "text-green-700 dark:text-green-300",
     });
   });
 

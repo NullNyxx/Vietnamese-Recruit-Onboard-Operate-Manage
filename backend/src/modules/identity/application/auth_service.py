@@ -17,6 +17,7 @@ from urllib.parse import urlencode
 from jose import jwt as jose_jwt
 
 from src.modules.identity.api.schemas import GoogleUserInfo, GrantStatus, LoginRedirect
+from src.modules.identity.domain.entities import UserRole
 from src.modules.identity.domain.exceptions import AccessDeniedError, InvalidStateError
 from src.modules.identity.infrastructure.config import AuthSettings
 from src.modules.identity.infrastructure.crypto_utils import CryptoUtils
@@ -233,8 +234,12 @@ class AuthService:
         if not self._whitelist_service.is_allowed(user_info.email):
             raise AccessDeniedError()
 
-        # 5. Upsert user.
-        user = await self._user_repository.upsert(user_info)
+        # 5. Upsert user. Assign admin role if email matches super admin.
+        role = None
+        super_admin_email = self._settings.super_admin_email
+        if super_admin_email and user_info.email.lower() == super_admin_email.lower():
+            role = UserRole.ADMIN
+        user = await self._user_repository.upsert(user_info, role=role)
 
         # 6. Encrypt and store Google tokens.
         encrypted_access = self._crypto.encrypt(google_tokens.access_token)

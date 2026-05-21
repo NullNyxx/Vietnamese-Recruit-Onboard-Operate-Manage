@@ -12,6 +12,9 @@ const labelMap: Record<string, string> = {
   positions: "Chức vụ",
   gmail: "Gmail",
   new: "Thêm mới",
+  recruitment: "Tuyển dụng",
+  review: "Xem xét CV",
+  metrics: "Số liệu",
 };
 
 interface BreadcrumbItem {
@@ -29,7 +32,17 @@ export function Breadcrumbs() {
 
   segments.forEach((segment, index) => {
     const href = "/" + segments.slice(0, index + 1).join("/");
-    const label = labelMap[segment] ?? segment;
+    let label: string;
+
+    if (labelMap[segment]) {
+      label = labelMap[segment];
+    } else if (index > 0 && segments[index - 1] === "recruitment") {
+      // Dynamic [id] segment under /recruitment — show placeholder
+      label = "...";
+    } else {
+      label = segment;
+    }
+
     items.push({ label, href });
   });
 

@@ -62,6 +62,9 @@ class AuthSettings(BaseSettings):
     rate_limit_login_max: int = Field(default=5, gt=0)
     rate_limit_login_window_seconds: int = Field(default=60, gt=0)
 
+    # Super Admin
+    super_admin_email: str | None = None
+
     # Frontend
     frontend_url: str = "http://localhost:3000"
 

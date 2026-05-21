@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, LogOut } from "lucide-react";
 
 import { useSidebar } from "@/hooks/use-sidebar";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   Tooltip,
   TooltipContent,
@@ -14,7 +15,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { navItems } from "@/lib/navigation";
+import { navItems, adminNavSection } from "@/lib/navigation";
 
 interface AppSidebarProps {
   className?: string;
@@ -23,6 +24,8 @@ interface AppSidebarProps {
 export function AppSidebar({ className }: AppSidebarProps) {
   const { collapsed, toggle } = useSidebar();
   const pathname = usePathname();
+  const { user } = useCurrentUser();
+  const isAdmin = user?.role === "admin";
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
@@ -87,6 +90,53 @@ export function AppSidebar({ className }: AppSidebarProps) {
 
             return <div key={item.href}>{linkContent}</div>;
           })}
+
+          {/* Admin navigation section — only visible to admin users */}
+          {isAdmin && (
+            <>
+              <Separator className="my-3" />
+              {!collapsed && (
+                <div className="flex items-center gap-2 px-3 py-1">
+                  <adminNavSection.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {adminNavSection.title}
+                  </span>
+                </div>
+              )}
+              {adminNavSection.items.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+
+                const linkContent = (
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground hover:bg-muted",
+                      collapsed && "justify-center px-0"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    {!collapsed && <span>{item.label}</span>}
+                  </Link>
+                );
+
+                if (collapsed) {
+                  return (
+                    <Tooltip key={item.href}>
+                      <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+                      <TooltipContent side="right">
+                        {item.label}
+                      </TooltipContent>
+                    </Tooltip>
+                  );
+                }
+
+                return <div key={item.href}>{linkContent}</div>;
+              })}
+            </>
+          )}
         </nav>
 
         {/* Bottom section */}

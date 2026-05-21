@@ -272,6 +272,7 @@ async def me(
         email=current_user.email,
         name=current_user.name,
         avatar_url=current_user.avatar_url,
+        role=current_user.role,
         gmail_grant_valid=grant_status.gmail_grant_valid,
         calendar_grant_valid=grant_status.calendar_grant_valid,
         created_at=current_user.created_at,

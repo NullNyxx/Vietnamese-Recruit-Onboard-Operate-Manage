@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { FileSearch, BarChart3 } from "lucide-react";
 import {
   CommandDialog,
   CommandEmpty,
@@ -10,6 +11,18 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { navItems } from "@/lib/navigation";
+import type { LucideIcon } from "lucide-react";
+
+interface CommandBarItem {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+}
+
+const additionalItems: CommandBarItem[] = [
+  { href: "/recruitment/review", label: "Xem xét CV", icon: FileSearch },
+  { href: "/recruitment/metrics", label: "Số liệu Pipeline", icon: BarChart3 },
+];
 
 interface CommandBarProps {
   open: boolean;
@@ -19,13 +32,15 @@ interface CommandBarProps {
 export function CommandBar({ open, onOpenChange }: CommandBarProps) {
   const router = useRouter();
 
+  const allItems: CommandBarItem[] = [...navItems, ...additionalItems];
+
   return (
     <CommandDialog open={open} onOpenChange={onOpenChange}>
       <CommandInput placeholder="Tìm kiếm trang..." />
       <CommandList>
         <CommandEmpty>Không tìm thấy kết quả</CommandEmpty>
         <CommandGroup heading="Điều hướng">
-          {navItems.map((item) => (
+          {allItems.map((item) => (
             <CommandItem
               key={item.href}
               onSelect={() => {

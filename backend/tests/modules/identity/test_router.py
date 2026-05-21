@@ -110,6 +110,7 @@ def mock_current_user():
     user.email = "hr@example.com"
     user.name = "HR User"
     user.avatar_url = "https://example.com/avatar.png"
+    user.role = "user"
     user.created_at = datetime(2024, 1, 1, tzinfo=UTC)
     user.last_login = datetime(2024, 6, 15, tzinfo=UTC)
     return user

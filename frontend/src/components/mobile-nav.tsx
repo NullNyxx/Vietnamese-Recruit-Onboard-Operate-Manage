@@ -15,11 +15,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { navItems } from "@/lib/navigation";
+import { navItems, adminNavSection } from "@/lib/navigation";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const { user } = useCurrentUser();
+  const isAdmin = user?.role === "admin";
 
   const handleLogout = async () => {
     setOpen(false);
@@ -81,6 +84,39 @@ export function MobileNav() {
               </Link>
             );
           })}
+
+          {/* Admin navigation section — only visible to admin users */}
+          {isAdmin && (
+            <>
+              <Separator className="my-3" />
+              <div className="flex items-center gap-2 px-3 py-1">
+                <adminNavSection.icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  {adminNavSection.title}
+                </span>
+              </div>
+              {adminNavSection.items.map((item) => {
+                const isActive = pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "flex min-h-[44px] items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                        : "text-sidebar-foreground hover:bg-muted"
+                    )}
+                  >
+                    <item.icon className="h-5 w-5 shrink-0" aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </>
+          )}
         </nav>
 
         {/* Bottom section */}
