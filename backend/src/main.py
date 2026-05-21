@@ -7,6 +7,11 @@ load_dotenv()
 
 from fastapi import FastAPI
 
+from src.modules.attendance.api.attendance_router import attendance_router
+from src.modules.attendance.api.error_handler import register_attendance_error_handlers
+from src.modules.attendance.api.overtime_router import overtime_router
+from src.modules.attendance.api.router import leave_router
+from src.modules.attendance.api.schedule_router import schedule_router
 from src.modules.employee.api.error_handler import register_employee_error_handlers
 from src.modules.employee.api.router import router as employee_router
 from src.modules.gmail.api.error_handler import register_gmail_error_handlers
@@ -31,12 +36,17 @@ app.include_router(gmail_router)
 app.include_router(candidate_router)
 app.include_router(cv_review_router)
 app.include_router(metrics_router)
+app.include_router(leave_router)
+app.include_router(attendance_router)
+app.include_router(overtime_router)
+app.include_router(schedule_router)
 
 # Register exception handlers.
 register_auth_error_handlers(app)
 register_employee_error_handlers(app)
 register_gmail_error_handlers(app)
 register_recruitment_error_handlers(app)
+register_attendance_error_handlers(app)
 
 
 @app.get("/health")
