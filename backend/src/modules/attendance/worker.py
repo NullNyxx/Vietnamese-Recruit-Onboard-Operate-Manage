@@ -164,6 +164,67 @@ async def auto_mark_absent(ctx: dict) -> None:
             raise
 
 
+async def send_monthly_attendance_emails(ctx: dict) -> None:
+    """ARQ cron job: send monthly attendance report emails to all employees.
+
+    Runs on the 1st of each month at 08:00, sends the previous month's report.
+    Requires Gmail to be connected for the first user with valid grant.
+    """
+    session_maker: async_sessionmaker[AsyncSession] = ctx["session_maker"]
+
+    async with session_maker() as session:
+        try:
+            # Determine previous month
+            today = datetime.now(UTC).date()
+            if today.month == 1:
+                report_month = 12
+                report_year = today.year - 1
+            else:
+                report_month = today.month - 1
+                report_year = today.year
+
+            # Get the first user with valid Gmail grant (HR user)
+            user_result = await session.execute(
+                text(
+                    """
+                    SELECT user_id FROM oauth_grants
+                    WHERE is_valid = true
+                    LIMIT 1
+                    """
+                )
+            )
+            user_row = user_result.first()
+            if user_row is None:
+                logger.warning("No user with valid Gmail grant found, skipping email reports")
+                return
+
+            user_id = user_row[0]
+
+            from src.modules.attendance.application.email_report_service import EmailReportService
+
+            email_service = EmailReportService(session)
+            result = await email_service.send_monthly_reports(
+                month=report_month,
+                year=report_year,
+                user_id=user_id,
+            )
+
+            await session.commit()
+
+            logger.info(
+                "Monthly attendance email reports sent: %d/%d successful",
+                result["sent_count"],
+                result["total"],
+            )
+
+        except Exception:
+            logger.error(
+                "Unhandled exception in send_monthly_attendance_emails:\n%s",
+                traceback.format_exc(),
+            )
+            await session.rollback()
+
+
 # Load settings for worker configuration.
 _auth_settings = AuthSettings()  # type: ignore[call-arg]
 
@@ -181,6 +242,13 @@ class WorkerSettings:
         cron(
             auto_mark_absent,
             hour={23},
+            minute={0},
+            second={0},
+        ),
+        cron(
+            send_monthly_attendance_emails,
+            day={1},       # Ngày 1 hàng tháng
+            hour={8},      # 8 giờ sáng
             minute={0},
             second={0},
         ),

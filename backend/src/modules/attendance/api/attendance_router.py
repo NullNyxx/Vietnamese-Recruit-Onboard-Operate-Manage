@@ -216,3 +216,28 @@ async def export_attendance(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@attendance_router.post("/send-reports")
+async def send_monthly_reports(
+    current_user: CurrentUserDep,
+    session: DbSessionDep,
+    year: int = Query(default=2026, ge=2020, le=2100),
+    month: int = Query(default=5, ge=1, le=12),
+) -> dict:
+    """Send monthly attendance report emails to all employees.
+
+    Sends an HTML email to each active employee with their attendance
+    summary and daily records for the specified month.
+    Triggered manually by HR or automatically via cron job on the 1st.
+    """
+    from src.modules.attendance.application.email_report_service import EmailReportService
+
+    email_service = EmailReportService(session)
+    result = await email_service.send_monthly_reports(
+        month=month,
+        year=year,
+        user_id=current_user.id,
+    )
+    await session.commit()
+    return result
