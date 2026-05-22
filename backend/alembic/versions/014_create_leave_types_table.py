@@ -1,7 +1,7 @@
 """Create leave_types table with seed data.
 
-Revision ID: 010
-Revises: 009
+Revision ID: 014
+Revises: 013
 Create Date: 2026-05-21
 """
 
@@ -10,8 +10,8 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "010"
-down_revision: Union[str, None] = "009"
+revision: str = "014"
+down_revision: Union[str, None] = "013"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

@@ -1,7 +1,7 @@
 """Create overtime_requests table.
 
-Revision ID: 015
-Revises: 014
+Revision ID: 019
+Revises: 018
 Create Date: 2026-05-21
 """
 
@@ -10,8 +10,8 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "015"
-down_revision: Union[str, None] = "014"
+revision: str = "019"
+down_revision: Union[str, None] = "018"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

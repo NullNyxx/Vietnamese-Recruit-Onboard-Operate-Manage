@@ -1,7 +1,7 @@
 """Create work_schedules table with default schedule.
 
-Revision ID: 013
-Revises: 012
+Revision ID: 017
+Revises: 016
 Create Date: 2026-05-21
 """
 
@@ -10,8 +10,8 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-revision: str = "013"
-down_revision: Union[str, None] = "012"
+revision: str = "017"
+down_revision: Union[str, None] = "016"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
