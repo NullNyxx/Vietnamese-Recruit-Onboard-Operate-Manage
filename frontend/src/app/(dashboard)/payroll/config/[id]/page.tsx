@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, Save, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -44,7 +44,7 @@ import {
 
 export default function SalaryConfigPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [config, setConfig] = useState<SalaryConfig | null>(null);
   const [allowances, setAllowances] = useState<Allowance[]>([]);

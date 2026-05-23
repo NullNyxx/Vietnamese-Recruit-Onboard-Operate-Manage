@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { Plus, Calendar, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
 
 import { getPayrollPeriods, createPayrollPeriod } from "@/lib/api/payroll";
@@ -35,7 +35,7 @@ export default function PayrollPeriodsPage() {
   const [newMonth, setNewMonth] = useState(new Date().getMonth() + 1);
   const [newYear, setNewYear] = useState(new Date().getFullYear());
 
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     loadPeriods();

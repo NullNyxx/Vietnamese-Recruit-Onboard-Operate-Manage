@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useRouter } from "next/navigation";
 import { ChevronLeft, Calculator, CheckCircle, XCircle, Download, Send } from "lucide-react";
 
 import {
@@ -28,7 +28,7 @@ import {
 
 export default function PayrollPeriodDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useCurrentUser();
 
   const [period, setPeriod] = useState<PayrollPeriod | null>(null);
