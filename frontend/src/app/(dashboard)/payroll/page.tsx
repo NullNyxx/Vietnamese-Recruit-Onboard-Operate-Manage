@@ -29,7 +29,7 @@ export default function PayrollDashboardPage() {
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" |="destructive" | "outline"> = {
+    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
       draft: "secondary",
       calculating: "outline",
       confirmed: "default",
