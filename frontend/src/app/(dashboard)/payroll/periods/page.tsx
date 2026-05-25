@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Plus, Calendar, ChevronLeft, ChevronRight, CheckCircle, XCircle } from "lucide-react";
+import { Plus, Calendar, ChevronLeft } from "lucide-react";
 
 import { getPayrollPeriods, createPayrollPeriod } from "@/lib/api/payroll";
 import type { PayrollPeriod } from "@/lib/api/payroll";
@@ -35,8 +34,6 @@ export default function PayrollPeriodsPage() {
   const [newMonth, setNewMonth] = useState(new Date().getMonth() + 1);
   const [newYear, setNewYear] = useState(new Date().getFullYear());
 
-  const router = useRouter();
-
   useEffect(() => {
     loadPeriods();
   }, []);
@@ -59,10 +56,16 @@ export default function PayrollPeriodsPage() {
   };
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       draft: "secondary",
       calculating: "outline",
       confirmed: "default",
@@ -74,7 +77,11 @@ export default function PayrollPeriodsPage() {
       confirmed: "Đã duyệt",
       paid: "Đã chi trả",
     };
-    return <Badge variant={variants[status] || "outline"}>{labels[status] || status}</Badge>;
+    return (
+      <Badge variant={variants[status] || "outline"}>
+        {labels[status] || status}
+      </Badge>
+    );
   };
 
   if (loading) {
@@ -96,7 +103,9 @@ export default function PayrollPeriodsPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Danh sách kỳ lương</h1>
+              <h1 className="text-2xl font-bold tracking-tight">
+                Danh sách kỳ lương
+              </h1>
               <p className="text-muted-foreground">Quản lý các kỳ tính lương</p>
             </div>
           </div>
@@ -140,20 +149,30 @@ export default function PayrollPeriodsPage() {
                       </div>
                     </TableCell>
                     <TableCell>{getStatusBadge(period.status)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(period.total_gross)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(period.total_tax)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(period.total_insurance)}</TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(period.total_gross)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(period.total_tax)}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(period.total_insurance)}
+                    </TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(period.total_net)}
                     </TableCell>
                     <TableCell>
                       {period.confirmed_at
-                        ? new Date(period.confirmed_at).toLocaleDateString("vi-VN")
+                        ? new Date(period.confirmed_at).toLocaleDateString(
+                            "vi-VN",
+                          )
                         : "-"}
                     </TableCell>
                     <TableCell className="text-right">
                       <Button variant="outline" size="sm" asChild>
-                        <Link href={`/payroll/periods/${period.id}`}>Xem chi tiết</Link>
+                        <Link href={`/payroll/periods/${period.id}`}>
+                          Xem chi tiết
+                        </Link>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -196,7 +215,10 @@ export default function PayrollPeriodsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCreateDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowCreateDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleCreatePeriod}>Tạo</Button>

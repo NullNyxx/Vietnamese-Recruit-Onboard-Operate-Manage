@@ -3,10 +3,7 @@
 import * as React from "react";
 import { PenSquare } from "lucide-react";
 
-import type {
-  ConnectionStatus,
-  EmailMessage,
-} from "@/lib/api/types";
+import type { ConnectionStatus, EmailMessage } from "@/lib/api/types";
 import { ApiError } from "@/lib/api/types";
 import * as gmailApi from "@/lib/api/gmail";
 
@@ -16,8 +13,6 @@ import { ConfirmDialog } from "@/components/gmail/confirm-dialog";
 import { EmailList } from "@/components/gmail/email-list";
 import { SyncIndicator } from "@/components/gmail/sync-indicator";
 import { EmailDetail } from "@/components/gmail/email-detail";
-import { LabelManager } from "@/components/gmail/label-manager";
-import { AttachmentViewer } from "@/components/gmail/attachment-viewer";
 import { ComposeDialog } from "@/components/gmail/compose-dialog";
 
 // ---------------------------------------------------------------------------
@@ -31,7 +26,7 @@ function GmailPageContent() {
   const [connectionStatus, setConnectionStatus] =
     React.useState<ConnectionStatus | null>(null);
   const [connectedEmail, setConnectedEmail] = React.useState<string | null>(
-    null
+    null,
   );
   const [statusLoading, setStatusLoading] = React.useState(true);
   const [statusError, setStatusError] = React.useState<string | null>(null);
@@ -45,19 +40,19 @@ function GmailPageContent() {
 
   // --- Selected email state ---
   const [selectedEmailId, setSelectedEmailId] = React.useState<string | null>(
-    null
+    null,
   );
 
   // --- Compose state ---
   const [composeOpen, setComposeOpen] = React.useState(false);
   const [replyToEmail, setReplyToEmail] = React.useState<EmailMessage | null>(
-    null
+    null,
   );
 
   // Derived: selected email object
   const selectedEmail = React.useMemo(
     () => emails.find((e) => e.id === selectedEmailId) ?? null,
-    [emails, selectedEmailId]
+    [emails, selectedEmailId],
   );
 
   // --- Error handler (stable ref to avoid re-render loops) ---
@@ -74,7 +69,7 @@ function GmailPageContent() {
         addToast("Không thể kết nối server. Vui lòng thử lại.", "error");
       }
     },
-    [addToast]
+    [addToast],
   );
 
   const handleApiError = React.useCallback((err: unknown) => {
@@ -95,7 +90,7 @@ function GmailPageContent() {
         return;
       }
       setStatusError(
-        err instanceof Error ? err.message : "Không thể kiểm tra trạng thái"
+        err instanceof Error ? err.message : "Không thể kiểm tra trạng thái",
       );
     } finally {
       setStatusLoading(false);
@@ -116,14 +111,14 @@ function GmailPageContent() {
         throw new ApiError(
           res.status,
           "FETCH_ERROR",
-          body?.detail || "Không thể tải danh sách email"
+          body?.detail || "Không thể tải danh sách email",
         );
       }
       const data = await res.json();
       // Support both { items: [...] } and direct array response
       const emailList: EmailMessage[] = Array.isArray(data)
         ? data
-        : data.items ?? data.messages ?? [];
+        : (data.items ?? data.messages ?? []);
       setEmails(emailList);
     } catch (err) {
       handleApiError(err);
@@ -226,19 +221,6 @@ function GmailPageContent() {
     setReplyToEmail(null);
   }, []);
 
-  // --- Label change handler ---
-  const handleLabelsChange = React.useCallback(
-    (newLabelIds: string[]) => {
-      if (!selectedEmailId) return;
-      setEmails((prev) =>
-        prev.map((e) =>
-          e.id === selectedEmailId ? { ...e, label_ids: newLabelIds } : e
-        )
-      );
-    },
-    [selectedEmailId]
-  );
-
   // --- Determine if connected ---
   const isConnected = connectionStatus === "connected";
 
@@ -246,7 +228,9 @@ function GmailPageContent() {
     <div className="gmail-fullbleed flex flex-col h-full overflow-hidden">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
-        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Gmail</h1>
+        <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+          Gmail
+        </h1>
         {isConnected && (
           <SyncIndicator
             onSyncComplete={handleSyncComplete}
@@ -281,9 +265,7 @@ function GmailPageContent() {
           {/* Left panel: Email List */}
           <div
             className={`flex flex-col border-r border-gray-200 dark:border-gray-700 ${
-              selectedEmailId
-                ? "hidden lg:flex"
-                : "flex"
+              selectedEmailId ? "hidden lg:flex" : "flex"
             } w-full lg:w-[380px] lg:shrink-0`}
           >
             {/* Connection status bar (compact, when connected) */}
@@ -316,9 +298,7 @@ function GmailPageContent() {
           {/* Right panel: Email Detail */}
           <div
             className={`flex flex-1 flex-col overflow-hidden ${
-              selectedEmailId
-                ? "flex"
-                : "hidden lg:flex"
+              selectedEmailId ? "flex" : "hidden lg:flex"
             }`}
           >
             {selectedEmail ? (

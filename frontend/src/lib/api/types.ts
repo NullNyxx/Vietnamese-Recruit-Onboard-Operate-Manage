@@ -75,7 +75,7 @@ export interface EmployeeCreateData {
   contract_type?: string;
 }
 
-export interface EmployeeUpdateData extends Partial<EmployeeCreateData> {}
+export type EmployeeUpdateData = Partial<EmployeeCreateData>;
 
 export interface DepartmentCreateData {
   name: string;
@@ -169,7 +169,7 @@ export class ApiError extends Error {
     statusCode: number,
     errorCode: string,
     message: string,
-    details?: Record<string, unknown>
+    details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = "ApiError";

@@ -2,8 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { ChevronLeft, Calculator, CheckCircle, XCircle, Download, Send } from "lucide-react";
+import { useParams } from "next/navigation";
+import {
+  ChevronLeft,
+  Calculator,
+  CheckCircle,
+  XCircle,
+  Send,
+} from "lucide-react";
 
 import {
   getPayrollPeriod,
@@ -29,7 +35,6 @@ import {
 
 export default function PayrollPeriodDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const { user } = useCurrentUser();
 
   const [period, setPeriod] = useState<PayrollPeriod | null>(null);
@@ -110,10 +115,16 @@ export default function PayrollPeriodDetailPage() {
   };
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
 
   const getStatusBadge = (status: string) => {
-    const variants: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
+    const variants: Record<
+      string,
+      "default" | "secondary" | "destructive" | "outline"
+    > = {
       draft: "secondary",
       calculating: "outline",
       confirmed: "default",
@@ -125,7 +136,11 @@ export default function PayrollPeriodDetailPage() {
       confirmed: "Đã duyệt",
       paid: "Đã chi trả",
     };
-    return <Badge variant={variants[status] || "outline"}>{labels[status] || status}</Badge>;
+    return (
+      <Badge variant={variants[status] || "outline"}>
+        {labels[status] || status}
+      </Badge>
+    );
   };
 
   if (loading || !period) {
@@ -137,9 +152,11 @@ export default function PayrollPeriodDetailPage() {
   }
 
   const canCalculate = period.status === "draft";
-  const canConfirm = period.status === "draft" || period.status === "calculating";
+  const canConfirm =
+    period.status === "draft" || period.status === "calculating";
   const canMarkPaid = period.status === "confirmed";
-  const canSendPayslips = period.status === "confirmed" || period.status === "paid";
+  const canSendPayslips =
+    period.status === "confirmed" || period.status === "paid";
 
   return (
     <div className="space-y-6">
@@ -178,7 +195,11 @@ export default function PayrollPeriodDetailPage() {
             </Button>
           )}
           {canSendPayslips && (
-            <Button variant="outline" onClick={handleSendPayslips} disabled={processing}>
+            <Button
+              variant="outline"
+              onClick={handleSendPayslips}
+              disabled={processing}
+            >
               <Send className="mr-2 h-4 w-4" />
               G?i phi?u l??ng
             </Button>
@@ -192,7 +213,9 @@ export default function PayrollPeriodDetailPage() {
             <CardTitle className="text-sm font-medium">Tổng gross</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{formatCurrency(period.total_gross)}</div>
+            <div className="text-xl font-bold">
+              {formatCurrency(period.total_gross)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -200,7 +223,9 @@ export default function PayrollPeriodDetailPage() {
             <CardTitle className="text-sm font-medium">Tổng thuế</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{formatCurrency(period.total_tax)}</div>
+            <div className="text-xl font-bold">
+              {formatCurrency(period.total_tax)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -208,7 +233,9 @@ export default function PayrollPeriodDetailPage() {
             <CardTitle className="text-sm font-medium">Tổng BH</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-xl font-bold">{formatCurrency(period.total_insurance)}</div>
+            <div className="text-xl font-bold">
+              {formatCurrency(period.total_insurance)}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -251,27 +278,41 @@ export default function PayrollPeriodDetailPage() {
               <TableBody>
                 {employees.map((emp) => (
                   <TableRow key={emp.employee_id}>
-                    <TableCell className="font-medium">{emp.employee_code}</TableCell>
+                    <TableCell className="font-medium">
+                      {emp.employee_code}
+                    </TableCell>
                     <TableCell>{emp.full_name}</TableCell>
                     <TableCell>{emp.department_name || "-"}</TableCell>
                     <TableCell>{emp.position_name || "-"}</TableCell>
                     <TableCell className="text-right">
-                      {emp.payslip ? formatCurrency(emp.payslip.gross_salary) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.gross_salary)
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {emp.payslip ? formatCurrency(emp.payslip.total_allowances) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.total_allowances)
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {emp.payslip ? formatCurrency(emp.payslip.total_ot_amount) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.total_ot_amount)
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {emp.payslip ? formatCurrency(emp.payslip.income_tax) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.income_tax)
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right">
-                      {emp.payslip ? formatCurrency(emp.payslip.insurance_premium) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.insurance_premium)
+                        : "-"}
                     </TableCell>
                     <TableCell className="text-right font-medium text-green-600">
-                      {emp.payslip ? formatCurrency(emp.payslip.net_salary) : "-"}
+                      {emp.payslip
+                        ? formatCurrency(emp.payslip.net_salary)
+                        : "-"}
                     </TableCell>
                   </TableRow>
                 ))}

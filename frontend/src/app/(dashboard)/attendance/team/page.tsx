@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,15 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { attendanceApi, employeesApi } from "@/lib/api";
 import type { Employee } from "@/lib/api/types";
 
@@ -37,7 +27,9 @@ const statusOptions = [
 export default function AttendanceTeamPage() {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [selectedEmployee, setSelectedEmployee] = useState("");
-  const [workDate, setWorkDate] = useState(new Date().toISOString().split("T")[0]);
+  const [workDate, setWorkDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [status, setStatus] = useState("present");
@@ -48,7 +40,10 @@ export default function AttendanceTeamPage() {
   useEffect(() => {
     async function loadEmployees() {
       try {
-        const res = await employeesApi.listEmployees({ page: 1, page_size: 100 });
+        const res = await employeesApi.listEmployees({
+          page: 1,
+          page_size: 100,
+        });
         setEmployees(res.items);
       } catch {
         // Handle silently
@@ -69,7 +64,9 @@ export default function AttendanceTeamPage() {
 
     try {
       const checkInDt = checkIn ? `${workDate}T${checkIn}:00+07:00` : undefined;
-      const checkOutDt = checkOut ? `${workDate}T${checkOut}:00+07:00` : undefined;
+      const checkOutDt = checkOut
+        ? `${workDate}T${checkOut}:00+07:00`
+        : undefined;
 
       await attendanceApi.manualRecord({
         employee_id: selectedEmployee,
@@ -93,7 +90,9 @@ export default function AttendanceTeamPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold tracking-tight">Nhập chấm công thủ công</h1>
+      <h1 className="text-3xl font-bold tracking-tight">
+        Nhập chấm công thủ công
+      </h1>
 
       <Card className="max-w-2xl">
         <CardHeader>
@@ -103,7 +102,10 @@ export default function AttendanceTeamPage() {
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label>Nhân viên *</Label>
-              <Select value={selectedEmployee} onValueChange={setSelectedEmployee}>
+              <Select
+                value={selectedEmployee}
+                onValueChange={setSelectedEmployee}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Chọn nhân viên" />
                 </SelectTrigger>
@@ -174,7 +176,11 @@ export default function AttendanceTeamPage() {
             </div>
 
             {message && (
-              <p className={message.startsWith("✅") ? "text-green-600" : "text-red-600"}>
+              <p
+                className={
+                  message.startsWith("✅") ? "text-green-600" : "text-red-600"
+                }
+              >
                 {message}
               </p>
             )}

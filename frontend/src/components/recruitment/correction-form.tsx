@@ -21,8 +21,6 @@ import { Button } from "@/components/ui/button";
 import type {
   ParsedCVInput,
   ParsedCVData,
-  ExperienceItem,
-  EducationItem,
   ValidationError,
 } from "@/lib/api/recruitment";
 
@@ -49,15 +47,11 @@ export const correctionFormSchema = z.object({
     .max(200, "Họ tên tối đa 200 ký tự"),
   email: z.string().email("Email không hợp lệ"),
   phone: z.string().max(20, "Số điện thoại tối đa 20 ký tự"),
-  skills: z
-    .array(z.string())
-    .max(50, "Tối đa 50 kỹ năng"),
+  skills: z.array(z.string()).max(50, "Tối đa 50 kỹ năng"),
   experience: z
     .array(experienceItemSchema)
     .max(20, "Tối đa 20 mục kinh nghiệm"),
-  education: z
-    .array(educationItemSchema)
-    .max(10, "Tối đa 10 mục học vấn"),
+  education: z.array(educationItemSchema).max(10, "Tối đa 10 mục học vấn"),
   summary: z.string().max(500, "Tóm tắt tối đa 500 ký tự"),
 });
 
@@ -117,7 +111,7 @@ export function CorrectionForm({
 
   // Skills managed as comma-separated string in a text input
   const [skillsInput, setSkillsInput] = React.useState(
-    (initialData?.skills ?? []).join(", ")
+    (initialData?.skills ?? []).join(", "),
   );
 
   async function handleFormSubmit(values: CorrectionFormValues) {
@@ -179,11 +173,7 @@ export function CorrectionForm({
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input
-                  type="email"
-                  placeholder="Nhập email..."
-                  {...field}
-                />
+                <Input type="email" placeholder="Nhập email..." {...field} />
               </FormControl>
               <FormMessage />
               {getServerError("email") && (

@@ -6,7 +6,6 @@ import {
   Mail,
   CalendarDays,
   Clock,
-  Timer,
   UserSearch,
   Shield,
   ListChecks,

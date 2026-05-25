@@ -28,7 +28,7 @@ export function useToast(): ToastContextValue {
     }
   };
 
-  const removeToast = (_id: string) => {
+  const removeToast = () => {
     toast.dismiss();
   };
 
