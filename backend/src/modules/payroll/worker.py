@@ -22,8 +22,11 @@ from arq import cron
 from arq.connections import RedisSettings
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlmodel import Session
 
+from src.database import engine
 from src.modules.identity.infrastructure.config import AuthSettings
+from src.modules.payroll.application.payroll_service import PayrollService
 
 logger = logging.getLogger(__name__)
 
@@ -65,22 +68,27 @@ async def auto_calculate_payroll(ctx: dict) -> None:
                 text("SELECT id FROM payroll_periods WHERE month = :month AND year = :year"),
                 {"month": target_month, "year": target_year},
             )
-            if existing.scalar() is not None:
-                logger.info(f"Payroll period {target_month}/{target_year} already exists")
-                return
+            period_uuid = existing.scalar()
 
-            period_id = await session.execute(
-                text("""
-                    INSERT INTO payroll_periods (id, month, year, status, created_at)
-                    VALUES (gen_random_uuid(), :month, :year, 'draft', now())
-                    RETURNING id
-                """),
-                {"month": target_month, "year": target_year},
-            )
-            period_uuid = period_id.scalar()
+            if period_uuid is None:
+                period_id = await session.execute(
+                    text("""
+                        INSERT INTO payroll_periods (id, month, year, status, created_at)
+                        VALUES (gen_random_uuid(), :month, :year, 'draft', now())
+                        RETURNING id
+                    """),
+                    {"month": target_month, "year": target_year},
+                )
+                period_uuid = period_id.scalar()
+                await session.commit()
+                logger.info(f"Created payroll period {target_month}/{target_year}: {period_uuid}")
+            else:
+                logger.info(f"Payroll period {target_month}/{target_year} already exists: {period_uuid}")
 
-            await session.commit()
-            logger.info(f"Created payroll period {target_month}/{target_year}: {period_uuid}")
+            with Session(engine) as sync_session:
+                PayrollService(sync_session).calculate_all_employees(period_uuid)
+                sync_session.commit()
+            logger.info(f"Calculated payroll period {target_month}/{target_year}: {period_uuid}")
 
         except Exception:
             logger.error("Error creating payroll period: %s", traceback.format_exc())

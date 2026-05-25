@@ -5,7 +5,8 @@ from uuid import UUID
 
 from sqlmodel import Session, select
 
-from src.modules.attendance.domain.entities import AttendanceRecord
+from src.modules.attendance.domain.entities import AttendanceRecord, OvertimeRequest
+from src.modules.attendance.domain.enums import OvertimeStatus
 from src.modules.employee.domain.entities import Employee
 from src.modules.payroll.domain.entities import PayrollPeriod, Payslip
 from src.modules.payroll.domain.enums import PayrollStatus
@@ -76,20 +77,20 @@ class PayrollService:
 
         allowances = self.allowance_repo.get_active_by_employee(employee_id)
         total_allowances = sum(a.amount for a in allowances)
-        taxable_allowances = sum(
-            a.amount for a in allowances if a.is_taxable
-        )
+        taxable_allowances = sum(a.amount for a in allowances if a.is_taxable)
+        non_taxable_allowances = total_allowances - taxable_allowances
 
         hourly_rate = daily_rate / Decimal("8")
         ot_amount = calculate_overtime_pay(hourly_rate, total_ot_hours)
 
-        gross_income = actual_gross + taxable_allowances + ot_amount
+        gross_income = actual_gross + total_allowances + ot_amount
 
         num_dependents = self.dependent_repo.count_tax_dependents(employee_id)
 
         result = calculate_gross_to_net(
             gross_salary=actual_gross,
             total_allowances=taxable_allowances,
+            non_taxable_allowances=non_taxable_allowances,
             total_ot_amount=ot_amount,
             num_dependents=num_dependents,
             insurance_salary=insurance_salary,
@@ -155,6 +156,13 @@ class PayrollService:
                     .where(AttendanceRecord.work_date >= start_date)
                     .where(AttendanceRecord.work_date < end_date)
                 ).all()
+                approved_ot_requests = self.session.exec(
+                    select(OvertimeRequest)
+                    .where(OvertimeRequest.employee_id == employee.id)
+                    .where(OvertimeRequest.status == OvertimeStatus.APPROVED)
+                    .where(OvertimeRequest.work_date >= start_date)
+                    .where(OvertimeRequest.work_date < end_date)
+                ).all()
 
                 actual_work_days = Decimal("0")
                 total_ot_hours = Decimal("0")
@@ -162,7 +170,9 @@ class PayrollService:
                 for record in attendance_records:
                     if record.status in ["present", "late", "early_leave", "on_leave"]:
                         actual_work_days += Decimal("1")
-                    total_ot_hours += record.overtime_hours or Decimal("0")
+
+                for request in approved_ot_requests:
+                    total_ot_hours += request.actual_hours or request.planned_hours or Decimal("0")
 
                 work_days = Decimal(str(payroll_settings.DEFAULT_WORK_DAYS))
 

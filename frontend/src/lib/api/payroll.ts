@@ -114,6 +114,12 @@ export interface Payslip {
   created_at: string;
 }
 
+export interface PayslipSendResult {
+  sent: number;
+  failed: number;
+  errors: string[];
+}
+
 export interface EmployeeWithPayslip {
   employee_id: string;
   employee_code: string;
@@ -259,4 +265,8 @@ export async function getPayslipPdf(payslipId: string): Promise<Blob> {
     throw new Error(`Request failed: ${res.status}`);
   }
   return res.blob();
+}
+export async function sendPayslips(periodId: string): Promise<PayslipSendResult> {
+  const res = await fetch(`${BASE}/periods/${periodId}/send-payslips`, { method: "POST" });
+  return handleResponse(res);
 }

@@ -37,7 +37,7 @@ export default function EmployeePayslipsPage() {
       .finally(() => setLoading(false));
   };
 
-  const handleDownloadPdf = async (payslipId: string, periodId: string) => {
+  const handleDownloadPdf = async (payslipId: string) => {
     try {
       const blob = await getPayslipPdf(payslipId);
       const url = window.URL.createObjectURL(blob);
@@ -107,7 +107,7 @@ export default function EmployeePayslipsPage() {
                     <TableCell className="font-medium">
                       {payslip.period_id ? (
                         <Link
-                          to={`/payroll/periods/${payslip.period_id}`}
+                          href={`/payroll/periods/${payslip.period_id}`}
                           className="text-primary hover:underline"
                         >
                           Xem kỳ
@@ -132,7 +132,7 @@ export default function EmployeePayslipsPage() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleDownloadPdf(payslip.id, payslip.period_id)}
+                        onClick={() => handleDownloadPdf(payslip.id)}
                       >
                         <Download className="mr-2 h-4 w-4" />
                         PDF

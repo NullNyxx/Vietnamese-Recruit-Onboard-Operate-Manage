@@ -160,6 +160,12 @@ class PayrollMarkPaidRequest(BaseModel):
     pass
 
 
+class PayslipSendResponse(BaseModel):
+    sent: int
+    failed: int
+    errors: list[str]
+
+
 class PositionSalaryCreate(BaseModel):
     position_id: UUID
     grade: str = Field(..., max_length=10)

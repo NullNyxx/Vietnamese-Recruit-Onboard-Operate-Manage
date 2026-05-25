@@ -15,14 +15,16 @@ from src.modules.identity.infrastructure.crypto_utils import CryptoUtils
 from src.modules.identity.infrastructure.oauth_grant_repository import (
     OAuthGrantRepository,
 )
+from src.modules.employee.infrastructure.minio_client import MinIOClient
 from src.modules.payroll.domain.entities import PayrollPeriod, Payslip
 from src.modules.payroll.infrastructure.pdf_generator import generate_payslip_pdf
 
 
 class PayslipEmailService:
-    def __init__(self, session: Session, send_service: SendService):
+    def __init__(self, session: Session, send_service: SendService, minio_client: MinIOClient):
         self.session = session
         self.send_service = send_service
+        self.minio_client = minio_client
 
     async def send_payslip_email(
         self,
@@ -51,6 +53,20 @@ class PayslipEmailService:
             work_days=float(payslip.work_days),
             actual_work_days=float(payslip.actual_work_days),
         )
+
+        if not payslip.pdf_url:
+            storage_path = (
+                f"payroll/payslips/{period.year}/{period.month:02d}/"
+                f"{employee.employee_code}_{payslip.id}.pdf"
+            )
+            payslip.pdf_url = await self.minio_client.upload_file(
+                storage_path,
+                pdf_bytes,
+                "application/pdf",
+            )
+            self.session.add(payslip)
+            self.session.commit()
+            self.session.refresh(payslip)
 
         attachment = AttachmentData(
             filename=f"payslip_{period.year}_{period.month}.pdf",

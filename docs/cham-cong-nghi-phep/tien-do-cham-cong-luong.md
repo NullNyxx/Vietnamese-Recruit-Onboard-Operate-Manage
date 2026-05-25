@@ -1,4 +1,4 @@
-# 📋 Tiến Độ Triển Khai: Chấm Công & Nghỉ Phép + Lương & Phúc Lợi
+﻿# 📋 Tiến Độ Triển Khai: Chấm Công & Nghỉ Phép + Lương & Phúc Lợi
 
 > Cập nhật lần cuối: 2026-05-22
 > Trạng thái tổng: 🟡 Đang triển khai (Phase 4B hoàn thành)
@@ -225,9 +225,67 @@
 
 ## Blockers & Issues
 
-| # | Vấn đề | Ảnh hưởng | Trạng thái | Giải pháp |
+| # | Van de | Anh huong | Trang thai | Giai phap |
 |---|--------|-----------|-----------|-----------|
-| | (Chưa có) | | | |
+| 5A-R1 | Thue TNCN payroll dang tinh truoc khi tru BH; phu cap khong chiu thue chua vao net | Da sua cong thuc tax/net payslip | [DONE] | Cong thuc gross -> taxable -> net da cap nhat, regression test da pass |
+| 5A-R2 | Luong OT trong payroll dung `attendance_records.overtime_hours`, khong khoa theo `overtime_requests` da duyet | Da doi source OT ve request approved | [DONE] | Payroll chi tong hop OT da duyet |
+| 5A-R3 | ARQ `auto_calculate_payroll` hien chi tao payroll period, chua calculate payslip | Da noi worker voi service calculate | [DONE] | Cron tao period va tinh payslip ngay sau do |
+| 5A-R4 | Endpoint `POST /api/payroll/periods/{id}/send-payslips` duoc danh dau xong trong file nhung backend chua expose | Da mo endpoint va noi frontend thao tac | [DONE] | HR co the gui batch payslip tu trang chi tiet ky luong |
+| 5A-R5 | Endpoint PDF chua upload MinIO, chua cap nhat `pdf_url` du task 5A-26 ghi da xong | Da luu PDF vao MinIO va persist `pdf_url` | [DONE] | Download PDF se tao/lai dung file luu tru |
+
+---
+
+## Ke Hoach Buoc 2 - Fix Payroll Flow
+
+### Phan loai
+
+- Loai: Change request
+- Lane: High-risk
+- Ly do: Dung cong thuc luong, thue, BH, payslip, cron, email, PDF; anh huong so lieu tien va flow HR
+
+### Muc tieu
+
+1. Sua dung cong thuc payroll theo flow nghiep vu da mo ta.
+2. Khep kin luong `calculate -> confirm -> send payslips -> mark paid`.
+3. Dam bao cron ngay 25 thuc su tao ra payslip.
+4. Cap nhat test de khoa regression truoc khi tam coi payroll on dinh.
+
+### Pham vi sua du kien
+
+| Nhom | File/cho cham | Ket qua can dat |
+|---|---|---|
+| Cong thuc payroll | `backend/src/modules/payroll/domain/tax_calculator.py` | Thue TNCN tinh sau BH; net bao gom dung phu cap chiu thue/khong chiu thue |
+| Orchestration payroll | `backend/src/modules/payroll/application/payroll_service.py` | Tach ro gross taxable, gross non-taxable, OT, BH, leave/payday rule |
+| OT source | `backend/src/modules/payroll/application/payroll_service.py` + query lien quan | Chua duyet thi khong vao luong; approved OT chay dung flow |
+| Cron | `backend/src/modules/payroll/worker.py` | Auto period + auto calculate thuc te |
+| API | `backend/src/modules/payroll/api/payroll_router.py` | Co endpoint gui batch payslip; tra loi ro |
+| PDF/storage | `backend/src/modules/payroll/api/payroll_router.py` + service/storage adapter lien quan | PDF upload MinIO, luu `pdf_url`, response ben |
+| Test | `backend/tests/modules/payroll/test_tax_calculator.py`, `backend/tests/modules/payroll/test_payroll_service.py` | Bo sung case sai da phat hien; chan regression |
+
+### Thu tu trien khai du kien
+
+| # | Task | Trang thai | Ghi chu |
+|---|------|-----------|---------|
+| 5A-45 | Chot rule payroll buoc 2: tax/BH/allowance/OT/leave | [DONE] | Tax tinh sau BH, OT lay tu request approved, non-taxable allowance vao net |
+| 5A-46 | Sua `tax_calculator.py` theo cong thuc dung | [DONE] | Da tru BH truoc PIT, tach allowance taxable/non-taxable |
+| 5A-47 | Refactor `payroll_service.py` cho flow calculate chuan | [DONE] | Da sua gross/net va source OT approved |
+| 5A-48 | Noi `auto_calculate_payroll` -> calculate payslips thuc te | [DONE] | Cron da tao period va calculate payslip |
+| 5A-49 | Bo sung endpoint `send-payslips` va wiring email service | [DONE] | Da expose endpoint va goi duoc tu frontend |
+| 5A-50 | Rework PDF flow: upload MinIO + persist `pdf_url` | [DONE] | PDF luu MinIO, payslip persist `pdf_url` |
+| 5A-51 | Cap nhat unit/API tests cho regression payroll | [DONE] | Da them regression test tax + payslip allowance |
+| 5A-52 | Chay validation payroll slice | [DONE] | `pytest backend/tests/modules/payroll -q` => 27 passed |
+
+### Dieu chinh tien do hien tai
+
+| # | Task | Trang thai moi | Ghi chu moi |
+|---|------|----------------|---------------|
+| 5A-26 | Endpoint `GET /api/payroll/payslips/{id}/pdf` | [DONE] | PDF duoc upload MinIO va persist `pdf_url` khi tai lan dau |
+| 5A-28 | Endpoint `POST /api/payroll/periods/{id}/send-payslips` | [DONE] | Router da expose endpoint gui batch payslip |
+| 5A-29 | ARQ cron `auto_calculate_payroll` | [DONE] | Worker da tao period va calculate payroll |
+| 5A-31 | Test API tao salary config -> calculate -> confirm -> send | [PARTIAL] | Unit regression da pass; route app import OK, frontend payroll typecheck OK; build full bi chan boi loi zodResolver ngoai payroll |
+
+---
+
 
 ---
 

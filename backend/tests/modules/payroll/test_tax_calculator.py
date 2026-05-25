@@ -107,9 +107,9 @@ class TestGrossToNet:
         assert result["personal_deduction"] == Decimal("11000000")
         assert result["dependent_deduction"] == Decimal("0")
         assert result["total_deduction"] == Decimal("11000000")
-        assert result["taxable_income"] == Decimal("9000000")
+        assert result["insurance_premium"] == Decimal("1890000")
+        assert result["taxable_income"] == Decimal("7110000")
         assert result["income_tax"] > Decimal("0")
-        assert result["insurance_premium"] > Decimal("0")
         assert result["net_salary"] > Decimal("0")
 
     def test_with_dependents(self):
@@ -155,3 +155,16 @@ class TestGrossToNet:
         )
 
         assert result["income_tax"] == Decimal("0")
+    def test_with_non_taxable_allowances(self):
+        result = calculate_gross_to_net(
+            gross_salary=Decimal("20000000"),
+            total_allowances=Decimal("1000000"),
+            non_taxable_allowances=Decimal("500000"),
+            total_ot_amount=Decimal("0"),
+            num_dependents=0,
+            insurance_salary=Decimal("18000000"),
+        )
+
+        assert result["gross_income"] == Decimal("21500000")
+        assert result["taxable_income"] == Decimal("8110000")
+        assert result["net_salary"] == Decimal("19049000")

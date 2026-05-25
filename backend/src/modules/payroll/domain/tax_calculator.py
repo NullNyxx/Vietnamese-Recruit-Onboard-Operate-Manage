@@ -86,26 +86,27 @@ def calculate_overtime_pay(
 def calculate_gross_to_net(
     gross_salary: Decimal,
     total_allowances: Decimal = Decimal("0"),
+    non_taxable_allowances: Decimal = Decimal("0"),
     total_ot_amount: Decimal = Decimal("0"),
     num_dependents: int = 0,
     insurance_salary: Decimal | None = None,
 ) -> dict:
-    gross_income = gross_salary + total_allowances + total_ot_amount
-
-    personal_deduction = PERSONAL_DEDUCTION
-    dependent_deduction = DEPENDENT_DEDUCTION * num_dependents
-    total_deduction = personal_deduction + dependent_deduction
-
-    taxable_income = gross_income - total_deduction
-    if taxable_income < 0:
-        taxable_income = Decimal("0")
-
-    income_tax = calculate_progressive_tax(taxable_income)
+    gross_income = gross_salary + total_allowances + non_taxable_allowances + total_ot_amount
 
     if insurance_salary is None:
         insurance_salary = gross_salary
 
     insurance_premium = calculate_insurance_premium(insurance_salary)
+
+    personal_deduction = PERSONAL_DEDUCTION
+    dependent_deduction = DEPENDENT_DEDUCTION * num_dependents
+    total_deduction = personal_deduction + dependent_deduction
+
+    taxable_income = (gross_salary + total_allowances + total_ot_amount) - insurance_premium - total_deduction
+    if taxable_income < 0:
+        taxable_income = Decimal("0")
+
+    income_tax = calculate_progressive_tax(taxable_income)
 
     net_salary = gross_income - income_tax - insurance_premium
 

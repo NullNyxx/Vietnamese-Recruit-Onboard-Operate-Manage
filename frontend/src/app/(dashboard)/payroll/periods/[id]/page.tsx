@@ -11,6 +11,7 @@ import {
   calculatePayroll,
   confirmPayrollPeriod,
   markPayrollPaid,
+  sendPayslips,
 } from "@/lib/api/payroll";
 import type { PayrollPeriod, EmployeeWithPayslip } from "@/lib/api/payroll";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -95,6 +96,19 @@ export default function PayrollPeriodDetailPage() {
     }
   };
 
+  const handleSendPayslips = async () => {
+    if (!id) return;
+    setProcessing(true);
+    try {
+      await sendPayslips(id);
+      await loadData();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setProcessing(false);
+    }
+  };
+
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
 
@@ -125,6 +139,7 @@ export default function PayrollPeriodDetailPage() {
   const canCalculate = period.status === "draft";
   const canConfirm = period.status === "draft" || period.status === "calculating";
   const canMarkPaid = period.status === "confirmed";
+  const canSendPayslips = period.status === "confirmed" || period.status === "paid";
 
   return (
     <div className="space-y-6">
@@ -160,6 +175,12 @@ export default function PayrollPeriodDetailPage() {
             <Button onClick={handleMarkPaid} disabled={processing}>
               <XCircle className="mr-2 h-4 w-4" />
               Đánh dấu đã chi trả
+            </Button>
+          )}
+          {canSendPayslips && (
+            <Button variant="outline" onClick={handleSendPayslips} disabled={processing}>
+              <Send className="mr-2 h-4 w-4" />
+              G?i phi?u l??ng
             </Button>
           )}
         </div>
