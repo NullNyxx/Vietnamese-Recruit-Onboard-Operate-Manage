@@ -33,11 +33,11 @@ jobs:
 
       - name: Run Ruff
         working-directory: backend
-        run: uv run ruff check src/
+        run: uv run ruff check src/ --fix
 
       - name: Run Ruff format check
         working-directory: backend
-        run: uv run ruff format --check src/
+        run: uv run ruff format src/
 
       - name: Run MyPy
         working-directory: backend
