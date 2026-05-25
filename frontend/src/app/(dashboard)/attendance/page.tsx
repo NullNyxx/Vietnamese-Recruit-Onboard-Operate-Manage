@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Clock, Users, Timer, CalendarDays } from "lucide-react";
+import { Clock, Users, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/table";
 import { attendanceApi, employeesApi } from "@/lib/api";
 import type { AttendanceRecord } from "@/lib/api/attendance";
-import type { Employee } from "@/lib/api/types";
 
 const statusColors: Record<string, string> = {
   present: "bg-green-100 text-green-800",
@@ -78,10 +77,12 @@ export default function AttendancePage() {
   }
 
   const presentCount = records.filter((r) =>
-    ["present"].includes(r.status)
+    ["present"].includes(r.status),
   ).length;
   const lateCount = records.filter((r) => r.status === "late").length;
-  const earlyLeaveCount = records.filter((r) => r.status === "early_leave").length;
+  const earlyLeaveCount = records.filter(
+    (r) => r.status === "early_leave",
+  ).length;
   const absentCount = records.filter((r) => r.status === "absent").length;
 
   return (
@@ -126,7 +127,9 @@ export default function AttendancePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-2xl font-bold text-yellow-600">{lateCount}</span>
+            <span className="text-2xl font-bold text-yellow-600">
+              {lateCount}
+            </span>
           </CardContent>
         </Card>
         <Card>
@@ -136,7 +139,9 @@ export default function AttendancePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-2xl font-bold text-orange-600">{earlyLeaveCount}</span>
+            <span className="text-2xl font-bold text-orange-600">
+              {earlyLeaveCount}
+            </span>
           </CardContent>
         </Card>
         <Card>
@@ -146,7 +151,9 @@ export default function AttendancePage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <span className="text-2xl font-bold text-red-600">{absentCount}</span>
+            <span className="text-2xl font-bold text-red-600">
+              {absentCount}
+            </span>
           </CardContent>
         </Card>
         <Card>
@@ -171,7 +178,8 @@ export default function AttendancePage() {
             <p className="text-muted-foreground">Đang tải...</p>
           ) : records.length === 0 ? (
             <p className="text-muted-foreground">
-              Chưa có dữ liệu chấm công hôm nay. Dùng nút &quot;Bảng chấm công&quot; để nhập thủ công.
+              Chưa có dữ liệu chấm công hôm nay. Dùng nút &quot;Bảng chấm
+              công&quot; để nhập thủ công.
             </p>
           ) : (
             <Table>
@@ -189,12 +197,15 @@ export default function AttendancePage() {
                 {records.map((rec) => (
                   <TableRow key={rec.id}>
                     <TableCell className="font-medium">
-                      {employeeMap[rec.employee_id] || rec.employee_id.slice(0, 8)}
+                      {employeeMap[rec.employee_id] ||
+                        rec.employee_id.slice(0, 8)}
                     </TableCell>
                     <TableCell>{formatTime(rec.check_in)}</TableCell>
                     <TableCell>{formatTime(rec.check_out)}</TableCell>
                     <TableCell>{rec.work_hours ?? "—"}</TableCell>
-                    <TableCell>{rec.overtime_hours > 0 ? `${rec.overtime_hours}h` : "—"}</TableCell>
+                    <TableCell>
+                      {rec.overtime_hours > 0 ? `${rec.overtime_hours}h` : "—"}
+                    </TableCell>
                     <TableCell>
                       <Badge className={statusColors[rec.status] || ""}>
                         {statusLabels[rec.status] || rec.status}

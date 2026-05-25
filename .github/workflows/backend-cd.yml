@@ -1,0 +1,44 @@
+name: Backend CD (Railway)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend-cd.yml"
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Railway
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway
+        uses: railway deploy-action@v1
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_BACKEND_SERVICE_NAME }}
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          SERVICE_NAME: ${{ secrets.RAILWAY_BACKEND_SERVICE_NAME }}
+
+      - name: Deploy via API
+        run: |
+          # Get the project ID
+          PROJECT_ID=$(curl -s -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            "https://backboard.railway.app/api/v2/users/me" | jq -r '.defaultOrganization // .organizations[0].id')
+
+          # Deploy the backend service
+          curl -s -X POST "https://backboard.railway.app/api/v2/projects/$PROJECT_ID/deploys" \
+            -H "Authorization: Bearer ${{ secrets.RAILWAY_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "serviceId": "${{ secrets.RAILWAY_BACKEND_SERVICE_NAME }}",
+              "branch": "main"
+            }'
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

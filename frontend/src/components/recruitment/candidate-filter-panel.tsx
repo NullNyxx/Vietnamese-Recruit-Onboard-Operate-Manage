@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { CalendarIcon, X } from "lucide-react";
-import { format, parse, isValid, isBefore, startOfDay } from "date-fns";
+import { format, isBefore, startOfDay } from "date-fns";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -74,12 +74,6 @@ function formatDateDisplay(date: Date | undefined): string {
   return format(date, "dd/MM/yyyy");
 }
 
-function parseDateInput(value: string): Date | undefined {
-  if (!value) return undefined;
-  const parsed = parse(value, "dd/MM/yyyy", new Date());
-  return isValid(parsed) ? parsed : undefined;
-}
-
 export function formatDateForApi(date: Date | undefined): string | undefined {
   if (!date) return undefined;
   return format(date, "yyyy-MM-dd");
@@ -105,7 +99,7 @@ export function parseSkills(input: string): string | undefined {
  */
 export function isDateRangeInvalid(
   dateFrom: Date | undefined,
-  dateTo: Date | undefined
+  dateTo: Date | undefined,
 ): boolean {
   if (!dateFrom || !dateTo) return false;
   return isBefore(startOfDay(dateTo), startOfDay(dateFrom));
@@ -116,11 +110,14 @@ export function isDateRangeInvalid(
 export function CandidateFilterPanel({
   onFilterChange,
 }: CandidateFilterPanelProps) {
-  const [filters, setFilters] = React.useState<CandidateFilters>(DEFAULT_FILTERS);
-  const [dateFromInput, setDateFromInput] = React.useState("");
-  const [dateToInput, setDateToInput] = React.useState("");
-  const [dateRangeError, setDateRangeError] = React.useState<string | null>(null);
-  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [filters, setFilters] =
+    React.useState<CandidateFilters>(DEFAULT_FILTERS);
+  const [dateRangeError, setDateRangeError] = React.useState<string | null>(
+    null,
+  );
+  const searchTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   // Build and emit the filter payload
   const emitFilterChange = React.useCallback(
@@ -156,7 +153,7 @@ export function CandidateFilterPanel({
 
       onFilterChange(payload);
     },
-    [onFilterChange]
+    [onFilterChange],
   );
 
   // Debounced search handler
@@ -173,7 +170,7 @@ export function CandidateFilterPanel({
         emitFilterChange(updated);
       }, 300);
     },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Cleanup timeout on unmount
@@ -192,7 +189,7 @@ export function CandidateFilterPanel({
       setFilters(updated);
       emitFilterChange(updated);
     },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Date from change handler
@@ -200,10 +197,9 @@ export function CandidateFilterPanel({
     (date: Date | undefined) => {
       const updated = { ...filters, dateFrom: date };
       setFilters(updated);
-      setDateFromInput(date ? formatDateDisplay(date) : "");
       emitFilterChange(updated);
     },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Date to change handler
@@ -211,40 +207,9 @@ export function CandidateFilterPanel({
     (date: Date | undefined) => {
       const updated = { ...filters, dateTo: date };
       setFilters(updated);
-      setDateToInput(date ? formatDateDisplay(date) : "");
       emitFilterChange(updated);
     },
-    [filters, emitFilterChange]
-  );
-
-  // Date from text input handler
-  const handleDateFromInputChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setDateFromInput(value);
-      const parsed = parseDateInput(value);
-      if (parsed || value === "") {
-        const updated = { ...filters, dateFrom: parsed };
-        setFilters(updated);
-        emitFilterChange(updated);
-      }
-    },
-    [filters, emitFilterChange]
-  );
-
-  // Date to text input handler
-  const handleDateToInputChange = React.useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      const value = e.target.value;
-      setDateToInput(value);
-      const parsed = parseDateInput(value);
-      if (parsed || value === "") {
-        const updated = { ...filters, dateTo: parsed };
-        setFilters(updated);
-        emitFilterChange(updated);
-      }
-    },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Confidence slider handler
@@ -254,7 +219,7 @@ export function CandidateFilterPanel({
       setFilters(updated);
       emitFilterChange(updated);
     },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Skills input handler
@@ -265,14 +230,12 @@ export function CandidateFilterPanel({
       setFilters(updated);
       emitFilterChange(updated);
     },
-    [filters, emitFilterChange]
+    [filters, emitFilterChange],
   );
 
   // Clear all filters
   const handleClearFilters = React.useCallback(() => {
     setFilters(DEFAULT_FILTERS);
-    setDateFromInput("");
-    setDateToInput("");
     setDateRangeError(null);
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -281,7 +244,11 @@ export function CandidateFilterPanel({
   }, [onFilterChange]);
 
   return (
-    <div className="space-y-4 rounded-lg border p-4" role="search" aria-label="Bộ lọc ứng viên">
+    <div
+      className="space-y-4 rounded-lg border p-4"
+      role="search"
+      aria-label="Bộ lọc ứng viên"
+    >
       {/* Row 1: Search + Status */}
       <div className="grid gap-4 sm:grid-cols-2">
         {/* Search input */}
@@ -301,10 +268,7 @@ export function CandidateFilterPanel({
         {/* Status dropdown */}
         <div className="space-y-2">
           <Label htmlFor="filter-status">Trạng thái</Label>
-          <Select
-            value={filters.status}
-            onValueChange={handleStatusChange}
-          >
+          <Select value={filters.status} onValueChange={handleStatusChange}>
             <SelectTrigger id="filter-status" aria-label="Lọc theo trạng thái">
               <SelectValue placeholder="Tất cả" />
             </SelectTrigger>
@@ -331,7 +295,7 @@ export function CandidateFilterPanel({
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !filters.dateFrom && "text-muted-foreground"
+                  !filters.dateFrom && "text-muted-foreground",
                 )}
                 aria-label="Chọn ngày bắt đầu"
               >
@@ -361,7 +325,7 @@ export function CandidateFilterPanel({
                 variant="outline"
                 className={cn(
                   "w-full justify-start text-left font-normal",
-                  !filters.dateTo && "text-muted-foreground"
+                  !filters.dateTo && "text-muted-foreground",
                 )}
                 aria-label="Chọn ngày kết thúc"
               >

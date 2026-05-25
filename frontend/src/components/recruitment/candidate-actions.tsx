@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  Calendar,
-  Mail,
-  XCircle,
-  CheckCircle,
-  Archive,
-} from "lucide-react";
+import { Calendar, Mail, XCircle, CheckCircle, Archive } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -22,12 +16,7 @@ import {
 } from "@/lib/recruitment-utils";
 
 /** Action types that correspond to state transitions + email (non-transition). */
-export type ActionType =
-  | "schedule"
-  | "email"
-  | "reject"
-  | "accept"
-  | "archive";
+export type ActionType = "schedule" | "email" | "reject" | "accept" | "archive";
 
 export interface CandidateActionsProps {
   status: CandidateStatus;
@@ -64,7 +53,10 @@ const ACTION_LABELS: Record<ActionType, string> = {
 };
 
 /** Icons for each action button. */
-const ACTION_ICONS: Record<ActionType, React.ComponentType<{ className?: string }>> = {
+const ACTION_ICONS: Record<
+  ActionType,
+  React.ComponentType<{ className?: string }>
+> = {
   schedule: Calendar,
   email: Mail,
   reject: XCircle,
@@ -73,7 +65,10 @@ const ACTION_ICONS: Record<ActionType, React.ComponentType<{ className?: string 
 };
 
 /** Button variants for each action type. */
-const ACTION_VARIANTS: Record<ActionType, "default" | "destructive" | "outline" | "secondary" | "ghost"> = {
+const ACTION_VARIANTS: Record<
+  ActionType,
+  "default" | "destructive" | "outline" | "secondary" | "ghost"
+> = {
   schedule: "default",
   email: "outline",
   reject: "destructive",
@@ -96,7 +91,7 @@ export function CandidateActions({
   onArchive,
   disabled = false,
 }: CandidateActionsProps) {
-  const [dialogOpen, setDialogOpen] = useState<Record<ActionType, boolean>>({
+  const [, setDialogOpen] = useState<Record<ActionType, boolean>>({
     schedule: false,
     email: false,
     reject: false,
@@ -115,11 +110,6 @@ export function CandidateActions({
   /** Open a specific action dialog. */
   function openDialog(action: ActionType) {
     setDialogOpen((prev) => ({ ...prev, [action]: true }));
-  }
-
-  /** Close a specific action dialog. */
-  function closeDialog(action: ActionType) {
-    setDialogOpen((prev) => ({ ...prev, [action]: false }));
   }
 
   /** Handle button click: open dialog and invoke callback. */

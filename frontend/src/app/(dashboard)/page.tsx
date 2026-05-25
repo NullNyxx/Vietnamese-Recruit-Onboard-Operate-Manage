@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Users, Building2, Briefcase, Mail, UserPlus, FileSpreadsheet } from "lucide-react";
+import { Users, Building2, Briefcase, Mail, UserPlus } from "lucide-react";
 
 import { StatCard } from "@/components/stat-card";
 import { Button } from "@/components/ui/button";
-import { employeesApi, departmentsApi, positionsApi, gmailApi } from "@/lib/api";
+import {
+  employeesApi,
+  departmentsApi,
+  positionsApi,
+  gmailApi,
+} from "@/lib/api";
 
 interface DashboardStats {
   employees: number;
@@ -91,9 +96,7 @@ export default function DashboardPage() {
 
       {/* Quick actions */}
       <section className="space-y-4">
-        <h2 className="text-xl font-semibold font-heading">
-          Hành động nhanh
-        </h2>
+        <h2 className="text-xl font-semibold font-heading">Hành động nhanh</h2>
         <div className="flex flex-wrap gap-3">
           <Button asChild>
             <Link href="/employees/new">

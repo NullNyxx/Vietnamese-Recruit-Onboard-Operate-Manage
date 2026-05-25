@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { ChevronLeft, Save, Plus, Trash2 } from "lucide-react";
 
 import {
@@ -16,13 +16,14 @@ import {
   createDependent,
   deleteDependent,
 } from "@/lib/api/payroll";
-import type {
-  SalaryConfig,
-  SalaryConfigCreate,
-  Allowance,
-  Dependent,
-} from "@/lib/api/payroll";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import type { SalaryConfig, Allowance, Dependent } from "@/lib/api/payroll";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +45,6 @@ import {
 
 export default function SalaryConfigPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
 
   const [config, setConfig] = useState<SalaryConfig | null>(null);
   const [allowances, setAllowances] = useState<Allowance[]>([]);
@@ -132,7 +132,11 @@ export default function SalaryConfigPage() {
         ...newAllowance,
       });
       setShowAllowanceDialog(false);
-      setNewAllowance({ allowance_type: "telephone", amount: 0, is_taxable: true });
+      setNewAllowance({
+        allowance_type: "telephone",
+        amount: 0,
+        is_taxable: true,
+      });
       loadData();
     } catch (error) {
       console.error(error);
@@ -156,7 +160,12 @@ export default function SalaryConfigPage() {
         ...newDependent,
       });
       setShowDependentDialog(false);
-      setNewDependent({ name: "", relationship: "", date_of_birth: "", tax_dependent: true });
+      setNewDependent({
+        name: "",
+        relationship: "",
+        date_of_birth: "",
+        tax_dependent: true,
+      });
       loadData();
     } catch (error) {
       console.error(error);
@@ -173,7 +182,10 @@ export default function SalaryConfigPage() {
   };
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(value);
+    new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(value);
 
   if (loading) {
     return (
@@ -193,14 +205,18 @@ export default function SalaryConfigPage() {
         </Button>
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Cấu hình lương</h1>
-          <p className="text-muted-foreground">Thiết lập lương và phụ cấp cho nhân viên</p>
+          <p className="text-muted-foreground">
+            Thiết lập lương và phụ cấp cho nhân viên
+          </p>
         </div>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Thông tin lương cơ bản</CardTitle>
-          <CardDescription>Lương gross, lương BH và loại hợp đồng</CardDescription>
+          <CardDescription>
+            Lương gross, lương BH và loại hợp đồng
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -211,7 +227,10 @@ export default function SalaryConfigPage() {
                 type="number"
                 value={formData.gross_salary}
                 onChange={(e) =>
-                  setFormData({ ...formData, gross_salary: parseInt(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    gross_salary: parseInt(e.target.value) || 0,
+                  })
                 }
               />
             </div>
@@ -222,7 +241,10 @@ export default function SalaryConfigPage() {
                 type="number"
                 value={formData.insurance_salary}
                 onChange={(e) =>
-                  setFormData({ ...formData, insurance_salary: parseInt(e.target.value) || 0 })
+                  setFormData({
+                    ...formData,
+                    insurance_salary: parseInt(e.target.value) || 0,
+                  })
                 }
               />
             </div>
@@ -234,7 +256,9 @@ export default function SalaryConfigPage() {
                 id="contract_type"
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                 value={formData.contract_type}
-                onChange={(e) => setFormData({ ...formData, contract_type: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, contract_type: e.target.value })
+                }
               >
                 <option value="official">Chính thức</option>
                 <option value="probation">Thử việc</option>
@@ -247,7 +271,9 @@ export default function SalaryConfigPage() {
                 id="effective_date"
                 type="date"
                 value={formData.effective_date}
-                onChange={(e) => setFormData({ ...formData, effective_date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, effective_date: e.target.value })
+                }
               />
             </div>
           </div>
@@ -271,7 +297,9 @@ export default function SalaryConfigPage() {
         </CardHeader>
         <CardContent>
           {allowances.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">Chưa có phụ cấp nào</p>
+            <p className="text-center text-muted-foreground py-4">
+              Chưa có phụ cấp nào
+            </p>
           ) : (
             <Table>
               <TableHeader>
@@ -286,9 +314,15 @@ export default function SalaryConfigPage() {
               <TableBody>
                 {allowances.map((allowance) => (
                   <TableRow key={allowance.id}>
-                    <TableCell className="font-medium">{allowance.allowance_type}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(allowance.amount)}</TableCell>
-                    <TableCell>{allowance.is_taxable ? "Có" : "Không"}</TableCell>
+                    <TableCell className="font-medium">
+                      {allowance.allowance_type}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(allowance.amount)}
+                    </TableCell>
+                    <TableCell>
+                      {allowance.is_taxable ? "Có" : "Không"}
+                    </TableCell>
                     <TableCell>{allowance.effective_date}</TableCell>
                     <TableCell className="text-right">
                       <Button
@@ -320,7 +354,9 @@ export default function SalaryConfigPage() {
         </CardHeader>
         <CardContent>
           {dependents.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">Chưa có người phụ thuộc</p>
+            <p className="text-center text-muted-foreground py-4">
+              Chưa có người phụ thuộc
+            </p>
           ) : (
             <Table>
               <TableHeader>
@@ -335,10 +371,14 @@ export default function SalaryConfigPage() {
               <TableBody>
                 {dependents.map((dependent) => (
                   <TableRow key={dependent.id}>
-                    <TableCell className="font-medium">{dependent.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {dependent.name}
+                    </TableCell>
                     <TableCell>{dependent.relationship}</TableCell>
                     <TableCell>{dependent.date_of_birth || "-"}</TableCell>
-                    <TableCell>{dependent.tax_dependent ? "Có" : "Không"}</TableCell>
+                    <TableCell>
+                      {dependent.tax_dependent ? "Có" : "Không"}
+                    </TableCell>
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -368,7 +408,10 @@ export default function SalaryConfigPage() {
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 value={newAllowance.allowance_type}
                 onChange={(e) =>
-                  setNewAllowance({ ...newAllowance, allowance_type: e.target.value })
+                  setNewAllowance({
+                    ...newAllowance,
+                    allowance_type: e.target.value,
+                  })
                 }
               >
                 <option value="telephone">Điện thoại</option>
@@ -385,13 +428,19 @@ export default function SalaryConfigPage() {
                 type="number"
                 value={newAllowance.amount}
                 onChange={(e) =>
-                  setNewAllowance({ ...newAllowance, amount: parseInt(e.target.value) || 0 })
+                  setNewAllowance({
+                    ...newAllowance,
+                    amount: parseInt(e.target.value) || 0,
+                  })
                 }
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAllowanceDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowAllowanceDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddAllowance}>Thêm</Button>
@@ -409,7 +458,9 @@ export default function SalaryConfigPage() {
               <Label>Tên</Label>
               <Input
                 value={newDependent.name}
-                onChange={(e) => setNewDependent({ ...newDependent, name: e.target.value })}
+                onChange={(e) =>
+                  setNewDependent({ ...newDependent, name: e.target.value })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -417,13 +468,19 @@ export default function SalaryConfigPage() {
               <Input
                 value={newDependent.relationship}
                 onChange={(e) =>
-                  setNewDependent({ ...newDependent, relationship: e.target.value })
+                  setNewDependent({
+                    ...newDependent,
+                    relationship: e.target.value,
+                  })
                 }
               />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDependentDialog(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setShowDependentDialog(false)}
+            >
               Hủy
             </Button>
             <Button onClick={handleAddDependent}>Thêm</Button>
