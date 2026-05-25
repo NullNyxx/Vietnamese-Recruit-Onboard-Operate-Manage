@@ -9,8 +9,11 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
+from sqlmodel import Session, select
 from fastapi.responses import JSONResponse, RedirectResponse
 
+from src.database import get_session
+from src.modules.employee.domain.entities import Employee
 from src.modules.identity.api.schemas import GrantStatusResponse, UserResponse
 from src.modules.identity.application.auth_service import AuthService
 from src.modules.identity.application.oauth_service import OAuthService
@@ -251,6 +254,7 @@ async def logout(
 async def me(
     current_user: CurrentUserDep,
     oauth_service: OAuthServiceDep,
+    session: Session = Depends(get_session),
 ) -> UserResponse:
     """Get the current authenticated user's profile with grant status.
 
@@ -266,12 +270,16 @@ async def me(
         A UserResponse containing user profile and grant status.
     """
     grant_status = await _get_user_grant_status(current_user, oauth_service)
+    employee = session.exec(
+        select(Employee).where(Employee.email == current_user.email)
+    ).first()
 
     return UserResponse(
         id=current_user.id,
         email=current_user.email,
         name=current_user.name,
         avatar_url=current_user.avatar_url,
+        employee_id=employee.id if employee else None,
         role=current_user.role,
         gmail_grant_valid=grant_status.gmail_grant_valid,
         calendar_grant_valid=grant_status.calendar_grant_valid,

@@ -9,6 +9,7 @@ export interface CurrentUser {
   email: string;
   name: string;
   avatar_url: string | null;
+  employee_id?: string | null;
   role: UserRole;
   gmail_grant_valid: boolean;
   calendar_grant_valid: boolean;

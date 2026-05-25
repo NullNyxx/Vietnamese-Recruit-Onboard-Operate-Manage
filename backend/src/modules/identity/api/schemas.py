@@ -101,6 +101,7 @@ class UserResponse(BaseModel):
         email: The user's email address.
         name: The user's display name.
         avatar_url: URL to the user's avatar image, if available.
+        employee_id: Linked employee record ID if one exists.
         role: The user's role (admin or user).
         gmail_grant_valid: True if Gmail scopes are active.
         calendar_grant_valid: True if Calendar scope is active.
@@ -114,6 +115,7 @@ class UserResponse(BaseModel):
     email: str
     name: str
     avatar_url: str | None = None
+    employee_id: UUID | None = None
     role: UserRole
     gmail_grant_valid: bool
     calendar_grant_valid: bool
