@@ -122,15 +122,20 @@ class TokenService:
         self._settings = settings
         self._refresh_token_repo = refresh_token_repository
 
-    def create_access_token(self, user_id: UUID, email: str) -> str:
+    def create_access_token(
+        self, user_id: UUID, email: str, employee_id: UUID | None = None
+    ) -> str:
         """Issue a JWT access token with user claims.
 
-        Creates a signed JWT containing the user's ID and email with
-        a 15-minute expiry (configurable via settings).
+        Creates a signed JWT containing the user's ID, email, and
+        optionally the linked employee_id with a 15-minute expiry
+        (configurable via settings).
 
         Args:
             user_id: The unique identifier of the authenticated user.
             email: The user's email address.
+            employee_id: The linked employee's UUID, if a
+                User_Employee_Link exists. Included in claims when provided.
 
         Returns:
             The encoded JWT access token string.
@@ -139,6 +144,8 @@ class TokenService:
             "sub": str(user_id),
             "email": email,
         }
+        if employee_id:
+            payload["employee_id"] = str(employee_id)
         expires_delta = timedelta(minutes=self._settings.access_token_expire_minutes)
         return self._jwt_utils.encode(payload, expires_delta)
 
@@ -179,9 +186,12 @@ class TokenService:
         """
         decoded = self._jwt_utils.decode(token)
         try:
+            employee_id_raw = decoded.get("employee_id")
+            employee_id = UUID(employee_id_raw) if employee_id_raw else None
             return TokenPayload(
                 sub=decoded["sub"],
                 email=decoded["email"],
+                employee_id=employee_id,
                 exp=decoded["exp"],
                 iat=decoded["iat"],
             )

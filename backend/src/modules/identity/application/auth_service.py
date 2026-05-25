@@ -24,6 +24,9 @@ from src.modules.identity.infrastructure.crypto_utils import CryptoUtils
 from src.modules.identity.infrastructure.jwt_utils import JWTUtils
 
 if TYPE_CHECKING:
+    from src.modules.employee.infrastructure.employee_repository import (
+        EmployeeRepository,
+    )
     from src.modules.identity.application.oauth_service import OAuthService
     from src.modules.identity.application.token_service import (
         RefreshTokenRepository,
@@ -128,6 +131,7 @@ class AuthService:
         user_repository: UserRepository,
         oauth_grant_repository: OAuthGrantRepository,
         refresh_token_repository: RefreshTokenRepository,
+        employee_repository: EmployeeRepository | None = None,
     ) -> None:
         """Initialize AuthService with all required dependencies.
 
@@ -142,6 +146,8 @@ class AuthService:
             user_repository: Repository for user CRUD operations.
             oauth_grant_repository: Repository for OAuth grant persistence.
             refresh_token_repository: Repository for refresh token persistence.
+            employee_repository: Repository for employee lookup by email.
+                Used to resolve the User-Employee link at login time.
         """
         self._settings = settings
         self._jwt_utils = jwt_utils
@@ -152,6 +158,7 @@ class AuthService:
         self._user_repository = user_repository
         self._oauth_grant_repository = oauth_grant_repository
         self._refresh_token_repository = refresh_token_repository
+        self._employee_repository = employee_repository
 
     async def initiate_login(self) -> LoginRedirect:
         """Generate an OAuth2 redirect URL with PKCE and CSRF state.
@@ -265,13 +272,22 @@ class AuthService:
         # 8. Revoke old refresh tokens (single active session).
         await self._token_service.revoke_user_tokens(user.id)
 
-        # 9. Create new access token and refresh token.
-        access_token = self._token_service.create_access_token(user.id, user.email)
+        # 9. Resolve User-Employee link by matching email.
+        employee_id = None
+        if self._employee_repository is not None:
+            employee = await self._employee_repository.get_by_email(user.email)
+            if employee and employee.is_active:
+                employee_id = employee.id
+
+        # 10. Create new access token (with employee_id if linked) and refresh token.
+        access_token = self._token_service.create_access_token(
+            user.id, user.email, employee_id
+        )
         raw_refresh_token, token_hash = self._token_service.create_refresh_token(
             user.id
         )
 
-        # 10. Store refresh token hash in repository.
+        # 11. Store refresh token hash in repository.
         expires_at = datetime.now(UTC) + timedelta(
             days=self._settings.refresh_token_expire_days
         )

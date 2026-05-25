@@ -77,6 +77,40 @@ class TestCreateAccessToken:
         assert decoded["sub"] == str(user_id)
         assert decoded["email"] == email
 
+    def test_includes_employee_id_when_provided(
+        self, token_service: TokenService, jwt_utils: JWTUtils
+    ) -> None:
+        user_id = uuid4()
+        employee_id = uuid4()
+        email = "employee@example.com"
+
+        token = token_service.create_access_token(user_id, email, employee_id=employee_id)
+        decoded = jwt_utils.decode(token)
+
+        assert decoded["employee_id"] == str(employee_id)
+
+    def test_omits_employee_id_when_none(
+        self, token_service: TokenService, jwt_utils: JWTUtils
+    ) -> None:
+        user_id = uuid4()
+        email = "hr@example.com"
+
+        token = token_service.create_access_token(user_id, email, employee_id=None)
+        decoded = jwt_utils.decode(token)
+
+        assert "employee_id" not in decoded
+
+    def test_omits_employee_id_when_not_provided(
+        self, token_service: TokenService, jwt_utils: JWTUtils
+    ) -> None:
+        user_id = uuid4()
+        email = "hr@example.com"
+
+        token = token_service.create_access_token(user_id, email)
+        decoded = jwt_utils.decode(token)
+
+        assert "employee_id" not in decoded
+
     def test_token_has_15_minute_expiry(self, token_service: TokenService, jwt_utils: JWTUtils) -> None:
         user_id = uuid4()
         email = "hr@example.com"
@@ -156,6 +190,25 @@ class TestVerifyAccessToken:
         assert isinstance(payload, TokenPayload)
         assert payload.sub == user_id
         assert payload.email == email
+
+    def test_returns_employee_id_when_present(self, token_service: TokenService) -> None:
+        user_id = uuid4()
+        employee_id = uuid4()
+        email = "employee@example.com"
+        token = token_service.create_access_token(user_id, email, employee_id=employee_id)
+
+        payload = token_service.verify_access_token(token)
+
+        assert payload.employee_id == employee_id
+
+    def test_returns_none_employee_id_when_absent(self, token_service: TokenService) -> None:
+        user_id = uuid4()
+        email = "hr@example.com"
+        token = token_service.create_access_token(user_id, email)
+
+        payload = token_service.verify_access_token(token)
+
+        assert payload.employee_id is None
 
     def test_expired_token_raises_invalid_token_error(
         self, jwt_utils: JWTUtils, settings: AuthSettings, mock_repo: AsyncMock

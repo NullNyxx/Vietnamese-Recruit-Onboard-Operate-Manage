@@ -15,6 +15,7 @@ import redis.asyncio as redis
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+from src.modules.employee.infrastructure.employee_repository import EmployeeRepository as EmployeeRepo
 from src.modules.identity.application.audit_service import AuditService
 from src.modules.identity.application.auth_service import AuthService
 from src.modules.identity.application.oauth_config_manager import OAuthConfigManager
@@ -221,6 +222,7 @@ async def get_auth_service(
     refresh_token_repo: RefreshTokenRepository = Depends(get_refresh_token_repository),
     oauth_service: OAuthService = Depends(get_oauth_service),
     token_service: TokenService = Depends(get_token_service),
+    session: AsyncSession = Depends(get_db_session),
 ) -> AuthService:
     """Provide an AuthService instance with all dependencies.
 
@@ -230,10 +232,12 @@ async def get_auth_service(
         refresh_token_repo: The refresh token repository from DI.
         oauth_service: The OAuth service from DI.
         token_service: The token service from DI.
+        session: The async database session for employee lookup.
 
     Returns:
         A fully configured AuthService orchestrator.
     """
+    employee_repo = EmployeeRepo(session)
     return AuthService(
         settings=get_settings(),
         jwt_utils=get_jwt_utils(),
@@ -244,6 +248,7 @@ async def get_auth_service(
         user_repository=user_repo,
         oauth_grant_repository=oauth_grant_repo,
         refresh_token_repository=refresh_token_repo,
+        employee_repository=employee_repo,
     )
 
 

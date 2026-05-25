@@ -22,12 +22,14 @@ class TokenPayload(BaseModel):
     Attributes:
         sub: The user's unique identifier (user_id).
         email: The user's email address.
+        employee_id: The linked employee's UUID, if a User_Employee_Link exists.
         exp: Token expiration timestamp.
         iat: Token issued-at timestamp.
     """
 
     sub: UUID
     email: str
+    employee_id: UUID | None = None
     exp: datetime
     iat: datetime
 
