@@ -26,6 +26,8 @@ from src.modules.identity.api.router import router as auth_router
 from src.modules.recruitment.api.candidate_router import candidate_router
 from src.modules.recruitment.api.cv_review_router import cv_review_router
 from src.modules.recruitment.api.error_handler import register_recruitment_error_handlers
+from src.modules.payroll.api.payroll_router import router as payroll_router
+from src.modules.payroll.api.salary_router import router as salary_router
 from src.modules.recruitment.api.metrics_router import metrics_router
 
 logger = logging.getLogger(__name__)
@@ -95,6 +97,8 @@ app.include_router(leave_router)
 app.include_router(attendance_router)
 app.include_router(overtime_router)
 app.include_router(schedule_router)
+app.include_router(salary_router)
+app.include_router(payroll_router)
 
 # Register exception handlers.
 register_auth_error_handlers(app)
