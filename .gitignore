@@ -39,15 +39,17 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 .idea/
-.kiro/
+# Kiro (keep steering files for team sharing)
+.kiro/*
+!.kiro/steering/
 .vscode/
 *.swp
 
 # ---- MCP (local config) ----
 .mcp.json
 
-# Harness durable layer
-harness.db
+# Harness durable layer (WAL files are runtime-only)
 harness.db-wal
 harness.db-shm
+# Harness CLI binary (downloaded per-platform)
 scripts/bin/harness-cli
