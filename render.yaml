@@ -11,7 +11,7 @@ services:
     buildCommand: uv sync --frozen --no-dev
     startCommand: uvicorn src.main:app --host 0.0.0.0 --port 8000
     # Run migrations on each deploy
-    prerenderCommand: uv run alembic upgrade head
+    preDeployCommand: uv run alembic upgrade head
     envVars:
       - key: PYTHON_VERSION
         value: "3.11"
@@ -20,8 +20,7 @@ services:
           name: vroom-hr-db
           property: internalConnectionString
       - key: AUTH_REDIS_URL
-        fromService:
-          type: redis
+        fromRedis:
           name: vroom-hr-redis
           property: url
       # JWT Secret - GENERATE NEW ONE FOR PRODUCTION
