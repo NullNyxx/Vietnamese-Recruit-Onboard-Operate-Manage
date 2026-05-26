@@ -7,13 +7,22 @@ RUN corepack enable
 WORKDIR /app
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml* .npmrc* ./
+COPY frontend/package.json frontend/pnpm-lock.yaml* frontend/.npmrc* ./
 
 # Install dependencies (--ignore-scripts is safe for this project)
 RUN pnpm install --ignore-scripts
 
 # Copy application code
-COPY . .
+COPY frontend/src/ ./src/
+COPY frontend/public/ ./public/
+COPY frontend/next.config.js ./
+COPY frontend/next-env.d.ts ./
+COPY frontend/tsconfig.json ./
+COPY frontend/postcss.config.js ./
+COPY frontend/tailwind.config.ts ./
+COPY frontend/components.json ./
+COPY frontend/.eslintrc.json ./
+COPY frontend/pnpm-workspace.yaml ./
 
 EXPOSE 3000
 
