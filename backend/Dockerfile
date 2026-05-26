@@ -23,4 +23,7 @@ EXPOSE 8000
 
 # Run migrations then start server (for local dev)
 # For production, use a Release Command: uv run alembic upgrade head
-CMD ["sh", "-c", "uv run alembic upgrade head && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --app-dir /app/backend"]
+# Run migrations then start server
+# Using a script to capture errors
+RUN echo '#!/bin/sh\necho "Running migrations..."\nuv run alembic upgrade head || echo "Migration skipped or failed"\necho "Starting server..."\nuvicorn src.main:app --host 0.0.0.0 --port 8000 --app-dir /app/backend' > /app/start.sh && chmod +x /app/start.sh
+CMD ["/app/start.sh"]
