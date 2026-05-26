@@ -21,4 +21,4 @@ COPY backend/scripts/ ./scripts/
 # Expose port
 EXPOSE 8000
 
-CMD sh -c "echo 'Starting...' && uvicorn src.main:app --host 0.0.0.0 --port 8000 --app-dir /app/backend"
+CMD sh -c "echo 'Starting...' && uv run uvicorn src.main:app --host 0.0.0.0 --port 8000 --app-dir /app/backend"
