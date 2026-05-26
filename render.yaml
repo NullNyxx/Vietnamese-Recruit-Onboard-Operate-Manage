@@ -7,7 +7,7 @@ services:
     name: vroom-hr-backend
     env: python
     region: singapore
-    rootDirectory: backend
+    rootDir: backend
     buildCommand: uv sync --frozen --no-dev
     startCommand: uvicorn src.main:app --host 0.0.0.0 --port 8000
     # Run migrations on each deploy
@@ -20,7 +20,8 @@ services:
           name: vroom-hr-db
           property: internalConnectionString
       - key: AUTH_REDIS_URL
-        fromRedis:
+        fromService:
+          type: keyvalue
           name: vroom-hr-redis
           property: url
       # JWT Secret - GENERATE NEW ONE FOR PRODUCTION
@@ -65,12 +66,16 @@ services:
       - key: AUTH_REFRESH_TOKEN_EXPIRE_DAYS
         value: "7"
 
-databases:
-  - name: vroom-hr-db
+  # Redis Key-Value Store
+  - type: keyvalue
+    name: vroom-hr-redis
     region: singapore
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: Allow all IPs for Redis access
     plan: free
 
-redis:
-  - name: vroom-hr-redis
+databases:
+  - name: vroom-hr-db
     region: singapore
     plan: free
