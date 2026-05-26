@@ -18,12 +18,12 @@ services:
       - key: AUTH_DATABASE_URL
         fromDatabase:
           name: vroom-hr-db
-          property: connectionString
+          property: internalConnectionString
       - key: AUTH_REDIS_URL
         fromService:
           type: redis
           name: vroom-hr-redis
-          property: connectionString
+          property: url
       # JWT Secret - GENERATE NEW ONE FOR PRODUCTION
       - key: AUTH_JWT_SECRET_KEY
         generateValue: true
@@ -66,16 +66,12 @@ services:
       - key: AUTH_REFRESH_TOKEN_EXPIRE_DAYS
         value: "7"
 
-  # PostgreSQL Database
-  - type: postgresql
-    name: vroom-hr-db
+databases:
+  - name: vroom-hr-db
     region: singapore
     plan: free
-    postgresVersion: "15"
 
-  # Redis
-  - type: redis
-    name: vroom-hr-redis
+redis:
+  - name: vroom-hr-redis
     region: singapore
     plan: free
-    redisVersion: "7"
