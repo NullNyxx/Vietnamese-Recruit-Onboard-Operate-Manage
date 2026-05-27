@@ -35,9 +35,7 @@ def register_recruitment_error_handlers(app: FastAPI) -> None:
     """
 
     @app.exception_handler(RecruitmentError)
-    async def _recruitment_error_handler(
-        request: Request, exc: RecruitmentError
-    ) -> JSONResponse:
+    async def _recruitment_error_handler(request: Request, exc: RecruitmentError) -> JSONResponse:
         """Handle RecruitmentError exceptions and return a JSON error response."""
         return JSONResponse(
             status_code=exc.status_code,
@@ -77,9 +75,7 @@ def register_recruitment_error_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(ValueError)
-    async def _value_error_handler(
-        request: Request, exc: ValueError
-    ) -> JSONResponse:
+    async def _value_error_handler(request: Request, exc: ValueError) -> JSONResponse:
         """Handle ValueError with 422 for general validation errors."""
         return JSONResponse(
             status_code=422,

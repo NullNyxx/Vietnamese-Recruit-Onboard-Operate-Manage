@@ -4,8 +4,6 @@ Provides dependency injection functions for extracting and validating
 the current authenticated user from incoming requests.
 """
 
-from uuid import UUID
-
 from fastapi import HTTPException, Request
 
 from src.modules.identity.application.token_service import TokenService

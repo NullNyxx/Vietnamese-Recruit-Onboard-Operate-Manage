@@ -123,17 +123,13 @@ async def list_candidates(
     search: str | None = Query(
         default=None, min_length=1, max_length=200, description="Search query"
     ),
-    status: list[CandidateStatus] | None = Query(
-        default=None, description="Filter by status"
-    ),
+    status: list[CandidateStatus] | None = Query(default=None, description="Filter by status"),
     from_date: date | None = Query(default=None, description="Filter from date"),
     to_date: date | None = Query(default=None, description="Filter to date"),
     min_confidence: float | None = Query(
         default=None, ge=0.0, le=1.0, description="Minimum confidence score"
     ),
-    skills: str | None = Query(
-        default=None, description="Comma-separated skills filter"
-    ),
+    skills: str | None = Query(default=None, description="Comma-separated skills filter"),
 ) -> CandidateListResponse:
     """List candidates with pagination, search, and filters.
 
@@ -171,9 +167,7 @@ async def list_candidates(
     if from_date:
         date_from = datetime(from_date.year, from_date.month, from_date.day)
     if to_date:
-        date_to = datetime(
-            to_date.year, to_date.month, to_date.day, 23, 59, 59
-        )
+        date_to = datetime(to_date.year, to_date.month, to_date.day, 23, 59, 59)
 
     result: PaginatedCandidates = await candidate_service.list_candidates(
         status=status_list,
@@ -334,9 +328,7 @@ async def get_cv_presigned_url(
     except StorageServiceUnavailableError:
         raise
     except Exception as exc:
-        raise StorageServiceUnavailableError(
-            f"Failed to generate presigned URL: {exc}"
-        )
+        raise StorageServiceUnavailableError(f"Failed to generate presigned URL: {exc}")
 
     return CVPresignedUrlResponse(
         presigned_url=presigned_url,

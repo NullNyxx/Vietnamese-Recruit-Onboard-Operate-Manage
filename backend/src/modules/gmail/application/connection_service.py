@@ -36,6 +36,7 @@ class LabelServiceProtocol(Protocol):
         """Initialize VroomHR labels on the user's Gmail account."""
         ...
 
+
 logger = logging.getLogger(__name__)
 
 # Google OAuth2 authorization endpoint.
@@ -189,9 +190,7 @@ class ConnectionService:
         redirect_url = self._build_oauth2_redirect_url()
         return ConnectResponse(redirect_url=redirect_url)
 
-    async def handle_callback(
-        self, user_id: UUID, code: str
-    ) -> ConnectionStatusResponse:
+    async def handle_callback(self, user_id: UUID, code: str) -> ConnectionStatusResponse:
         """Handle the OAuth2 callback after user consent.
 
         Exchanges the authorization code for tokens, validates that all
@@ -226,9 +225,7 @@ class ConnectionService:
                 )
         except httpx.HTTPError as exc:
             logger.error("OAuth2 token exchange HTTP error: %s", exc)
-            raise GmailConnectFailedException(
-                "Failed to connect to Google token endpoint"
-            ) from exc
+            raise GmailConnectFailedException("Failed to connect to Google token endpoint") from exc
 
         if response.status_code != 200:
             logger.error(
@@ -236,9 +233,7 @@ class ConnectionService:
                 response.status_code,
                 response.text,
             )
-            raise GmailConnectFailedException(
-                "OAuth2 token exchange failed"
-            )
+            raise GmailConnectFailedException("OAuth2 token exchange failed")
 
         data = response.json()
         access_token = data.get("access_token")
@@ -247,9 +242,7 @@ class ConnectionService:
         scope_str = data.get("scope", "")
 
         if not access_token:
-            raise GmailConnectFailedException(
-                "No access token received from Google"
-            )
+            raise GmailConnectFailedException("No access token received from Google")
 
         # Validate that all required Gmail scopes were granted
         granted_scopes = set(scope_str.split()) if scope_str else set()
@@ -319,7 +312,8 @@ class ConnectionService:
                 revoked = await self._gmail_adapter.revoke_token(refresh_token)
                 if not revoked:
                     logger.warning(
-                        "Token revocation failed or timed out for user %s, proceeding with disconnect",
+                        "Token revocation failed or timed out for user %s,"
+                        " proceeding with disconnect",
                         user_id,
                     )
         except Exception as exc:

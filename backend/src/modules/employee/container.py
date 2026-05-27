@@ -25,7 +25,6 @@ from src.modules.employee.infrastructure.minio_client import MinIOClient
 from src.modules.employee.infrastructure.position_repository import PositionRepository
 from src.modules.identity.container import get_db_session
 
-
 # ---------------------------------------------------------------------------
 # Singleton infrastructure components
 # ---------------------------------------------------------------------------

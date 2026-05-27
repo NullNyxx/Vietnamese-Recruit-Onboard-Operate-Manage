@@ -72,16 +72,12 @@ class EmployeeRepository:
         # Apply department filter
         if department_id is not None:
             statement = statement.where(Employee.department_id == department_id)
-            count_statement = count_statement.where(
-                Employee.department_id == department_id
-            )
+            count_statement = count_statement.where(Employee.department_id == department_id)
 
         # Apply position filter
         if position_id is not None:
             statement = statement.where(Employee.position_id == position_id)
-            count_statement = count_statement.where(
-                Employee.position_id == position_id
-            )
+            count_statement = count_statement.where(Employee.position_id == position_id)
 
         # Get total count
         count_result = await self.session.execute(count_statement)
@@ -120,9 +116,7 @@ class EmployeeRepository:
         Returns:
             The Employee entity if found, None otherwise.
         """
-        statement = select(Employee).where(
-            func.lower(Employee.email) == email.lower()
-        )
+        statement = select(Employee).where(func.lower(Employee.email) == email.lower())
         result = await self.session.execute(statement)
         return result.scalars().first()
 

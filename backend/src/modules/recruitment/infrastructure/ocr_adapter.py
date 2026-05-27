@@ -21,9 +21,7 @@ logger = logging.getLogger(__name__)
 
 # MIME type constants
 _PDF_MIME: Final[str] = "application/pdf"
-_DOCX_MIME: Final[str] = (
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-)
+_DOCX_MIME: Final[str] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
 _IMAGE_MIMES: Final[set[str]] = {"image/jpeg", "image/png"}
 
 # Separator used between PDF chunks after OCR
@@ -55,9 +53,7 @@ class OCRAdapter:
         """
         self._settings = settings
 
-    async def extract_text(
-        self, file_content: bytes, filename: str, mime_type: str
-    ) -> str:
+    async def extract_text(self, file_content: bytes, filename: str, mime_type: str) -> str:
         """Extract text from a file using olmOCR.
 
         Routes to the appropriate handler based on MIME type:
@@ -84,9 +80,7 @@ class OCRAdapter:
             elif mime_type in _IMAGE_MIMES:
                 return await self._send_to_ocr(file_content, filename, mime_type)
             else:
-                raise OCRExtractionError(
-                    f"Unsupported MIME type for OCR: {mime_type}"
-                )
+                raise OCRExtractionError(f"Unsupported MIME type for OCR: {mime_type}")
         except OCRExtractionError:
             raise
         except Exception as exc:
@@ -95,9 +89,7 @@ class OCRAdapter:
                 filename,
                 exc,
             )
-            raise OCRExtractionError(
-                f"OCR extraction failed for '{filename}': {exc}"
-            ) from exc
+            raise OCRExtractionError(f"OCR extraction failed for '{filename}': {exc}") from exc
 
     async def _handle_pdf(self, file_content: bytes, filename: str) -> str:
         """Handle PDF files, splitting into chunks if necessary.
@@ -139,19 +131,13 @@ class OCRAdapter:
                 # Create a new PDF with just this chunk's pages
                 chunk_doc = fitz.open()
                 try:
-                    chunk_doc.insert_pdf(
-                        doc, from_page=chunk_start, to_page=chunk_end - 1
-                    )
+                    chunk_doc.insert_pdf(doc, from_page=chunk_start, to_page=chunk_end - 1)
                     chunk_bytes = chunk_doc.tobytes()
                 finally:
                     chunk_doc.close()
 
-                chunk_filename = (
-                    f"{filename}_chunk_{chunk_start + 1}-{chunk_end}.pdf"
-                )
-                chunk_text = await self._send_to_ocr(
-                    chunk_bytes, chunk_filename, _PDF_MIME
-                )
+                chunk_filename = f"{filename}_chunk_{chunk_start + 1}-{chunk_end}.pdf"
+                chunk_text = await self._send_to_ocr(chunk_bytes, chunk_filename, _PDF_MIME)
                 chunks_text.append(chunk_text)
 
             return _CHUNK_SEPARATOR.join(chunks_text)
@@ -208,13 +194,9 @@ class OCRAdapter:
             file_size,
         )
         pdf_bytes = await self._convert_docx_to_pdf(file_content, filename)
-        return await self._send_to_ocr(
-            pdf_bytes, filename.rsplit(".", 1)[0] + ".pdf", _PDF_MIME
-        )
+        return await self._send_to_ocr(pdf_bytes, filename.rsplit(".", 1)[0] + ".pdf", _PDF_MIME)
 
-    async def _convert_docx_to_pdf(
-        self, file_content: bytes, filename: str
-    ) -> bytes:
+    async def _convert_docx_to_pdf(self, file_content: bytes, filename: str) -> bytes:
         """Convert DOCX to PDF for OCR processing.
 
         Uses PyMuPDF's built-in story/document capabilities or falls back
@@ -261,16 +243,12 @@ class OCRAdapter:
 
             return pdf_bytes
         except Exception as exc:
-            logger.error(
-                "Failed to convert DOCX '%s' to PDF: %s", filename, exc
-            )
+            logger.error("Failed to convert DOCX '%s' to PDF: %s", filename, exc)
             raise OCRExtractionError(
                 f"DOCX to PDF conversion failed for '{filename}': {exc}"
             ) from exc
 
-    async def _send_to_ocr(
-        self, file_content: bytes, filename: str, mime_type: str
-    ) -> str:
+    async def _send_to_ocr(self, file_content: bytes, filename: str, mime_type: str) -> str:
         """Send file to olmOCR server with retry logic.
 
         Posts the file as multipart/form-data to the olmOCR endpoint.
@@ -304,13 +282,8 @@ class OCRAdapter:
                     response = await client.post(endpoint, files=files)
 
                 if response.status_code != 200:
-                    error_msg = (
-                        f"olmOCR returned HTTP {response.status_code} "
-                        f"for file '{filename}'"
-                    )
-                    logger.warning(
-                        "%s (attempt %d/%d)", error_msg, attempt + 1, max_retries
-                    )
+                    error_msg = f"olmOCR returned HTTP {response.status_code} for file '{filename}'"
+                    logger.warning("%s (attempt %d/%d)", error_msg, attempt + 1, max_retries)
                     last_error = OCRExtractionError(error_msg)
                 else:
                     # Parse response JSON
@@ -318,8 +291,7 @@ class OCRAdapter:
                     markdown = data.get("markdown")
                     if markdown is None:
                         error_msg = (
-                            f"olmOCR response missing 'markdown' field "
-                            f"for file '{filename}'"
+                            f"olmOCR response missing 'markdown' field for file '{filename}'"
                         )
                         logger.warning(
                             "%s (attempt %d/%d)",
@@ -332,30 +304,18 @@ class OCRAdapter:
                         return markdown
 
             except httpx.ConnectError as exc:
-                error_msg = (
-                    f"olmOCR server unreachable for file '{filename}': {exc}"
-                )
-                logger.warning(
-                    "%s (attempt %d/%d)", error_msg, attempt + 1, max_retries
-                )
+                error_msg = f"olmOCR server unreachable for file '{filename}': {exc}"
+                logger.warning("%s (attempt %d/%d)", error_msg, attempt + 1, max_retries)
                 last_error = exc
 
             except httpx.TimeoutException as exc:
-                error_msg = (
-                    f"olmOCR request timed out for file '{filename}': {exc}"
-                )
-                logger.warning(
-                    "%s (attempt %d/%d)", error_msg, attempt + 1, max_retries
-                )
+                error_msg = f"olmOCR request timed out for file '{filename}': {exc}"
+                logger.warning("%s (attempt %d/%d)", error_msg, attempt + 1, max_retries)
                 last_error = exc
 
             except Exception as exc:
-                error_msg = (
-                    f"Unexpected error calling olmOCR for file '{filename}': {exc}"
-                )
-                logger.warning(
-                    "%s (attempt %d/%d)", error_msg, attempt + 1, max_retries
-                )
+                error_msg = f"Unexpected error calling olmOCR for file '{filename}': {exc}"
+                logger.warning("%s (attempt %d/%d)", error_msg, attempt + 1, max_retries)
                 last_error = exc
 
             # Exponential backoff: 5s * 2^attempt → 5s, 10s, 20s
@@ -372,6 +332,5 @@ class OCRAdapter:
 
         # All retries exhausted
         raise OCRExtractionError(
-            f"OCR extraction failed for '{filename}' after {max_retries} attempts: "
-            f"{last_error}"
+            f"OCR extraction failed for '{filename}' after {max_retries} attempts: {last_error}"
         )

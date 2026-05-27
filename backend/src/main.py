@@ -1,36 +1,37 @@
 """Vroom HR Backend - FastAPI application entrypoint."""
 
+from __future__ import annotations
+
 import logging
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 from dotenv import load_dotenv
 
 # Load .env file before any settings are instantiated.
 load_dotenv()
 
-from fastapi import FastAPI
+from fastapi import FastAPI  # noqa: E402
 
-from src.modules.attendance.api.attendance_router import attendance_router
-from src.modules.attendance.api.error_handler import register_attendance_error_handlers
-from src.modules.attendance.api.overtime_router import overtime_router
-from src.modules.attendance.api.router import leave_router
-from src.modules.attendance.api.schedule_router import schedule_router
-from src.modules.employee.api.error_handler import register_employee_error_handlers
-from src.modules.employee.api.router import router as employee_router
-from src.modules.gmail.api.error_handler import register_gmail_error_handlers
-from src.modules.gmail.api.router import router as gmail_router
-from src.modules.identity.api.admin_router import admin_router
-from src.modules.identity.api.error_handler import register_auth_error_handlers
-from src.modules.identity.api.router import router as auth_router
-from src.modules.recruitment.api.candidate_router import candidate_router
-from src.modules.recruitment.api.cv_review_router import cv_review_router
-from src.modules.recruitment.api.error_handler import register_recruitment_error_handlers
-from src.modules.payroll.api.payroll_router import router as payroll_router
-from src.modules.payroll.api.salary_router import router as salary_router
-from src.modules.recruitment.api.metrics_router import metrics_router
-from src.modules.self_service.api.audit_middleware import ESSAuditMiddleware
-from src.modules.self_service.api.router import ess_router
+from src.modules.employee.api.error_handler import (  # noqa: E402
+    register_employee_error_handlers,
+)
+from src.modules.employee.api.router import router as employee_router  # noqa: E402
+from src.modules.gmail.api.error_handler import (  # noqa: E402
+    register_gmail_error_handlers,
+)
+from src.modules.gmail.api.router import router as gmail_router  # noqa: E402
+from src.modules.identity.api.admin_router import admin_router  # noqa: E402
+from src.modules.identity.api.error_handler import (  # noqa: E402
+    register_auth_error_handlers,
+)
+from src.modules.identity.api.router import router as auth_router  # noqa: E402
+from src.modules.recruitment.api.candidate_router import candidate_router  # noqa: E402
+from src.modules.recruitment.api.cv_review_router import cv_review_router  # noqa: E402
+from src.modules.recruitment.api.error_handler import (  # noqa: E402
+    register_recruitment_error_handlers,
+)
+from src.modules.recruitment.api.metrics_router import metrics_router  # noqa: E402
 
 logger = logging.getLogger(__name__)
 
@@ -87,9 +88,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Register audit logging middleware for ESS endpoints (Requirement 12.4).
-app.add_middleware(ESSAuditMiddleware)
-
 # Register module routers.
 app.include_router(auth_router)
 app.include_router(admin_router)
@@ -98,20 +96,12 @@ app.include_router(gmail_router)
 app.include_router(candidate_router)
 app.include_router(cv_review_router)
 app.include_router(metrics_router)
-app.include_router(leave_router)
-app.include_router(attendance_router)
-app.include_router(overtime_router)
-app.include_router(schedule_router)
-app.include_router(ess_router)
-app.include_router(salary_router)
-app.include_router(payroll_router)
 
 # Register exception handlers.
 register_auth_error_handlers(app)
 register_employee_error_handlers(app)
 register_gmail_error_handlers(app)
 register_recruitment_error_handlers(app)
-register_attendance_error_handlers(app)
 
 
 @app.get("/health")

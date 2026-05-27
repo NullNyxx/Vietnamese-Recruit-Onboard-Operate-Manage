@@ -74,9 +74,7 @@ async def get_metrics(
         .group_by(col(CVDocument.processing_status))
     )
     counts_result = await session.execute(counts_stmt)
-    status_counts: dict[str, int] = {
-        row.processing_status: row.cnt for row in counts_result
-    }
+    status_counts: dict[str, int] = {row.processing_status: row.cnt for row in counts_result}
 
     completed_count = status_counts.get("completed", 0)
     failed_count = status_counts.get("failed", 0)
@@ -92,17 +90,14 @@ async def get_metrics(
         failure_rate = 0.0
 
     # --- Average processing time (ms) for terminal documents in window ---
-    avg_time_stmt = (
-        select(
-            func.avg(
-                func.extract("epoch", col(CVDocument.updated_at))
-                - func.extract("epoch", col(CVDocument.created_at))
-            ).label("avg_seconds")
-        )
-        .where(
-            col(CVDocument.processing_status).in_(terminal_statuses),
-            col(CVDocument.updated_at) >= window_start,
-        )
+    avg_time_stmt = select(
+        func.avg(
+            func.extract("epoch", col(CVDocument.updated_at))
+            - func.extract("epoch", col(CVDocument.created_at))
+        ).label("avg_seconds")
+    ).where(
+        col(CVDocument.processing_status).in_(terminal_statuses),
+        col(CVDocument.updated_at) >= window_start,
     )
     avg_result = await session.execute(avg_time_stmt)
     avg_seconds = avg_result.scalar()

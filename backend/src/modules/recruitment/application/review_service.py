@@ -67,33 +67,43 @@ def validate_correction(parsed_cv: ParsedCV) -> list[dict]:
     # Validate name: 1-200 chars, at least 1 non-whitespace
     name = parsed_cv.name.strip() if parsed_cv.name else ""
     if not name:
-        errors.append({
-            "field": "name",
-            "reason": "Name is required and must contain at least 1 non-whitespace character",
-        })
+        errors.append(
+            {
+                "field": "name",
+                "reason": "Name is required and must contain at least 1 non-whitespace character",
+            }
+        )
     elif len(name) > 200:
-        errors.append({
-            "field": "name",
-            "reason": "Name must not exceed 200 characters",
-        })
+        errors.append(
+            {
+                "field": "name",
+                "reason": "Name must not exceed 200 characters",
+            }
+        )
 
     # Validate email: valid format, at most 254 chars
     email = parsed_cv.email.strip() if parsed_cv.email else ""
     if not email:
-        errors.append({
-            "field": "email",
-            "reason": "Email is required and cannot be empty",
-        })
+        errors.append(
+            {
+                "field": "email",
+                "reason": "Email is required and cannot be empty",
+            }
+        )
     elif len(email) > 254:
-        errors.append({
-            "field": "email",
-            "reason": "Email must not exceed 254 characters",
-        })
+        errors.append(
+            {
+                "field": "email",
+                "reason": "Email must not exceed 254 characters",
+            }
+        )
     elif not _EMAIL_PATTERN.match(email):
-        errors.append({
-            "field": "email",
-            "reason": "Email must be a valid email address",
-        })
+        errors.append(
+            {
+                "field": "email",
+                "reason": "Email must be a valid email address",
+            }
+        )
 
     return errors
 
@@ -247,9 +257,7 @@ class ReviewService:
         # Step 2: Get CVDocument
         cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
         if cv_doc is None:
-            raise CVDocumentNotFoundError(
-                f"CV document not found: {cv_document_id}"
-            )
+            raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
 
         # Step 3: Store corrected parsed_cv_data
         cv_doc.parsed_cv_data = corrected_data.model_dump()
@@ -313,9 +321,7 @@ class ReviewService:
         # Verify document exists first
         cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
         if cv_doc is None:
-            raise CVDocumentNotFoundError(
-                f"CV document not found: {cv_document_id}"
-            )
+            raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
 
         try:
             # Run retry with 60 second timeout (Requirement 14.4)
@@ -323,7 +329,7 @@ class ReviewService:
                 self._cv_retry_parser.retry_llm_parse(cv_document_id),
                 timeout=_RETRY_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # Timeout: set status back to needs_review (Requirement 14.5)
             cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
             if cv_doc is not None:
@@ -350,9 +356,7 @@ class ReviewService:
             # Re-fetch to return current state
             cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
             if cv_doc is None:
-                raise CVDocumentNotFoundError(
-                    f"CV document not found: {cv_document_id}"
-                )
+                raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
             return cv_doc
 
         except Exception as exc:
@@ -383,9 +387,7 @@ class ReviewService:
             # Re-fetch to return current state
             cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
             if cv_doc is None:
-                raise CVDocumentNotFoundError(
-                    f"CV document not found: {cv_document_id}"
-                )
+                raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
             return cv_doc
 
         # Success: log audit and return updated document
@@ -395,8 +397,7 @@ class ReviewService:
             entity_type="cv_document",
             entity_id=cv_document_id,
             change_summary=(
-                f"LLM parse retry succeeded"
-                + (f": {parsed_cv.name}" if parsed_cv else "")
+                "LLM parse retry succeeded" + (f": {parsed_cv.name}" if parsed_cv else "")
             ),
             success=True,
         )
@@ -405,9 +406,7 @@ class ReviewService:
         # Re-fetch to return current state (retry_llm_parse updates the doc)
         cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
         if cv_doc is None:
-            raise CVDocumentNotFoundError(
-                f"CV document not found: {cv_document_id}"
-            )
+            raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
         return cv_doc
 
     async def dismiss(self, cv_document_id: UUID) -> None:
@@ -424,9 +423,7 @@ class ReviewService:
         """
         cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
         if cv_doc is None:
-            raise CVDocumentNotFoundError(
-                f"CV document not found: {cv_document_id}"
-            )
+            raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
 
         cv_doc.processing_status = ProcessingStatus.DISMISSED
         await self._cv_document_repo.update(cv_doc)

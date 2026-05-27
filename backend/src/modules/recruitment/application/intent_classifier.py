@@ -53,9 +53,7 @@ class EmailMetadataProvider(Protocol):
     Provides access to email message data without importing Gmail entities.
     """
 
-    async def get_email_metadata(
-        self, email_message_id: UUID
-    ) -> EmailMetadata | None:
+    async def get_email_metadata(self, email_message_id: UUID) -> EmailMetadata | None:
         """Retrieve email metadata by internal message ID."""
         ...
 
@@ -196,9 +194,7 @@ class IntentClassifierService:
                 exc,
                 extra={"gmail_message_id": gmail_message_id},
             )
-            await self._mark_classification_failed(
-                email_message_id, reason="pii_redaction_failed"
-            )
+            await self._mark_classification_failed(email_message_id, reason="pii_redaction_failed")
             # Log audit entry for the failure
             await self._log_audit(
                 email_message_id=email_message_id,
@@ -328,9 +324,7 @@ class IntentClassifierService:
             # Enqueue CV processing via ARQ
             if self._enqueue_func and email_message_id:
                 try:
-                    await self._enqueue_func(
-                        "process_cv_from_email", email_message_id
-                    )
+                    await self._enqueue_func("process_cv_from_email", email_message_id)
                     logger.info(
                         "Enqueued CV processing for email %s",
                         gmail_message_id,
@@ -356,9 +350,7 @@ class IntentClassifierService:
             )
 
         # Update email message category in database
-        await self._update_email_category(
-            email_message_id, intent.value
-        )
+        await self._update_email_category(email_message_id, intent.value)
 
     # ─── Private helpers ───────────────────────────────────────────────
 
@@ -380,12 +372,11 @@ class IntentClassifierService:
             return
 
         try:
-            from src.modules.gmail.domain.entities import EmailMessage
             from sqlmodel import select
 
-            statement = select(EmailMessage).where(
-                EmailMessage.id == email_message_id
-            )
+            from src.modules.gmail.domain.entities import EmailMessage
+
+            statement = select(EmailMessage).where(EmailMessage.id == email_message_id)
             result = await self._session.execute(statement)
             email_msg = result.scalars().first()
 
@@ -422,12 +413,11 @@ class IntentClassifierService:
             return
 
         try:
-            from src.modules.gmail.domain.entities import EmailMessage
             from sqlmodel import select
 
-            statement = select(EmailMessage).where(
-                EmailMessage.id == email_message_id
-            )
+            from src.modules.gmail.domain.entities import EmailMessage
+
+            statement = select(EmailMessage).where(EmailMessage.id == email_message_id)
             result = await self._session.execute(statement)
             email_msg = result.scalars().first()
 

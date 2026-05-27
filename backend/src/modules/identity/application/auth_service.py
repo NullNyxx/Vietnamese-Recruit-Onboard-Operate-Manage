@@ -18,7 +18,7 @@ from jose import jwt as jose_jwt
 
 from src.modules.identity.api.schemas import GoogleUserInfo, GrantStatus, LoginRedirect
 from src.modules.identity.domain.entities import UserRole
-from src.modules.identity.domain.exceptions import AccessDeniedError, InvalidStateError
+from src.modules.identity.domain.exceptions import AccessDeniedError
 from src.modules.identity.infrastructure.config import AuthSettings
 from src.modules.identity.infrastructure.crypto_utils import CryptoUtils
 from src.modules.identity.infrastructure.jwt_utils import JWTUtils
@@ -250,13 +250,9 @@ class AuthService:
 
         # 6. Encrypt and store Google tokens.
         encrypted_access = self._crypto.encrypt(google_tokens.access_token)
-        encrypted_refresh = self._crypto.encrypt(
-            google_tokens.refresh_token or ""
-        )
+        encrypted_refresh = self._crypto.encrypt(google_tokens.refresh_token or "")
         scopes = google_tokens.scope.split(" ")
-        token_expires_at = datetime.now(UTC) + timedelta(
-            seconds=google_tokens.expires_in
-        )
+        token_expires_at = datetime.now(UTC) + timedelta(seconds=google_tokens.expires_in)
 
         await self._oauth_grant_repository.upsert(
             user_id=user.id,
@@ -280,17 +276,11 @@ class AuthService:
                 employee_id = employee.id
 
         # 10. Create new access token (with employee_id if linked) and refresh token.
-        access_token = self._token_service.create_access_token(
-            user.id, user.email, employee_id
-        )
-        raw_refresh_token, token_hash = self._token_service.create_refresh_token(
-            user.id
-        )
+        access_token = self._token_service.create_access_token(user.id, user.email, employee_id)
+        raw_refresh_token, token_hash = self._token_service.create_refresh_token(user.id)
 
         # 11. Store refresh token hash in repository.
-        expires_at = datetime.now(UTC) + timedelta(
-            days=self._settings.refresh_token_expire_days
-        )
+        expires_at = datetime.now(UTC) + timedelta(days=self._settings.refresh_token_expire_days)
         await self._refresh_token_repository.store(
             user_id=user.id,
             token_hash=token_hash,

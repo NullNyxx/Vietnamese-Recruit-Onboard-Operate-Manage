@@ -157,9 +157,7 @@ class AttachmentService:
 
         for attachment in limited_attachments:
             # Validate MIME type and size
-            if not self.validate_attachment(
-                attachment.mime_type, attachment.size_bytes
-            ):
+            if not self.validate_attachment(attachment.mime_type, attachment.size_bytes):
                 skipped_count += 1
                 if attachment.mime_type not in self._settings.allowed_mime_types:
                     logger.warning(
@@ -200,8 +198,7 @@ class AttachmentService:
             except Exception as exc:
                 skipped_count += 1
                 logger.error(
-                    "Failed to fetch attachment '%s' (ID: %s) for message %s "
-                    "after retries: %s",
+                    "Failed to fetch attachment '%s' (ID: %s) for message %s after retries: %s",
                     attachment.filename,
                     attachment.attachment_id,
                     message_id,

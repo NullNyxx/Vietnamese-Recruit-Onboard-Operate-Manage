@@ -60,8 +60,7 @@ def validate_attachment(
         return ValidationResult(
             is_valid=False,
             error_message=(
-                f"MIME type '{mime_type}' is not allowed. "
-                f"Allowed types: {allowed_list}"
+                f"MIME type '{mime_type}' is not allowed. Allowed types: {allowed_list}"
             ),
         )
 

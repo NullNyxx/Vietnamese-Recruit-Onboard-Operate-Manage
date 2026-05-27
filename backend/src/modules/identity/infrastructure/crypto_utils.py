@@ -38,9 +38,7 @@ class CryptoUtils:
         """
         key_bytes = base64.b64decode(encryption_key_b64)
         if len(key_bytes) != 32:
-            raise ValueError(
-                f"Encryption key must be exactly 32 bytes, got {len(key_bytes)} bytes"
-            )
+            raise ValueError(f"Encryption key must be exactly 32 bytes, got {len(key_bytes)} bytes")
         self._aesgcm = AESGCM(key_bytes)
 
     def encrypt(self, plaintext: str) -> str:

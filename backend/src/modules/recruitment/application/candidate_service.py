@@ -111,7 +111,14 @@ def validate_candidate_fields(parsed_cv: ParsedCV) -> list[dict]:
     elif len(email) > 255:
         errors.append({"field": "email", "reason": "Email must not exceed 255 characters"})
     elif not _EMAIL_PATTERN.match(email):
-        errors.append({"field": "email", "reason": "Email must contain exactly one '@' with non-empty local and domain parts"})
+        errors.append(
+            {
+                "field": "email",
+                "reason": (
+                    "Email must contain exactly one '@' with non-empty local and domain parts"
+                ),
+            }
+        )
 
     return errors
 
@@ -464,14 +471,10 @@ class CandidateService:
         """
         candidate = await self._candidate_repo.get_by_id(candidate_id)
         if candidate is None:
-            raise CandidateNotFoundError(
-                f"Candidate not found: {candidate_id}"
-            )
+            raise CandidateNotFoundError(f"Candidate not found: {candidate_id}")
 
         # Fetch all linked CV documents
-        cv_documents = await self._cv_document_repo.find_by_candidate_id(
-            candidate_id
-        )
+        cv_documents = await self._cv_document_repo.find_by_candidate_id(candidate_id)
 
         # Generate presigned URLs for each document
         cv_document_details: list[CVDocumentDetail] = []
@@ -484,9 +487,7 @@ class CandidateService:
             cv_documents=cv_document_details,
         )
 
-    async def _build_cv_document_detail(
-        self, doc: CVDocument
-    ) -> CVDocumentDetail:
+    async def _build_cv_document_detail(self, doc: CVDocument) -> CVDocumentDetail:
         """Build a CVDocumentDetail with presigned URL for a single document.
 
         Attempts to generate a presigned URL. If generation fails (MinIO
@@ -504,13 +505,10 @@ class CandidateService:
 
         if doc.file_path:
             try:
-                presigned_url = await self._minio_client.generate_presigned_url(
-                    doc.file_path
-                )
+                presigned_url = await self._minio_client.generate_presigned_url(doc.file_path)
             except Exception as exc:
                 logger.warning(
-                    "Failed to generate presigned URL for CV document %s "
-                    "(path: %s): %s",
+                    "Failed to generate presigned URL for CV document %s (path: %s): %s",
                     doc.id,
                     doc.file_path,
                     exc,
@@ -552,8 +550,12 @@ class CandidateService:
             email=parsed_cv.email.strip().lower(),
             phone=parsed_cv.phone or "",
             skills=parsed_cv.skills or [],
-            experience=[exp.model_dump() for exp in parsed_cv.experience] if parsed_cv.experience else [],
-            education=[edu.model_dump() for edu in parsed_cv.education] if parsed_cv.education else [],
+            experience=[exp.model_dump() for exp in parsed_cv.experience]
+            if parsed_cv.experience
+            else [],
+            education=[edu.model_dump() for edu in parsed_cv.education]
+            if parsed_cv.education
+            else [],
             summary=parsed_cv.summary or "",
             parsed_cv_json=parsed_cv.model_dump(),
             status=CandidateStatus.NEW,
@@ -586,8 +588,12 @@ class CandidateService:
         existing.name = parsed_cv.name.strip()
         existing.phone = parsed_cv.phone or ""
         existing.skills = parsed_cv.skills or []
-        existing.experience = [exp.model_dump() for exp in parsed_cv.experience] if parsed_cv.experience else []
-        existing.education = [edu.model_dump() for edu in parsed_cv.education] if parsed_cv.education else []
+        existing.experience = (
+            [exp.model_dump() for exp in parsed_cv.experience] if parsed_cv.experience else []
+        )
+        existing.education = (
+            [edu.model_dump() for edu in parsed_cv.education] if parsed_cv.education else []
+        )
         existing.summary = parsed_cv.summary or ""
         existing.parsed_cv_json = parsed_cv.model_dump()
         existing.confidence_score = confidence_score
@@ -595,9 +601,7 @@ class CandidateService:
 
         return await self._candidate_repo.update(existing)
 
-    async def _link_cv_document(
-        self, cv_document_id: UUID, candidate_id: UUID
-    ) -> None:
+    async def _link_cv_document(self, cv_document_id: UUID, candidate_id: UUID) -> None:
         """Link a CV document to a candidate by setting candidate_id.
 
         Args:
@@ -609,9 +613,7 @@ class CandidateService:
             cv_doc.candidate_id = candidate_id
             await self._cv_document_repo.update(cv_doc)
 
-    async def _apply_processed_label(
-        self, source_email_id: UUID | None
-    ) -> None:
+    async def _apply_processed_label(self, source_email_id: UUID | None) -> None:
         """Apply "VroomHR/processed" Gmail label to the source email.
 
         This is a best-effort operation — failures are logged but do not
@@ -655,9 +657,7 @@ class CandidateService:
 
     # ─── Status transition validation ──────────────────────────────────
 
-    def _validate_transition(
-        self, current_status: str, target_status: str, action: str
-    ) -> None:
+    def _validate_transition(self, current_status: str, target_status: str, action: str) -> None:
         """Validate that a status transition is allowed by the state machine.
 
         Args:
@@ -686,16 +686,12 @@ class CandidateService:
         """
         candidate = await self._candidate_repo.get_by_id(candidate_id)
         if candidate is None:
-            raise CandidateNotFoundError(
-                f"Candidate not found: {candidate_id}"
-            )
+            raise CandidateNotFoundError(f"Candidate not found: {candidate_id}")
         return candidate
 
     # ─── Status transition actions ─────────────────────────────────────
 
-    async def reject_candidate(
-        self, candidate_id: UUID, reason: str | None = None
-    ) -> Candidate:
+    async def reject_candidate(self, candidate_id: UUID, reason: str | None = None) -> Candidate:
         """Transition candidate to rejected status.
 
         Validates the transition, stores the rejection reason and
@@ -735,9 +731,7 @@ class CandidateService:
             user_id=self._user_id,
             previous_value={"status": previous_status},
             new_value={"status": CandidateStatus.REJECTED},
-            change_summary=(
-                f"Candidate rejected: {reason[:200] if reason else 'no reason'}"
-            ),
+            change_summary=(f"Candidate rejected: {reason[:200] if reason else 'no reason'}"),
         )
 
         return candidate
@@ -887,9 +881,7 @@ class CandidateService:
         # Validate interviewer_ids against employee records
         invalid_ids = await self._validate_interviewer_ids(interviewer_ids)
         if invalid_ids:
-            raise ValueError(
-                f"Invalid interviewer IDs: {[str(id) for id in invalid_ids]}"
-            )
+            raise ValueError(f"Invalid interviewer IDs: {[str(id) for id in invalid_ids]}")
 
         candidate.status = CandidateStatus.INTERVIEW_SCHEDULED
         candidate = await self._candidate_repo.update(candidate)
@@ -922,16 +914,12 @@ class CandidateService:
                 "status": CandidateStatus.INTERVIEW_SCHEDULED,
                 "interviewer_ids": [str(id) for id in interviewer_ids],
             },
-            change_summary=(
-                f"Interview scheduled with {len(interviewer_ids)} interviewer(s)"
-            ),
+            change_summary=(f"Interview scheduled with {len(interviewer_ids)} interviewer(s)"),
         )
 
         return candidate
 
-    async def _validate_interviewer_ids(
-        self, interviewer_ids: list[UUID]
-    ) -> list[UUID]:
+    async def _validate_interviewer_ids(self, interviewer_ids: list[UUID]) -> list[UUID]:
         """Validate that all interviewer IDs correspond to existing employees.
 
         Args:
@@ -976,9 +964,7 @@ class CandidateService:
 
         # Validate Gmail connection
         if self._gmail_checker:
-            is_connected = await self._gmail_checker.is_connected(
-                self._user_id or UUID(int=0)
-            )
+            is_connected = await self._gmail_checker.is_connected(self._user_id or UUID(int=0))
             if not is_connected:
                 raise GmailNotConnectedError()
         elif self._gmail_sender is None:
@@ -986,14 +972,10 @@ class CandidateService:
 
         # Validate candidate email
         if not candidate.email or not candidate.email.strip():
-            raise ValueError(
-                f"Candidate email is empty or invalid: '{candidate.email}'"
-            )
+            raise ValueError(f"Candidate email is empty or invalid: '{candidate.email}'")
         email = candidate.email.strip()
         if "@" not in email or email.startswith("@") or email.endswith("@"):
-            raise ValueError(
-                f"Candidate email is empty or invalid: '{candidate.email}'"
-            )
+            raise ValueError(f"Candidate email is empty or invalid: '{candidate.email}'")
 
         # Send email via Gmail adapter
         if self._gmail_sender is None:
@@ -1017,8 +999,5 @@ class CandidateService:
                 "subject": subject[:100],
                 "template_name": template_name,
             },
-            change_summary=(
-                f"Email sent to candidate: subject='{subject[:100]}'"
-            ),
+            change_summary=(f"Email sent to candidate: subject='{subject[:100]}'"),
         )
-

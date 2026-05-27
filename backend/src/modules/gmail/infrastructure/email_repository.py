@@ -113,9 +113,7 @@ class EmailRepository:
         Returns:
             The EmailMessage entity if found, None otherwise.
         """
-        statement = select(EmailMessage).where(
-            EmailMessage.gmail_message_id == gmail_message_id
-        )
+        statement = select(EmailMessage).where(EmailMessage.gmail_message_id == gmail_message_id)
         result = await self.session.execute(statement)
         return result.scalars().first()
 
@@ -131,9 +129,7 @@ class EmailRepository:
         Returns:
             The updated EmailMessage entity if found, None otherwise.
         """
-        statement = select(EmailMessage).where(
-            EmailMessage.gmail_message_id == gmail_message_id
-        )
+        statement = select(EmailMessage).where(EmailMessage.gmail_message_id == gmail_message_id)
         result = await self.session.execute(statement)
         message = result.scalars().first()
 
@@ -158,9 +154,7 @@ class EmailRepository:
         Returns:
             The updated EmailMessage entity if found, None otherwise.
         """
-        statement = select(EmailMessage).where(
-            EmailMessage.gmail_message_id == gmail_message_id
-        )
+        statement = select(EmailMessage).where(EmailMessage.gmail_message_id == gmail_message_id)
         result = await self.session.execute(statement)
         message = result.scalars().first()
 
@@ -182,9 +176,7 @@ class EmailRepository:
         Returns:
             The updated EmailMessage entity if found, None otherwise.
         """
-        statement = select(EmailMessage).where(
-            EmailMessage.gmail_message_id == gmail_message_id
-        )
+        statement = select(EmailMessage).where(EmailMessage.gmail_message_id == gmail_message_id)
         result = await self.session.execute(statement)
         message = result.scalars().first()
 

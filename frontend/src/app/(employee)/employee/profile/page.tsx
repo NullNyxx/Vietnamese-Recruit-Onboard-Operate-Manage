@@ -15,27 +15,29 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrentUser } from "@/hooks/use-current-user";
 
-interface ProfileData {
+interface EmployeeData {
+  id: string;
+  employee_code: string;
   full_name: string;
   email: string;
   phone: string | null;
   date_of_birth: string | null;
   gender: string | null;
   address: string | null;
-  department_name: string | null;
-  position_name: string | null;
+  department_id: string | null;
+  position_id: string | null;
   start_date: string | null;
   contract_type: string | null;
-  id_number_masked: string | null;
-  tax_code_masked: string | null;
-  emergency_contact: string | null;
+  id_number: string | null;
+  tax_code: string | null;
+  is_active: boolean;
 }
 
 interface FormErrors {
   phone?: string;
   address?: string;
-  emergency_contact?: string;
 }
 
 const PHONE_PATTERN = /^0\d{9}$/;
@@ -79,37 +81,42 @@ function formatContractType(type: string | null): string {
   return map[type.toLowerCase()] || type;
 }
 
+function maskValue(value: string | null): string {
+  if (!value) return "—";
+  if (value.length <= 4) return "****";
+  return "****" + value.slice(-4);
+}
+
 export default function EmployeeProfilePage() {
-  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const { user } = useCurrentUser();
+  const [employee, setEmployee] = useState<EmployeeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Editable form fields
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
-  const [emergencyContact, setEmergencyContact] = useState("");
   const [errors, setErrors] = useState<FormErrors>({});
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (user?.employee_id) {
+      fetchProfile(user.employee_id);
+    } else if (user && !user.employee_id) {
+      setLoading(false);
+    }
+  }, [user]);
 
-  async function fetchProfile() {
+  async function fetchProfile(employeeId: string) {
     setLoading(true);
     try {
-      const res = await fetch("/api/v1/ess/profile");
+      const res = await fetch(`/api/employees/${employeeId}`);
       if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(
-          err?.detail?.message || `Lỗi tải hồ sơ (${res.status})`,
-        );
+        throw new Error(`Lỗi tải hồ sơ (${res.status})`);
       }
-      const data: ProfileData = await res.json();
-      setProfile(data);
+      const data: EmployeeData = await res.json();
+      setEmployee(data);
       setPhone(data.phone || "");
       setAddress(data.address || "");
-      setEmergencyContact(data.emergency_contact || "");
     } catch (err) {
       toast.error(
         err instanceof Error ? err.message : "Không thể tải hồ sơ cá nhân",
@@ -139,46 +146,25 @@ export default function EmployeeProfilePage() {
     }
   }
 
-  function handleEmergencyContactChange(value: string) {
-    setEmergencyContact(value);
-    setIsDirty(true);
-    if (value.length > 255) {
-      setErrors((prev) => ({
-        ...prev,
-        emergency_contact: "Liên hệ khẩn cấp không được vượt quá 255 ký tự",
-      }));
-    } else {
-      setErrors((prev) => ({ ...prev, emergency_contact: undefined }));
-    }
-  }
-
   function hasValidationErrors(): boolean {
     return Object.values(errors).some((e) => e !== undefined);
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (!user?.employee_id) return;
 
-    // Validate before submit
     const phoneError = validatePhone(phone);
     if (phoneError) {
       setErrors((prev) => ({ ...prev, phone: phoneError }));
       return;
     }
-
     if (hasValidationErrors()) return;
 
-    // Build payload with only changed fields
     const payload: Record<string, string | null> = {};
-    if (phone !== (profile?.phone || "")) {
-      payload.phone = phone || null;
-    }
-    if (address !== (profile?.address || "")) {
+    if (phone !== (employee?.phone || "")) payload.phone = phone || null;
+    if (address !== (employee?.address || ""))
       payload.address = address || null;
-    }
-    if (emergencyContact !== (profile?.emergency_contact || "")) {
-      payload.emergency_contact = emergencyContact || null;
-    }
 
     if (Object.keys(payload).length === 0) {
       toast.info("Không có thay đổi nào để cập nhật");
@@ -187,24 +173,18 @@ export default function EmployeeProfilePage() {
 
     setSubmitting(true);
     try {
-      const res = await fetch("/api/v1/ess/profile", {
-        method: "PATCH",
+      const res = await fetch(`/api/employees/${user.employee_id}`, {
+        method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-
       if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(
-          err?.detail?.message || `Cập nhật thất bại (${res.status})`,
-        );
+        throw new Error(`Cập nhật thất bại (${res.status})`);
       }
-
-      const updated: ProfileData = await res.json();
-      setProfile(updated);
+      const updated: EmployeeData = await res.json();
+      setEmployee(updated);
       setPhone(updated.phone || "");
       setAddress(updated.address || "");
-      setEmergencyContact(updated.emergency_contact || "");
       setIsDirty(false);
       toast.success("Cập nhật hồ sơ thành công");
     } catch (err) {
@@ -221,49 +201,35 @@ export default function EmployeeProfilePage() {
       <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">Hồ sơ cá nhân</h1>
         <div className="grid gap-6 md:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-6 w-40" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-5 w-48" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <Skeleton className="h-6 w-40" />
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="space-y-2">
-                  <Skeleton className="h-4 w-24" />
-                  <Skeleton className="h-5 w-48" />
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <Skeleton className="h-6 w-40" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Array.from({ length: 5 }).map((_, j) => (
+                  <div key={j} className="space-y-2">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-5 w-48" />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
   }
 
-  if (!profile) {
+  if (!employee) {
     return (
       <div className="space-y-6">
         <h1 className="text-2xl font-bold tracking-tight">Hồ sơ cá nhân</h1>
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground">
-              Không thể tải thông tin hồ sơ. Vui lòng thử lại sau.
+              Chưa có hồ sơ nhân viên được liên kết với tài khoản của bạn.
             </p>
-            <Button onClick={fetchProfile} className="mt-4">
-              Thử lại
-            </Button>
           </CardContent>
         </Card>
       </div>
@@ -275,7 +241,6 @@ export default function EmployeeProfilePage() {
       <h1 className="text-2xl font-bold tracking-tight">Hồ sơ cá nhân</h1>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Personal Information (Read-only) */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
@@ -292,34 +257,58 @@ export default function EmployeeProfilePage() {
                 <dt className="text-sm font-medium text-muted-foreground">
                   Họ và tên
                 </dt>
-                <dd className="text-sm mt-1">{profile.full_name}</dd>
+                <dd className="text-sm mt-1">{employee.full_name}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">
                   Email
                 </dt>
-                <dd className="text-sm mt-1">{profile.email}</dd>
+                <dd className="text-sm mt-1">{employee.email}</dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-muted-foreground">
+                  Mã nhân viên
+                </dt>
+                <dd className="text-sm mt-1 font-mono">
+                  {employee.employee_code}
+                </dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">
                   Ngày sinh
                 </dt>
                 <dd className="text-sm mt-1">
-                  {formatDate(profile.date_of_birth)}
+                  {formatDate(employee.date_of_birth)}
                 </dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">
                   Giới tính
                 </dt>
-                <dd className="text-sm mt-1">{formatGender(profile.gender)}</dd>
+                <dd className="text-sm mt-1">
+                  {formatGender(employee.gender)}
+                </dd>
               </div>
+            </dl>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Shield className="h-5 w-5" />
+              Thông tin công việc
+            </CardTitle>
+            <CardDescription>Hợp đồng và thông tin bảo mật</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <dl className="space-y-4">
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">
                   Ngày bắt đầu
                 </dt>
                 <dd className="text-sm mt-1">
-                  {formatDate(profile.start_date)}
+                  {formatDate(employee.start_date)}
                 </dd>
               </div>
               <div>
@@ -327,46 +316,15 @@ export default function EmployeeProfilePage() {
                   Loại hợp đồng
                 </dt>
                 <dd className="text-sm mt-1">
-                  {formatContractType(profile.contract_type)}
+                  {formatContractType(employee.contract_type)}
                 </dd>
-              </div>
-            </dl>
-          </CardContent>
-        </Card>
-
-        {/* Work Information (Read-only) */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
-              <Shield className="h-5 w-5" />
-              Thông tin công việc
-            </CardTitle>
-            <CardDescription>
-              Phòng ban, chức vụ và thông tin bảo mật
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <dl className="space-y-4">
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">
-                  Phòng ban
-                </dt>
-                <dd className="text-sm mt-1">
-                  {profile.department_name || "—"}
-                </dd>
-              </div>
-              <div>
-                <dt className="text-sm font-medium text-muted-foreground">
-                  Chức vụ
-                </dt>
-                <dd className="text-sm mt-1">{profile.position_name || "—"}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">
                   Số CMND/CCCD
                 </dt>
                 <dd className="text-sm mt-1 font-mono">
-                  {profile.id_number_masked || "—"}
+                  {maskValue(employee.id_number)}
                 </dd>
               </div>
               <div>
@@ -374,7 +332,7 @@ export default function EmployeeProfilePage() {
                   Mã số thuế
                 </dt>
                 <dd className="text-sm mt-1 font-mono">
-                  {profile.tax_code_masked || "—"}
+                  {maskValue(employee.tax_code)}
                 </dd>
               </div>
             </dl>
@@ -382,21 +340,17 @@ export default function EmployeeProfilePage() {
         </Card>
       </div>
 
-      {/* Editable Contact Information */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Phone className="h-5 w-5" />
             Thông tin liên hệ
           </CardTitle>
-          <CardDescription>
-            Bạn có thể cập nhật số điện thoại, địa chỉ và liên hệ khẩn cấp
-          </CardDescription>
+          <CardDescription>Cập nhật số điện thoại và địa chỉ</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid gap-6 sm:grid-cols-2">
-              {/* Phone */}
               <div className="space-y-2">
                 <Label htmlFor="phone">
                   <Phone className="inline h-4 w-4 mr-1" />
@@ -409,59 +363,13 @@ export default function EmployeeProfilePage() {
                   value={phone}
                   onChange={(e) => handlePhoneChange(e.target.value)}
                   className={errors.phone ? "border-destructive" : ""}
-                  aria-invalid={!!errors.phone}
-                  aria-describedby={errors.phone ? "phone-error" : undefined}
                 />
                 {errors.phone && (
-                  <p
-                    id="phone-error"
-                    className="text-sm text-destructive"
-                    role="alert"
-                  >
-                    {errors.phone}
-                  </p>
-                )}
-                <p className="text-xs text-muted-foreground">
-                  Định dạng: 10 chữ số, bắt đầu bằng 0
-                </p>
-              </div>
-
-              {/* Emergency Contact */}
-              <div className="space-y-2">
-                <Label htmlFor="emergency_contact">
-                  <Shield className="inline h-4 w-4 mr-1" />
-                  Liên hệ khẩn cấp
-                </Label>
-                <Input
-                  id="emergency_contact"
-                  type="text"
-                  placeholder="Nguyễn Văn A - 0987654321"
-                  value={emergencyContact}
-                  onChange={(e) => handleEmergencyContactChange(e.target.value)}
-                  className={
-                    errors.emergency_contact ? "border-destructive" : ""
-                  }
-                  aria-invalid={!!errors.emergency_contact}
-                  aria-describedby={
-                    errors.emergency_contact
-                      ? "emergency-contact-error"
-                      : undefined
-                  }
-                  maxLength={255}
-                />
-                {errors.emergency_contact && (
-                  <p
-                    id="emergency-contact-error"
-                    className="text-sm text-destructive"
-                    role="alert"
-                  >
-                    {errors.emergency_contact}
-                  </p>
+                  <p className="text-sm text-destructive">{errors.phone}</p>
                 )}
               </div>
             </div>
 
-            {/* Address (full width) */}
             <div className="space-y-2">
               <Label htmlFor="address">
                 <MapPin className="inline h-4 w-4 mr-1" />
@@ -474,22 +382,13 @@ export default function EmployeeProfilePage() {
                 value={address}
                 onChange={(e) => handleAddressChange(e.target.value)}
                 className={errors.address ? "border-destructive" : ""}
-                aria-invalid={!!errors.address}
-                aria-describedby={errors.address ? "address-error" : undefined}
                 maxLength={500}
               />
               {errors.address && (
-                <p
-                  id="address-error"
-                  className="text-sm text-destructive"
-                  role="alert"
-                >
-                  {errors.address}
-                </p>
+                <p className="text-sm text-destructive">{errors.address}</p>
               )}
             </div>
 
-            {/* Submit */}
             <div className="flex justify-end">
               <Button
                 type="submit"

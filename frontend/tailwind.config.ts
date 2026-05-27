@@ -10,8 +10,23 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        heading: ["var(--font-heading)", "sans-serif"],
-        body: ["var(--font-body)", "sans-serif"],
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: [
+          "var(--font-inter)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
+        body: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        mono: [
+          "Berkeley Mono",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "Monaco",
+          "Consolas",
+          "monospace",
+        ],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -61,17 +76,40 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
+        // Design system direct colors
+        "pitch-black": "#08090a",
+        graphite: "#0f1011",
+        "deep-slate": "#161718",
+        "charcoal-grey": "#23252a",
+        "muted-ash": "#323334",
+        gunmetal: "#383b3f",
+        porcelain: "#f7f8f8",
+        "light-steel": "#d0d6e0",
+        "storm-cloud": "#8a8f98",
+        "fog-grey": "#62666d",
+        "neon-lime": "#e4f222",
+        "aether-blue": "#5e6ad2",
+        "forest-green": "#008d2c",
+        "cyan-spark": "#02b8cc",
+        emerald: "#27a644",
+        "warning-red": "#eb5757",
+        "deep-violet": "#6366f1",
+        amethyst: "#8b5cf6",
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius)",
+        sm: "var(--radius-sm)",
         xl: "var(--radius-xl)",
       },
       boxShadow: {
-        sm: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        md: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
-        lg: "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        sm: "rgba(0, 0, 0, 0.4) 0px 2px 4px 0px",
+        md: "rgba(0, 0, 0, 0.2) 0px 0px 12px 0px inset",
+        subtle: "rgb(35, 37, 42) 0px 0px 0px 1px inset",
+        xl: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+      },
+      spacing: {
+        "4.5": "18px",
       },
       keyframes: {
         "fade-in": {

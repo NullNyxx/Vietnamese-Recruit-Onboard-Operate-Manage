@@ -20,7 +20,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
-from openai import AsyncOpenAI, APITimeoutError, APIConnectionError, APIStatusError
+from openai import APIConnectionError, APIStatusError, APITimeoutError, AsyncOpenAI
 
 from src.modules.recruitment.domain.enums import EmailIntent
 from src.modules.recruitment.domain.exceptions import LLMParseError
@@ -48,7 +48,6 @@ class ParsedCVResult:
 
     parsed_cv: ParsedCV
     token_usage: dict[str, int]
-
 
 
 class LLMAdapter:
@@ -130,13 +129,16 @@ class LLMAdapter:
                 intent = self._parse_intent_response(raw_content)
                 return IntentResult(intent=intent, token_usage=token_usage)
 
-            except asyncio.TimeoutError as exc:
+            except TimeoutError as exc:
                 last_error = exc
                 logger.warning(
                     "LLM intent classification timeout on attempt %d/%d",
                     attempt + 1,
                     max_retries,
-                    extra={"attempt": attempt + 1, "timeout_seconds": self._settings.llm_intent_timeout_seconds},
+                    extra={
+                        "attempt": attempt + 1,
+                        "timeout_seconds": self._settings.llm_intent_timeout_seconds,
+                    },
                 )
             except (APITimeoutError, APIConnectionError, APIStatusError) as exc:
                 last_error = exc
@@ -216,15 +218,18 @@ class LLMAdapter:
                     return simplified_result
 
                 # Simplified prompt also failed
-                last_error = ValueError(f"Invalid JSON from LLM after simplified retry")
+                last_error = ValueError("Invalid JSON from LLM after simplified retry")
 
-            except asyncio.TimeoutError as exc:
+            except TimeoutError as exc:
                 last_error = exc
                 logger.warning(
                     "LLM CV parse timeout on attempt %d/%d",
                     attempt + 1,
                     max_retries,
-                    extra={"attempt": attempt + 1, "timeout_seconds": self._settings.llm_parse_timeout_seconds},
+                    extra={
+                        "attempt": attempt + 1,
+                        "timeout_seconds": self._settings.llm_parse_timeout_seconds,
+                    },
                 )
             except (APITimeoutError, APIConnectionError, APIStatusError) as exc:
                 last_error = exc
@@ -247,9 +252,7 @@ class LLMAdapter:
                 )
                 await asyncio.sleep(delay)
 
-        raise LLMParseError(
-            f"CV parsing failed after {max_retries} attempts: {last_error}"
-        )
+        raise LLMParseError(f"CV parsing failed after {max_retries} attempts: {last_error}")
 
     # ─── Private helpers ───────────────────────────────────────────────
 
@@ -263,9 +266,8 @@ class LLMAdapter:
         """Build the classification prompt with all email metadata."""
         attachments_info = ""
         if attachment_filenames:
-            attachments_info = (
-                f"\nAttachments ({len(attachment_filenames)} files): "
-                + ", ".join(attachment_filenames)
+            attachments_info = f"\nAttachments ({len(attachment_filenames)} files): " + ", ".join(
+                attachment_filenames
             )
         else:
             attachments_info = "\nAttachments: none"
@@ -347,7 +349,7 @@ class LLMAdapter:
             if parsed_cv is not None:
                 return ParsedCVResult(parsed_cv=parsed_cv, token_usage=token_usage)
 
-        except (asyncio.TimeoutError, APITimeoutError, APIConnectionError, APIStatusError) as exc:
+        except (TimeoutError, APITimeoutError, APIConnectionError, APIStatusError) as exc:
             logger.warning(
                 "Simplified prompt retry also failed: %s",
                 str(exc),

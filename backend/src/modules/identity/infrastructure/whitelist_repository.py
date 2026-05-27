@@ -90,8 +90,6 @@ class WhitelistRepository:
         Returns:
             True if an entry with the given value exists, False otherwise.
         """
-        statement = select(WhitelistEntry).where(
-            func.lower(WhitelistEntry.value) == value.lower()
-        )
+        statement = select(WhitelistEntry).where(func.lower(WhitelistEntry.value) == value.lower())
         result = await self.session.execute(statement)
         return result.scalars().first() is not None

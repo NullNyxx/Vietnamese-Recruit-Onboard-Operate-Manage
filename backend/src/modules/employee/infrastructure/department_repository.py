@@ -63,9 +63,7 @@ class DepartmentRepository:
         Returns:
             The Department entity if found, None otherwise.
         """
-        statement = select(Department).where(
-            func.lower(Department.name) == name.lower()
-        )
+        statement = select(Department).where(func.lower(Department.name) == name.lower())
         result = await self.session.execute(statement)
         return result.scalars().first()
 

@@ -107,9 +107,7 @@ class AuditRepository:
         result = await self.session.execute(statement)
         return list(result.scalars().all()), total
 
-    async def find_by_operation_type(
-        self, operation_type: str
-    ) -> list[RecruitmentAuditLog]:
+    async def find_by_operation_type(self, operation_type: str) -> list[RecruitmentAuditLog]:
         """Retrieve all audit log entries for a given operation type.
 
         Args:

@@ -77,9 +77,7 @@ class RecruitmentMinIOClient:
                     ExtraArgs={"ContentType": content_type},
                 )
         except EndpointConnectionError as exc:
-            raise StorageServiceUnavailableError(
-                f"Cannot connect to MinIO: {exc}"
-            ) from exc
+            raise StorageServiceUnavailableError(f"Cannot connect to MinIO: {exc}") from exc
         except OSError as exc:
             raise StorageServiceUnavailableError(
                 f"Storage service connection failed: {exc}"
@@ -109,16 +107,12 @@ class RecruitmentMinIOClient:
         except ClientError as exc:
             error_code = exc.response.get("Error", {}).get("Code", "")
             if error_code in ("NoSuchKey", "404"):
-                raise CVFileNotFoundError(
-                    f"CV file not found at path: {path}"
-                ) from exc
+                raise CVFileNotFoundError(f"CV file not found at path: {path}") from exc
             raise StorageServiceUnavailableError(
                 f"Storage error while downloading CV: {exc}"
             ) from exc
         except EndpointConnectionError as exc:
-            raise StorageServiceUnavailableError(
-                f"Cannot connect to MinIO: {exc}"
-            ) from exc
+            raise StorageServiceUnavailableError(f"Cannot connect to MinIO: {exc}") from exc
         except OSError as exc:
             raise StorageServiceUnavailableError(
                 f"Storage service connection failed: {exc}"
@@ -141,17 +135,13 @@ class RecruitmentMinIOClient:
                     Key=path,
                 )
         except EndpointConnectionError as exc:
-            raise StorageServiceUnavailableError(
-                f"Cannot connect to MinIO: {exc}"
-            ) from exc
+            raise StorageServiceUnavailableError(f"Cannot connect to MinIO: {exc}") from exc
         except OSError as exc:
             raise StorageServiceUnavailableError(
                 f"Storage service connection failed: {exc}"
             ) from exc
 
-    async def generate_presigned_url(
-        self, path: str, expires_seconds: int | None = None
-    ) -> str:
+    async def generate_presigned_url(self, path: str, expires_seconds: int | None = None) -> str:
         """Generate a presigned download URL for a CV file.
 
         Args:
@@ -187,16 +177,12 @@ class RecruitmentMinIOClient:
         except ClientError as exc:
             error_code = exc.response.get("Error", {}).get("Code", "")
             if error_code in ("NoSuchKey", "404"):
-                raise CVFileNotFoundError(
-                    f"CV file not found at path: {path}"
-                ) from exc
+                raise CVFileNotFoundError(f"CV file not found at path: {path}") from exc
             raise StorageServiceUnavailableError(
                 f"Storage error while generating presigned URL: {exc}"
             ) from exc
         except EndpointConnectionError as exc:
-            raise StorageServiceUnavailableError(
-                f"Cannot connect to MinIO: {exc}"
-            ) from exc
+            raise StorageServiceUnavailableError(f"Cannot connect to MinIO: {exc}") from exc
         except OSError as exc:
             raise StorageServiceUnavailableError(
                 f"Storage service connection failed: {exc}"

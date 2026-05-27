@@ -84,8 +84,7 @@ class InvalidStatusTransitionError(RecruitmentError):
         self.current_status = current_status
         self.attempted_action = attempted_action
         self.message = (
-            f"Cannot perform '{attempted_action}' on candidate "
-            f"with status '{current_status}'"
+            f"Cannot perform '{attempted_action}' on candidate with status '{current_status}'"
         )
         super().__init__(self.message)
 

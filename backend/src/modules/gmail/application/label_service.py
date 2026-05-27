@@ -61,9 +61,7 @@ class LabelService:
         self._settings = settings
         self._audit_logger = audit_logger
 
-    async def initialize_labels(
-        self, user_id: UUID, access_token: str
-    ) -> None:
+    async def initialize_labels(self, user_id: UUID, access_token: str) -> None:
         """Create required VroomHR labels on Gmail if they do not exist.
 
         Lists existing Gmail labels, checks which required labels already
@@ -103,9 +101,7 @@ class LabelService:
                 )
             else:
                 # Create label with retry logic
-                gmail_label_id = await self._create_label_with_retry(
-                    access_token, full_label_name
-                )
+                gmail_label_id = await self._create_label_with_retry(access_token, full_label_name)
                 if gmail_label_id is None:
                     all_succeeded = False
                     logger.error(
@@ -122,9 +118,7 @@ class LabelService:
                     user_id,
                 )
 
-            mappings.append(
-                {"label_name": full_label_name, "gmail_label_id": gmail_label_id}
-            )
+            mappings.append({"label_name": full_label_name, "gmail_label_id": gmail_label_id})
 
         # Step 3: Store mappings in the database
         if mappings:
@@ -146,9 +140,7 @@ class LabelService:
             },
         )
 
-    async def _create_label_with_retry(
-        self, access_token: str, label_name: str
-    ) -> str | None:
+    async def _create_label_with_retry(self, access_token: str, label_name: str) -> str | None:
         """Create a Gmail label with exponential backoff retry.
 
         Retries up to 3 times with delays of 1s, 2s, 4s on failure.
@@ -165,16 +157,13 @@ class LabelService:
 
         for attempt in range(max_retries):
             try:
-                gmail_label_id = await self._gmail_adapter.create_label(
-                    access_token, label_name
-                )
+                gmail_label_id = await self._gmail_adapter.create_label(access_token, label_name)
                 return gmail_label_id
             except Exception as exc:
                 if attempt < max_retries - 1:
                     delay = base_delay * (2**attempt)
                     logger.warning(
-                        "Label creation failed for '%s' (attempt %d/%d), "
-                        "retrying in %.1fs: %s",
+                        "Label creation failed for '%s' (attempt %d/%d), retrying in %.1fs: %s",
                         label_name,
                         attempt + 1,
                         max_retries,
@@ -219,13 +208,9 @@ class LabelService:
                 f"Label '{label_name}' is not within the VroomHR/ namespace"
             )
 
-        gmail_label_id = await self._label_repo.get_label_id_by_name(
-            user_id, label_name
-        )
+        gmail_label_id = await self._label_repo.get_label_id_by_name(user_id, label_name)
         if gmail_label_id is None:
-            raise GmailFetchError(
-                f"Label '{label_name}' not found in mappings for user {user_id}"
-            )
+            raise GmailFetchError(f"Label '{label_name}' not found in mappings for user {user_id}")
 
         await self._gmail_adapter.modify_labels(
             access_token=access_token,
@@ -273,13 +258,9 @@ class LabelService:
                 f"Label '{label_name}' is not within the VroomHR/ namespace"
             )
 
-        gmail_label_id = await self._label_repo.get_label_id_by_name(
-            user_id, label_name
-        )
+        gmail_label_id = await self._label_repo.get_label_id_by_name(user_id, label_name)
         if gmail_label_id is None:
-            raise GmailFetchError(
-                f"Label '{label_name}' not found in mappings for user {user_id}"
-            )
+            raise GmailFetchError(f"Label '{label_name}' not found in mappings for user {user_id}")
 
         await self._gmail_adapter.modify_labels(
             access_token=access_token,
@@ -331,13 +312,9 @@ class LabelService:
         if not message_ids:
             return
 
-        gmail_label_id = await self._label_repo.get_label_id_by_name(
-            user_id, label_name
-        )
+        gmail_label_id = await self._label_repo.get_label_id_by_name(user_id, label_name)
         if gmail_label_id is None:
-            raise GmailFetchError(
-                f"Label '{label_name}' not found in mappings for user {user_id}"
-            )
+            raise GmailFetchError(f"Label '{label_name}' not found in mappings for user {user_id}")
 
         await self._gmail_adapter.batch_modify_labels(
             access_token=access_token,

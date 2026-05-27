@@ -151,9 +151,7 @@ class DocumentService:
 
         return await self._document_repo.create(document)
 
-    async def download_document(
-        self, document_id: UUID
-    ) -> tuple[EmployeeDocument, bytes]:
+    async def download_document(self, document_id: UUID) -> tuple[EmployeeDocument, bytes]:
         """Download a document from the vault.
 
         Retrieves document metadata and fetches the file bytes from MinIO.

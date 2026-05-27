@@ -307,7 +307,9 @@ async def change_user_role(
         details={
             "target_user_id": str(updated_user.id),
             "target_user_email": updated_user.email,
-            "old_role": UserRole.USER.value if body.role == UserRole.ADMIN else UserRole.ADMIN.value,
+            "old_role": UserRole.USER.value
+            if body.role == UserRole.ADMIN
+            else UserRole.ADMIN.value,
             "new_role": body.role.value,
         },
     )
@@ -325,8 +327,12 @@ async def get_audit_logs(
     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
     page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
     action_type: str | None = Query(default=None, description="Filter by action type"),
-    start_date: datetime | None = Query(default=None, description="Filter entries on or after this date"),
-    end_date: datetime | None = Query(default=None, description="Filter entries on or before this date"),
+    start_date: datetime | None = Query(
+        default=None, description="Filter entries on or after this date"
+    ),
+    end_date: datetime | None = Query(
+        default=None, description="Filter entries on or before this date"
+    ),
 ) -> PaginatedAuditLogsResponse:
     """Retrieve paginated audit logs with optional filters.
 
@@ -359,7 +365,6 @@ async def get_audit_logs(
         page=paginated.page,
         page_size=page_size,
     )
-
 
 
 # --- OAuth Config Endpoints ---

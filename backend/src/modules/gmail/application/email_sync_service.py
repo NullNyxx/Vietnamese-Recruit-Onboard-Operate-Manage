@@ -138,9 +138,7 @@ class EmailSyncService:
                     # Token refresh failed — grant already marked invalid
                     return 0
                 # Retry with refreshed token
-                count = await self._fetch_and_persist(
-                    user_id, new_access_token, cursor
-                )
+                count = await self._fetch_and_persist(user_id, new_access_token, cursor)
             else:
                 raise
 
@@ -193,9 +191,7 @@ class EmailSyncService:
                 new_access_token = await self._handle_token_refresh(user_id)
                 if new_access_token is None:
                     return 0
-                count = await self._fetch_and_persist(
-                    user_id, new_access_token, cursor
-                )
+                count = await self._fetch_and_persist(user_id, new_access_token, cursor)
             else:
                 raise
 
@@ -233,17 +229,12 @@ class EmailSyncService:
         Returns:
             The number of emails successfully persisted.
         """
-        from src.modules.gmail.infrastructure.gmail_adapter import (
-            GmailMessageMetadata,
-        )
 
         latest_history_id: str | None = None
 
         if cursor is None:
             # First poll: fetch emails from last N days
-            days_ago = datetime.now(UTC) - timedelta(
-                days=self._settings.initial_sync_days
-            )
+            days_ago = datetime.now(UTC) - timedelta(days=self._settings.initial_sync_days)
             epoch_seconds = int(days_ago.timestamp())
             query = f"after:{epoch_seconds}"
 
@@ -330,12 +321,10 @@ class EmailSyncService:
             refresh_token = self._crypto.decrypt(grant.refresh_token_enc)
 
             # Call Google token refresh endpoint
-            new_access_token, expires_at = (
-                await self._gmail_adapter.refresh_access_token(
-                    refresh_token=refresh_token,
-                    client_id=self._client_id,
-                    client_secret=self._client_secret,
-                )
+            new_access_token, expires_at = await self._gmail_adapter.refresh_access_token(
+                refresh_token=refresh_token,
+                client_id=self._client_id,
+                client_secret=self._client_secret,
             )
 
             # Encrypt and store the new access token
@@ -353,9 +342,7 @@ class EmailSyncService:
             return new_access_token
 
         except Exception as exc:
-            logger.error(
-                "Token refresh failed for user %s: %s", user_id, exc
-            )
+            logger.error("Token refresh failed for user %s: %s", user_id, exc)
             # Mark grant as invalid — connection status becomes token_expired
             await self._oauth_grant_repo.mark_invalid(user_id)
 
@@ -420,9 +407,7 @@ class EmailSyncService:
         """
         for gmail_message_id in failed_message_ids:
             try:
-                updated = await self._email_repo.increment_retry_count(
-                    gmail_message_id
-                )
+                updated = await self._email_repo.increment_retry_count(gmail_message_id)
                 if updated and updated.retry_count >= self._settings.permanent_failure_threshold:
                     await self._email_repo.mark_permanently_failed(gmail_message_id)
                     logger.warning(
@@ -437,9 +422,7 @@ class EmailSyncService:
                     exc_info=True,
                 )
 
-    def _metadata_to_entity(
-        self, user_id: UUID, metadata: GmailMessageMetadata
-    ) -> EmailMessage:
+    def _metadata_to_entity(self, user_id: UUID, metadata: GmailMessageMetadata) -> EmailMessage:
         """Convert GmailMessageMetadata to an EmailMessage domain entity.
 
         Maps adapter response fields to the EmailMessage entity fields,

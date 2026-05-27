@@ -18,18 +18,20 @@ from src.modules.gmail.infrastructure.config import GmailSettings
 logger = logging.getLogger(__name__)
 
 # Fields that must NEVER appear in audit log metadata
-_FORBIDDEN_METADATA_KEYS = frozenset({
-    "body",
-    "body_html",
-    "body_text",
-    "snippet",
-    "preview",
-    "raw_payload",
-    "raw_payload_enc",
-    "attachment_data",
-    "attachment_binary",
-    "content",
-})
+_FORBIDDEN_METADATA_KEYS = frozenset(
+    {
+        "body",
+        "body_html",
+        "body_text",
+        "snippet",
+        "preview",
+        "raw_payload",
+        "raw_payload_enc",
+        "attachment_data",
+        "attachment_binary",
+        "content",
+    }
+)
 
 
 class AuditLogger:
@@ -93,8 +95,7 @@ class AuditLogger:
             await self.session.flush()
         except Exception as exc:
             logger.error(
-                "Audit logging failed for operation_type=%s user_id=%s "
-                "timestamp=%s reason=%s",
+                "Audit logging failed for operation_type=%s user_id=%s timestamp=%s reason=%s",
                 operation_type,
                 user_id,
                 datetime.now(UTC).isoformat(),
@@ -155,8 +156,7 @@ class AuditLogger:
             await self.session.flush()
         except Exception as exc:
             logger.error(
-                "Audit logging failed for operation_type=send user_id=%s "
-                "timestamp=%s reason=%s",
+                "Audit logging failed for operation_type=send user_id=%s timestamp=%s reason=%s",
                 user_id,
                 datetime.now(UTC).isoformat(),
                 str(exc),

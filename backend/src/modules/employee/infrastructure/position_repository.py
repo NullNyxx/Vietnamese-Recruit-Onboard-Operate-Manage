@@ -63,9 +63,7 @@ class PositionRepository:
         Returns:
             The Position entity if found, None otherwise.
         """
-        statement = select(Position).where(
-            func.lower(Position.name) == name.lower()
-        )
+        statement = select(Position).where(func.lower(Position.name) == name.lower())
         result = await self.session.execute(statement)
         return result.scalars().first()
 

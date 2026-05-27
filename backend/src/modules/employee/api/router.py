@@ -43,7 +43,6 @@ from src.modules.employee.container import (
 from src.modules.identity.container import get_current_user
 from src.modules.identity.domain.entities import User
 
-
 # ---------------------------------------------------------------------------
 # Type aliases for injected dependencies
 # ---------------------------------------------------------------------------
@@ -249,9 +248,7 @@ async def import_employees(
 # ---------------------------------------------------------------------------
 
 
-@employee_router.get(
-    "/{employee_id}/documents", response_model=list[DocumentResponse]
-)
+@employee_router.get("/{employee_id}/documents", response_model=list[DocumentResponse])
 async def list_documents(
     employee_id: UUID,
     current_user: CurrentUserDep,

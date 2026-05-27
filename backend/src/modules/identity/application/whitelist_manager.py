@@ -22,7 +22,6 @@ from src.modules.identity.domain.entities import (
 from src.modules.identity.infrastructure.whitelist_loader import WhitelistLoader
 from src.modules.identity.infrastructure.whitelist_repository import WhitelistRepository
 
-
 # Simple email regex for validation (RFC 5322 simplified)
 _EMAIL_REGEX = re.compile(
     r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?"
@@ -142,7 +141,7 @@ class WhitelistManager:
 
         # Check domain pattern match
         if "@" in normalized:
-            domain_part = normalized[normalized.index("@"):]
+            domain_part = normalized[normalized.index("@") :]
             if domain_part in self._cache_domains:
                 return True
 
@@ -342,8 +341,9 @@ class WhitelistManager:
         Returns:
             The admin's email address, or 'unknown' if not found.
         """
-        from src.modules.identity.domain.entities import User as UserModel
         from sqlmodel import select
+
+        from src.modules.identity.domain.entities import User as UserModel
 
         statement = select(UserModel).where(UserModel.id == user_id)
         result = await self._repo.session.execute(statement)

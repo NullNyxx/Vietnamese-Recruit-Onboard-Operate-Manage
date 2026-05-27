@@ -191,9 +191,7 @@ class GmailAdapter:
                 if status_code == 429:
                     consecutive_429s += 1
                     if consecutive_429s >= 3:
-                        logger.warning(
-                            "3 consecutive 429s in poll cycle, aborting"
-                        )
+                        logger.warning("3 consecutive 429s in poll cycle, aborting")
                         raise RateLimitedException(
                             "Rate limit exceeded: 3 consecutive 429 responses"
                         )
@@ -301,9 +299,7 @@ class GmailAdapter:
 
             results: list[GmailMessageMetadata] = []
             for msg_stub in messages[:max_results]:
-                metadata = await self._get_message_metadata(
-                    access_token, msg_stub["id"]
-                )
+                metadata = await self._get_message_metadata(access_token, msg_stub["id"])
                 if metadata:
                     results.append(metadata)
             return results
@@ -356,6 +352,7 @@ class GmailAdapter:
         Returns:
             GmailMessageMetadata or None if fetch fails.
         """
+
         async def _request():
             response = await self._http_client.get(
                 f"{GMAIL_API_BASE}messages/{message_id}",
@@ -407,9 +404,7 @@ class GmailAdapter:
         internal_date = data.get("internalDate")
         if internal_date:
             try:
-                received_at = datetime.fromtimestamp(
-                    int(internal_date) / 1000, tz=UTC
-                )
+                received_at = datetime.fromtimestamp(int(internal_date) / 1000, tz=UTC)
             except (ValueError, TypeError, OSError):
                 received_at = None
 
@@ -549,9 +544,7 @@ class GmailAdapter:
             # Fetch metadata for each new message
             results: list[GmailMessageMetadata] = []
             for msg_id in message_ids[:max_results]:
-                metadata = await self._get_message_metadata(
-                    access_token, msg_id
-                )
+                metadata = await self._get_message_metadata(access_token, msg_id)
                 if metadata:
                     results.append(metadata)
 
@@ -561,13 +554,9 @@ class GmailAdapter:
                 raise
             if isinstance(exc, RateLimitedException):
                 raise
-            raise GmailFetchError(
-                f"Failed to fetch history: {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to fetch history: {exc}") from exc
 
-    async def get_message_body(
-        self, access_token: str, message_id: str
-    ) -> MessageBody:
+    async def get_message_body(self, access_token: str, message_id: str) -> MessageBody:
         """Fetch the full message body (text/plain and text/html parts).
 
         Args:
@@ -581,6 +570,7 @@ class GmailAdapter:
             GmailFetchError: If the API call fails after retries.
             httpx.HTTPStatusError: If message not found (404) or auth (401).
         """
+
         async def _request():
             response = await self._http_client.get(
                 f"{GMAIL_API_BASE}messages/{message_id}",
@@ -600,9 +590,7 @@ class GmailAdapter:
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code in (401, 404):
                 raise
-            raise GmailFetchError(
-                f"Failed to fetch message body: {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to fetch message body: {exc}") from exc
 
     def _extract_body(self, payload: dict) -> MessageBody:
         """Extract text/plain and text/html body parts from message payload.
@@ -652,9 +640,7 @@ class GmailAdapter:
         decoded_bytes = base64.urlsafe_b64decode(padded)
         return decoded_bytes.decode("utf-8", errors="replace")
 
-    async def send_message(
-        self, access_token: str, mime_message: bytes
-    ) -> SentMessageInfo:
+    async def send_message(self, access_token: str, mime_message: bytes) -> SentMessageInfo:
         """Send an email via Gmail API messages.send.
 
         Args:
@@ -690,13 +676,10 @@ class GmailAdapter:
             if exc.response.status_code == 401:
                 raise
             raise GmailSendFailedException(
-                f"Failed to send email: {exc.response.status_code} "
-                f"{exc.response.text}"
+                f"Failed to send email: {exc.response.status_code} {exc.response.text}"
             ) from exc
 
-    async def get_attachment(
-        self, access_token: str, message_id: str, attachment_id: str
-    ) -> bytes:
+    async def get_attachment(self, access_token: str, message_id: str, attachment_id: str) -> bytes:
         """Fetch attachment data from Gmail API.
 
         Args:
@@ -711,6 +694,7 @@ class GmailAdapter:
             GmailFetchError: If the API call fails after retries.
             httpx.HTTPStatusError: If 401 (for token refresh handling).
         """
+
         async def _request():
             response = await self._http_client.get(
                 f"{GMAIL_API_BASE}messages/{message_id}/attachments/{attachment_id}",
@@ -732,9 +716,7 @@ class GmailAdapter:
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code == 401:
                 raise
-            raise GmailFetchError(
-                f"Failed to fetch attachment: {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to fetch attachment: {exc}") from exc
 
     async def modify_labels(
         self,
@@ -762,6 +744,7 @@ class GmailAdapter:
         remove_labels = remove_labels or []
 
         for message_id in message_ids:
+
             async def _request(msg_id=message_id):
                 response = await self._http_client.post(
                     f"{GMAIL_API_BASE}messages/{msg_id}/modify",
@@ -831,13 +814,9 @@ class GmailAdapter:
             except httpx.HTTPStatusError as exc:
                 if exc.response.status_code == 401:
                     raise
-                raise GmailFetchError(
-                    f"Failed to batch modify labels: {exc}"
-                ) from exc
+                raise GmailFetchError(f"Failed to batch modify labels: {exc}") from exc
 
-    async def create_label(
-        self, access_token: str, label_name: str
-    ) -> str:
+    async def create_label(self, access_token: str, label_name: str) -> str:
         """Create a new Gmail label.
 
         Args:
@@ -851,6 +830,7 @@ class GmailAdapter:
             GmailFetchError: If the API call fails after retries.
             httpx.HTTPStatusError: If 401 (for token refresh handling).
         """
+
         async def _request():
             response = await self._http_client.post(
                 f"{GMAIL_API_BASE}labels",
@@ -870,9 +850,7 @@ class GmailAdapter:
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code == 401:
                 raise
-            raise GmailFetchError(
-                f"Failed to create label '{label_name}': {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to create label '{label_name}': {exc}") from exc
 
     async def list_labels(self, access_token: str) -> list[GmailLabel]:
         """List all Gmail labels for the authenticated user.
@@ -887,6 +865,7 @@ class GmailAdapter:
             GmailFetchError: If the API call fails after retries.
             httpx.HTTPStatusError: If 401 (for token refresh handling).
         """
+
         async def _request():
             response = await self._http_client.get(
                 f"{GMAIL_API_BASE}labels",
@@ -910,9 +889,7 @@ class GmailAdapter:
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code == 401:
                 raise
-            raise GmailFetchError(
-                f"Failed to list labels: {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to list labels: {exc}") from exc
 
     async def revoke_token(self, token: str) -> bool:
         """Revoke a Gmail OAuth2 token via Google's revocation endpoint.
@@ -963,9 +940,7 @@ class GmailAdapter:
                         "client_id": client_id,
                         "client_secret": client_secret,
                     },
-                    headers={
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
+                    headers={"Content-Type": "application/x-www-form-urlencoded"},
                 ),
                 timeout=float(self._settings.api_timeout_seconds),
             )
@@ -981,6 +956,4 @@ class GmailAdapter:
             httpx.HTTPError,
             KeyError,
         ) as exc:
-            raise GmailFetchError(
-                f"Failed to refresh access token: {exc}"
-            ) from exc
+            raise GmailFetchError(f"Failed to refresh access token: {exc}") from exc

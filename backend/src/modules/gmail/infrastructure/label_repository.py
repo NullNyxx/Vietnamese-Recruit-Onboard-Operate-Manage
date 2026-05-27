@@ -38,9 +38,7 @@ class LabelRepository:
         Returns:
             A list of GmailLabelMapping entities for the user.
         """
-        statement = select(GmailLabelMapping).where(
-            GmailLabelMapping.user_id == user_id
-        )
+        statement = select(GmailLabelMapping).where(GmailLabelMapping.user_id == user_id)
         result = await self.session.execute(statement)
         return list(result.scalars().all())
 
@@ -93,9 +91,7 @@ class LabelRepository:
         await self.session.flush()
         return results
 
-    async def get_label_id_by_name(
-        self, user_id: UUID, label_name: str
-    ) -> str | None:
+    async def get_label_id_by_name(self, user_id: UUID, label_name: str) -> str | None:
         """Retrieve the Gmail label ID for a specific label name and user.
 
         Args:

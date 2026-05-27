@@ -125,9 +125,7 @@ async def poll_gmail_emails(ctx: dict) -> None:
                 logger.debug("No users with active Gmail connections found")
                 return
 
-            logger.info(
-                "Starting Gmail poll cycle for %d user(s)", len(grants)
-            )
+            logger.info("Starting Gmail poll cycle for %d user(s)", len(grants))
 
             for grant in grants:
                 user_id = grant.user_id
@@ -135,15 +133,11 @@ async def poll_gmail_emails(ctx: dict) -> None:
                 try:
                     # Check connection status: skip if token expired
                     if not grant.is_valid:
-                        logger.debug(
-                            "Skipping user %s: grant is invalid", user_id
-                        )
+                        logger.debug("Skipping user %s: grant is invalid", user_id)
                         continue
 
                     if grant.token_expires_at <= datetime.now(UTC):
-                        logger.debug(
-                            "Skipping user %s: token expired", user_id
-                        )
+                        logger.debug("Skipping user %s: token expired", user_id)
                         continue
 
                     # Build per-user service dependencies
@@ -171,9 +165,7 @@ async def poll_gmail_emails(ctx: dict) -> None:
                     )
 
                     count = await email_sync_service.poll_emails(user_id)
-                    logger.info(
-                        "Polled %d new email(s) for user %s", count, user_id
-                    )
+                    logger.info("Polled %d new email(s) for user %s", count, user_id)
 
                 except Exception:
                     logger.error(

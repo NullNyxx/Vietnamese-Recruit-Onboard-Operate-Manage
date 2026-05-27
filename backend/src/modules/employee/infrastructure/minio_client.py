@@ -91,9 +91,7 @@ class MinIOClient:
                 Key=path,
             )
 
-    async def generate_presigned_url(
-        self, path: str, expires_seconds: int = 900
-    ) -> str:
+    async def generate_presigned_url(self, path: str, expires_seconds: int = 900) -> str:
         """Generate a pre-signed download URL for a file.
 
         Args:
@@ -115,9 +113,7 @@ class MinIOClient:
                     Key=path,
                 )
             except Exception as exc:
-                raise FileNotFoundError(
-                    f"File not found at path: {path}"
-                ) from exc
+                raise FileNotFoundError(f"File not found at path: {path}") from exc
 
             url: str = await client.generate_presigned_url(
                 "get_object",

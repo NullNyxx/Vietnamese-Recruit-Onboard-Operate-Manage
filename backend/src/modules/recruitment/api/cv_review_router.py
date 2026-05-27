@@ -31,7 +31,6 @@ from src.modules.recruitment.domain.value_objects import (
     ParsedCV,
 )
 
-
 # ---------------------------------------------------------------------------
 # Request / Response schemas
 # ---------------------------------------------------------------------------
@@ -144,9 +143,7 @@ async def list_review_queue(
     current_user: CurrentUserDep,
     review_service: ReviewServiceDep,
     page: int = Query(default=1, ge=1, description="Page number (1-indexed)"),
-    page_size: int = Query(
-        default=20, ge=1, le=100, description="Items per page"
-    ),
+    page_size: int = Query(default=20, ge=1, le=100, description="Items per page"),
 ) -> CVReviewListResponse:
     """List CV documents needing manual review with pagination.
 
@@ -168,10 +165,7 @@ async def list_review_queue(
     )
 
     return CVReviewListResponse(
-        items=[
-            CVReviewItemResponse.model_validate(doc)
-            for doc in result.documents
-        ],
+        items=[CVReviewItemResponse.model_validate(doc) for doc in result.documents],
         total=result.total_count,
         page=result.page,
         page_size=result.page_size,

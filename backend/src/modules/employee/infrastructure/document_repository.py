@@ -79,9 +79,7 @@ class DocumentRepository:
         Returns:
             True if the document was found and deleted, False otherwise.
         """
-        statement = select(EmployeeDocument).where(
-            EmployeeDocument.id == document_id
-        )
+        statement = select(EmployeeDocument).where(EmployeeDocument.id == document_id)
         result = await self.session.execute(statement)
         document = result.scalars().first()
 

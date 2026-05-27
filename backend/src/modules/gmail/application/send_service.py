@@ -137,9 +137,7 @@ class SendService:
         self._client_id = client_id
         self._client_secret = client_secret
 
-    async def send_email(
-        self, user_id: UUID, params: SendEmailParams
-    ) -> SentEmailResponse:
+    async def send_email(self, user_id: UUID, params: SendEmailParams) -> SentEmailResponse:
         """Send an email via Gmail API on behalf of the user.
 
         Validates input parameters, verifies Gmail connection status,
@@ -170,9 +168,7 @@ class SendService:
 
         # Step 4: Send via GmailAdapter with token refresh on 401
         try:
-            sent_info = await self._gmail_adapter.send_message(
-                access_token, mime_bytes
-            )
+            sent_info = await self._gmail_adapter.send_message(access_token, mime_bytes)
         except httpx.HTTPStatusError as exc:
             if exc.response.status_code == 401:
                 # Attempt token refresh and retry once
@@ -181,9 +177,7 @@ class SendService:
                     raise GmailSendFailedException(
                         "Token refresh failed, Gmail connection expired"
                     ) from exc
-                sent_info = await self._gmail_adapter.send_message(
-                    refreshed_token, mime_bytes
-                )
+                sent_info = await self._gmail_adapter.send_message(refreshed_token, mime_bytes)
             else:
                 raise
 
@@ -222,33 +216,23 @@ class SendService:
         if not params.to:
             raise ValueError("At least one recipient (to) is required")
         if len(params.to) > 50:
-            raise ValueError(
-                f"Maximum 50 recipients allowed in 'to', got {len(params.to)}"
-            )
+            raise ValueError(f"Maximum 50 recipients allowed in 'to', got {len(params.to)}")
 
         # Validate CC
         if len(params.cc) > 50:
-            raise ValueError(
-                f"Maximum 50 recipients allowed in 'cc', got {len(params.cc)}"
-            )
+            raise ValueError(f"Maximum 50 recipients allowed in 'cc', got {len(params.cc)}")
 
         # Validate subject
         if len(params.subject) > 500:
-            raise ValueError(
-                f"Subject must not exceed 500 characters, got {len(params.subject)}"
-            )
+            raise ValueError(f"Subject must not exceed 500 characters, got {len(params.subject)}")
 
         # Validate body
         if not params.body_html and not params.body_text:
-            raise ValueError(
-                "At least one of body_html or body_text must be provided"
-            )
+            raise ValueError("At least one of body_html or body_text must be provided")
 
         # Validate attachments
         if len(params.attachments) > 10:
-            raise ValueError(
-                f"Maximum 10 attachments allowed, got {len(params.attachments)}"
-            )
+            raise ValueError(f"Maximum 10 attachments allowed, got {len(params.attachments)}")
 
         max_size = self._settings.max_attachment_size_bytes
         for i, attachment in enumerate(params.attachments):
@@ -288,9 +272,7 @@ class SendService:
 
             # Attach files
             for attachment in params.attachments:
-                att_part = MIMEApplication(
-                    attachment.content, Name=attachment.filename
-                )
+                att_part = MIMEApplication(attachment.content, Name=attachment.filename)
                 att_part.add_header(
                     "Content-Disposition",
                     "attachment",
@@ -342,22 +324,16 @@ class SendService:
         grant = await self._oauth_grant_repo.get_by_user_id(user_id)
 
         if grant is None:
-            raise GmailNotConnectedException(
-                "Gmail is not connected for this user"
-            )
+            raise GmailNotConnectedException("Gmail is not connected for this user")
 
         if not grant.is_valid:
-            raise GmailNotConnectedException(
-                "Gmail connection is invalid (token expired)"
-            )
+            raise GmailNotConnectedException("Gmail connection is invalid (token expired)")
 
         if grant.token_expires_at <= datetime.now(UTC):
             # Token expired — attempt refresh
             refreshed_token = await self._handle_token_refresh(user_id)
             if refreshed_token is None:
-                raise GmailNotConnectedException(
-                    "Gmail access token expired and refresh failed"
-                )
+                raise GmailNotConnectedException("Gmail access token expired and refresh failed")
             return refreshed_token
 
         return self._crypto.decrypt(grant.access_token_enc)
@@ -385,12 +361,10 @@ class SendService:
                 await self._oauth_grant_repo.mark_invalid(user_id)
                 return None
 
-            new_access_token, expires_at = (
-                await self._gmail_adapter.refresh_access_token(
-                    refresh_token=refresh_token,
-                    client_id=self._client_id,
-                    client_secret=self._client_secret,
-                )
+            new_access_token, expires_at = await self._gmail_adapter.refresh_access_token(
+                refresh_token=refresh_token,
+                client_id=self._client_id,
+                client_secret=self._client_secret,
             )
 
             # Encrypt and store the new access token
@@ -405,9 +379,7 @@ class SendService:
 
             return new_access_token
         except Exception as exc:
-            logger.error(
-                "Token refresh failed for user %s: %s", user_id, exc
-            )
+            logger.error("Token refresh failed for user %s: %s", user_id, exc)
             await self._oauth_grant_repo.mark_invalid(user_id)
             return None
 

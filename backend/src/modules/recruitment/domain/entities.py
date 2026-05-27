@@ -29,29 +29,17 @@ class Candidate(SQLModel, table=True):
     email: str = Field(max_length=255, nullable=False, index=True)
     phone: str = Field(default="", max_length=20)
     skills: list[str] = Field(default_factory=list, sa_column=Column(JSONB, nullable=False))
-    experience: list[dict] = Field(
-        default_factory=list, sa_column=Column(JSONB, nullable=False)
-    )
-    education: list[dict] = Field(
-        default_factory=list, sa_column=Column(JSONB, nullable=False)
-    )
+    experience: list[dict] = Field(default_factory=list, sa_column=Column(JSONB, nullable=False))
+    education: list[dict] = Field(default_factory=list, sa_column=Column(JSONB, nullable=False))
     summary: str = Field(default="", max_length=500)
     parsed_cv_json: dict | None = Field(default=None, sa_column=Column(JSONB))
     status: str = Field(default="new", max_length=30, nullable=False, index=True)
     confidence_score: float = Field(default=0.0, nullable=False)
-    source_email_message_id: UUID | None = Field(
-        default=None, foreign_key="email_messages.id"
-    )
+    source_email_message_id: UUID | None = Field(default=None, foreign_key="email_messages.id")
     rejection_reason: str | None = Field(default=None, max_length=1000)
-    rejected_at: datetime | None = Field(
-        default=None, sa_column=Column(DateTime(timezone=True))
-    )
-    accepted_at: datetime | None = Field(
-        default=None, sa_column=Column(DateTime(timezone=True))
-    )
-    archived_at: datetime | None = Field(
-        default=None, sa_column=Column(DateTime(timezone=True))
-    )
+    rejected_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))
+    accepted_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))
+    archived_at: datetime | None = Field(default=None, sa_column=Column(DateTime(timezone=True)))
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
@@ -74,9 +62,7 @@ class CVDocument(SQLModel, table=True):
     __tablename__ = "cv_documents"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    candidate_id: UUID | None = Field(
-        default=None, foreign_key="candidates.id", index=True
-    )
+    candidate_id: UUID | None = Field(default=None, foreign_key="candidates.id", index=True)
     gmail_message_id: str = Field(max_length=255, nullable=False, index=True)
     original_filename: str = Field(max_length=255, nullable=False)
     mime_type: str = Field(max_length=100, nullable=False)
@@ -85,13 +71,9 @@ class CVDocument(SQLModel, table=True):
     ocr_output: str | None = Field(default=None)
     parsed_cv_data: dict | None = Field(default=None, sa_column=Column(JSONB))
     confidence_score: float | None = Field(default=None)
-    processing_status: str = Field(
-        default="pending", max_length=30, nullable=False, index=True
-    )
+    processing_status: str = Field(default="pending", max_length=30, nullable=False, index=True)
     processing_error: str | None = Field(default=None, max_length=500)
-    validation_errors: list[dict] | None = Field(
-        default=None, sa_column=Column(JSONB)
-    )
+    validation_errors: list[dict] | None = Field(default=None, sa_column=Column(JSONB))
     retry_count: int = Field(default=0, nullable=False)
     uploaded_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),

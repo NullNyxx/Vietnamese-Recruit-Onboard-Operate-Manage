@@ -44,9 +44,7 @@ class RefreshTokenRepository(Protocol):
         """
         ...
 
-    async def store(
-        self, user_id: UUID, token_hash: str, expires_at: datetime
-    ) -> None:
+    async def store(self, user_id: UUID, token_hash: str, expires_at: datetime) -> None:
         """Store a new refresh token hash in the database.
 
         Args:

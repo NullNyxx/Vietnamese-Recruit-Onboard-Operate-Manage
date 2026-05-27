@@ -209,9 +209,7 @@ async def retention_cleanup(ctx: dict) -> int:
                     operation_type="candidate_data_deleted",
                     entity_type="candidate",
                     entity_id=None,
-                    change_summary=(
-                        f"Retention cleanup FAILED for candidate {anonymized_id}"
-                    ),
+                    change_summary=(f"Retention cleanup FAILED for candidate {anonymized_id}"),
                     success=False,
                 )
                 await session.commit()

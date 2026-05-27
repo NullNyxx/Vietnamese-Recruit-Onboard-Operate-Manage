@@ -178,9 +178,7 @@ class ImportService:
 
         if existing is not None:
             # Update existing employee
-            update_fields = {
-                k: v for k, v in employee_data.items() if k != "email"
-            }
+            update_fields = {k: v for k, v in employee_data.items() if k != "email"}
             await self._employee_repo.update(existing.id, update_fields)
         else:
             # Create new employee with auto-generated code

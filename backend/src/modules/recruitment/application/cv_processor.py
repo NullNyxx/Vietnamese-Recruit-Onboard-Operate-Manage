@@ -84,7 +84,6 @@ class CandidateCreator(Protocol):
         ...
 
 
-
 class CVProcessorService:
     """Orchestrates the full CV processing pipeline.
 
@@ -196,10 +195,9 @@ class CVProcessorService:
                 _process_all(),
                 timeout=self._settings.pipeline_timeout_seconds,
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             logger.error(
-                "CV processing pipeline timed out for email %s "
-                "(timeout: %ds)",
+                "CV processing pipeline timed out for email %s (timeout: %ds)",
                 msg_id_str,
                 self._settings.pipeline_timeout_seconds,
                 extra={"gmail_message_id": msg_id_str},
@@ -324,9 +322,7 @@ class CVProcessorService:
             return cv_doc
 
         # Step 6: Confidence check and candidate creation
-        cv_doc = await self._handle_confidence_routing(
-            cv_doc, email_message_id
-        )
+        cv_doc = await self._handle_confidence_routing(cv_doc, email_message_id)
 
         # Log audit entry for pipeline completion
         latency_ms = int((time.monotonic() - start_time) * 1000)
@@ -368,9 +364,7 @@ class CVProcessorService:
         """
         cv_doc = await self._cv_document_repo.get_by_id(cv_document_id)
         if cv_doc is None:
-            raise CVDocumentNotFoundError(
-                f"CV document not found: {cv_document_id}"
-            )
+            raise CVDocumentNotFoundError(f"CV document not found: {cv_document_id}")
 
         if not cv_doc.ocr_output:
             logger.warning(
@@ -422,9 +416,7 @@ class CVProcessorService:
                     "processing_status": cv_doc.processing_status,
                     "retry_count": cv_doc.retry_count,
                 },
-                change_summary=(
-                    f"LLM parse retry succeeded: confidence={confidence:.2f}"
-                ),
+                change_summary=(f"LLM parse retry succeeded: confidence={confidence:.2f}"),
                 model_name=self._settings.llm_model,
                 token_usage=parse_result.token_usage,
                 latency_ms=latency_ms,
@@ -459,9 +451,7 @@ class CVProcessorService:
 
     # ─── Private pipeline steps ────────────────────────────────────────
 
-    async def _run_ocr(
-        self, cv_doc: CVDocument, file_data: bytes, filename: str
-    ) -> CVDocument:
+    async def _run_ocr(self, cv_doc: CVDocument, file_data: bytes, filename: str) -> CVDocument:
         """Run OCR text extraction on the file and update CVDocument.
 
         Updates processing_status to ocr_processing during extraction,
@@ -519,9 +509,7 @@ class CVProcessorService:
                 operation_type="ocr_extraction",
                 entity_type="cv_document",
                 entity_id=cv_doc.id,
-                change_summary=(
-                    f"OCR insufficient text: {len(ocr_text.strip())} chars"
-                ),
+                change_summary=(f"OCR insufficient text: {len(ocr_text.strip())} chars"),
                 latency_ms=int((time.monotonic() - start_time) * 1000),
                 success=False,
             )
@@ -671,8 +659,7 @@ class CVProcessorService:
         await self._session.commit()
 
         logger.info(
-            "CV document %s routed: confidence=%.2f, threshold=%.2f, "
-            "status=%s",
+            "CV document %s routed: confidence=%.2f, threshold=%.2f, status=%s",
             cv_doc.id,
             confidence,
             threshold,

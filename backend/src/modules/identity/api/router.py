@@ -9,8 +9,8 @@ from __future__ import annotations
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
-from sqlmodel import Session, select
 from fastapi.responses import JSONResponse, RedirectResponse
+from sqlmodel import Session, select
 
 from src.database import get_session
 from src.modules.employee.domain.entities import Employee
@@ -270,9 +270,7 @@ async def me(
         A UserResponse containing user profile and grant status.
     """
     grant_status = await _get_user_grant_status(current_user, oauth_service)
-    employee = session.exec(
-        select(Employee).where(Employee.email == current_user.email)
-    ).first()
+    employee = session.exec(select(Employee).where(Employee.email == current_user.email)).first()
 
     return UserResponse(
         id=current_user.id,
@@ -318,9 +316,7 @@ async def grant_status(
 # ---------------------------------------------------------------------------
 
 
-async def _get_user_grant_status(
-    user: User, oauth_service: OAuthService
-) -> GrantStatusResponse:
+async def _get_user_grant_status(user: User, oauth_service: OAuthService) -> GrantStatusResponse:
     """Retrieve the OAuth grant status for a user.
 
     Looks up the user's OAuth grant and determines which scopes are

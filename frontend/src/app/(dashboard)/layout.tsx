@@ -1,13 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import { Search, Bell, Sparkles } from "lucide-react";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CommandBar } from "@/components/command-bar";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({
@@ -17,7 +16,6 @@ export default function DashboardLayout({
 }) {
   const [commandOpen, setCommandOpen] = useState(false);
 
-  // Register ⌘K / Ctrl+K keyboard shortcut
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -30,8 +28,21 @@ export default function DashboardLayout({
   }, []);
 
   return (
-    <div className="flex h-screen overflow-hidden bg-background">
-      {/* Sidebar — hidden on mobile, fixed height */}
+    <div className="flex h-screen overflow-hidden bg-[#08090a]">
+      {/* Background subtle grid */}
+      <div
+        className="fixed inset-0 -z-10 opacity-[0.012]"
+        aria-hidden="true"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      {/* Sidebar */}
       <div className="hidden md:block shrink-0">
         <AppSidebar />
       </div>
@@ -39,42 +50,55 @@ export default function DashboardLayout({
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          {/* Mobile menu trigger */}
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/[0.06] bg-[#08090a]/90 px-4 lg:px-6 backdrop-blur-xl">
           <MobileNav />
-
-          {/* Breadcrumbs */}
           <Breadcrumbs />
-
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Command bar trigger */}
+          {/* AI Assistant indicator */}
+          <div className="hidden lg:flex items-center gap-1.5 rounded-full border border-white/[0.06] bg-white/[0.02] px-2.5 py-1 backdrop-blur-sm">
+            <Sparkles className="h-3 w-3 text-[#e4f222]" />
+            <span className="text-[10px] font-medium text-[#8a8f98]">
+              AI Ready
+            </span>
+          </div>
+
+          {/* Search */}
           <Button
             variant="outline"
             size="sm"
-            className="hidden gap-2 text-muted-foreground sm:flex"
+            className="hidden gap-2 border-white/[0.06] bg-white/[0.02] text-[#8a8f98] hover:bg-white/[0.04] hover:text-[#f7f8f8] hover:border-white/[0.1] sm:flex backdrop-blur-sm"
             onClick={() => setCommandOpen(true)}
             aria-label="Tìm kiếm (⌘K)"
           >
-            <Search className="h-4 w-4" aria-hidden="true" />
-            <span className="text-xs">Tìm kiếm...</span>
-            <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground sm:flex">
+            <Search className="h-3.5 w-3.5" aria-hidden="true" />
+            <span className="text-[11px]">Search...</span>
+            <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border border-white/[0.06] bg-white/[0.03] px-1.5 font-mono text-[10px] font-medium text-[#62666d] sm:flex">
               <span className="text-xs">⌘</span>K
             </kbd>
           </Button>
 
-          {/* Theme toggle */}
-          <ThemeToggle />
+          {/* Notifications */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative h-8 w-8 text-[#8a8f98] hover:bg-white/[0.04] hover:text-[#f7f8f8]"
+            aria-label="Thông báo"
+          >
+            <Bell className="h-4 w-4" aria-hidden="true" />
+            <span className="absolute right-1.5 top-1.5 flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#e4f222] opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#e4f222]" />
+            </span>
+          </Button>
         </header>
 
         {/* Main content */}
-        <main className="relative flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 has-[.gmail-fullbleed]:p-0 has-[.gmail-fullbleed]:overflow-hidden">
+        <main className="relative flex-1 overflow-y-auto p-5 lg:p-8 has-[.gmail-fullbleed]:p-0 has-[.gmail-fullbleed]:overflow-hidden">
           {children}
         </main>
       </div>
 
-      {/* Command bar dialog */}
       <CommandBar open={commandOpen} onOpenChange={setCommandOpen} />
     </div>
   );

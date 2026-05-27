@@ -116,9 +116,7 @@ class OAuthGrantRepository:
 
         # Filter in Python since ARRAY containment varies by dialect
         return [
-            grant
-            for grant in grants
-            if all(scope in grant.scopes for scope in required_scopes)
+            grant for grant in grants if all(scope in grant.scopes for scope in required_scopes)
         ]
 
     async def mark_invalid(self, user_id: UUID) -> None:

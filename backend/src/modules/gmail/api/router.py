@@ -52,7 +52,6 @@ from src.modules.gmail.infrastructure.gmail_adapter import GmailAdapter
 from src.modules.identity.container import get_current_user
 from src.modules.identity.domain.entities import User
 
-
 # ---------------------------------------------------------------------------
 # Type aliases for injected dependencies
 # ---------------------------------------------------------------------------
@@ -269,9 +268,7 @@ async def list_messages(
     Returns:
         MessageListResponse with list of messages and total count.
     """
-    messages = await email_repo.list_by_user(
-        user_id=current_user.id, limit=limit, offset=offset
-    )
+    messages = await email_repo.list_by_user(user_id=current_user.id, limit=limit, offset=offset)
 
     items = [
         MessageListItem(
@@ -333,9 +330,7 @@ async def get_message_body(
         raise GmailNotConnectedException()
 
     # Get access token from OAuth grant
-    access_token = await _get_user_access_token(
-        current_user.id, connection_service
-    )
+    access_token = await _get_user_access_token(current_user.id, connection_service)
 
     body = await gmail_adapter.get_message_body(access_token, message_id)
     return MessageBodyResponse(
@@ -388,9 +383,7 @@ async def remove_label(
         raise GmailNotConnectedException()
 
     # Get access token
-    access_token = await _get_user_access_token(
-        current_user.id, connection_service
-    )
+    access_token = await _get_user_access_token(current_user.id, connection_service)
 
     await label_service.remove_label(
         user_id=current_user.id,
@@ -507,9 +500,7 @@ async def fetch_attachments(
         raise GmailNotConnectedException()
 
     # Get access token
-    access_token = await _get_user_access_token(
-        current_user.id, connection_service
-    )
+    access_token = await _get_user_access_token(current_user.id, connection_service)
 
     # Fetch the full message to get attachment parts
     response = await gmail_adapter._http_client.get(
@@ -552,9 +543,7 @@ async def fetch_attachments(
 # ---------------------------------------------------------------------------
 
 
-async def _get_user_access_token(
-    user_id, connection_service: ConnectionService
-) -> str:
+async def _get_user_access_token(user_id, connection_service: ConnectionService) -> str:
     """Retrieve the decrypted access token for a user.
 
     Uses the connection service's internal OAuth grant repository
@@ -599,9 +588,7 @@ def _extract_attachment_metadata(payload: dict) -> list[AttachmentMetadata]:
     return attachments
 
 
-def _walk_parts_for_attachments(
-    part: dict, attachments: list[AttachmentMetadata]
-) -> None:
+def _walk_parts_for_attachments(part: dict, attachments: list[AttachmentMetadata]) -> None:
     """Recursively walk message parts to find attachments.
 
     Args:

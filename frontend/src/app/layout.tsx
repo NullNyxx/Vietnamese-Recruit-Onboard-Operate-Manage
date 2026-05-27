@@ -1,24 +1,18 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, DM_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
-const heading = Plus_Jakarta_Sans({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-heading",
-  weight: ["500", "600", "700", "800"],
-});
-
-const body = DM_Sans({
-  subsets: ["latin", "latin-ext"],
-  variable: "--font-body",
-  weight: ["400", "500", "600"],
+const inter = Inter({
+  subsets: ["latin", "latin-ext", "vietnamese"],
+  variable: "--font-inter",
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
   title: "Vroom HR",
-  description: "Hệ thống quản lý nhân sự thông minh, nhanh chóng.",
+  description: "Nền tảng quản lý nhân sự thông minh cho doanh nghiệp Việt Nam",
 };
 
 export default function RootLayout({
@@ -27,13 +21,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className="dark">
       <body
-        className={`${heading.variable} ${body.variable} font-body antialiased`}
+        className={`${inter.variable} font-sans antialiased`}
+        style={{
+          fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
+        }}
       >
         <ThemeProvider>
           {children}
-          <Toaster position="bottom-right" richColors closeButton visibleToasts={5} />
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            visibleToasts={5}
+          />
         </ThemeProvider>
       </body>
     </html>

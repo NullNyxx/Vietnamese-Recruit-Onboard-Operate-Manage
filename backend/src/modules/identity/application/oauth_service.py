@@ -155,9 +155,7 @@ class OAuthService:
             try:
                 response = await client.post(_GOOGLE_TOKEN_URL, data=payload)
             except httpx.HTTPError as exc:
-                raise GoogleAuthError(
-                    f"Failed to connect to Google token endpoint: {exc}"
-                ) from exc
+                raise GoogleAuthError(f"Failed to connect to Google token endpoint: {exc}") from exc
 
         if response.status_code != 200:
             raise GoogleAuthError(
@@ -209,9 +207,7 @@ class OAuthService:
             try:
                 response = await client.post(_GOOGLE_TOKEN_URL, data=payload)
             except httpx.HTTPError as exc:
-                raise GoogleAuthError(
-                    f"Failed to connect to Google token endpoint: {exc}"
-                ) from exc
+                raise GoogleAuthError(f"Failed to connect to Google token endpoint: {exc}") from exc
 
         # Google returns 400 when the refresh token is revoked.
         if response.status_code == 400:
@@ -220,13 +216,12 @@ class OAuthService:
                 await self._grant_repository.mark_invalid(user_id)
                 return None
             raise GoogleAuthError(
-                f"Google token refresh failed: {error_data.get('error_description', 'unknown error')}"
+                "Google token refresh failed: "
+                f"{error_data.get('error_description', 'unknown error')}"
             )
 
         if response.status_code != 200:
-            raise GoogleAuthError(
-                f"Google token refresh failed with status {response.status_code}"
-            )
+            raise GoogleAuthError(f"Google token refresh failed with status {response.status_code}")
 
         data = response.json()
         new_access_token = data["access_token"]

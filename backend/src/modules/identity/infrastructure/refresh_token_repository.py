@@ -87,9 +87,7 @@ class RefreshTokenRepository:
         await self.session.flush()
         return refresh_token
 
-    async def find_by_token_hash(
-        self, token_hash: str
-    ) -> RefreshTokenWithEmail | None:
+    async def find_by_token_hash(self, token_hash: str) -> RefreshTokenWithEmail | None:
         """Look up a refresh token by its SHA-256 hash, including user email.
 
         Performs a join with the User table to retrieve the email address
@@ -183,9 +181,7 @@ class RefreshTokenRepository:
         Args:
             token_hash: The SHA-256 hex digest of the token to revoke.
         """
-        statement = select(RefreshToken).where(
-            RefreshToken.token_hash == token_hash
-        )
+        statement = select(RefreshToken).where(RefreshToken.token_hash == token_hash)
         result = await self.session.execute(statement)
         token = result.scalars().first()
 

@@ -68,9 +68,7 @@ class CandidateRepository:
         Returns:
             The Candidate entity if found, None otherwise.
         """
-        statement = select(Candidate).where(
-            func.lower(Candidate.email) == email.lower()
-        )
+        statement = select(Candidate).where(func.lower(Candidate.email) == email.lower())
         result = await self.session.execute(statement)
         return result.scalars().first()
 
@@ -142,12 +140,8 @@ class CandidateRepository:
             statement = statement.where(Candidate.status.in_(status))  # type: ignore[union-attr]
             count_statement = count_statement.where(Candidate.status.in_(status))  # type: ignore[union-attr]
         else:
-            statement = statement.where(
-                Candidate.status != CandidateStatus.ARCHIVED
-            )
-            count_statement = count_statement.where(
-                Candidate.status != CandidateStatus.ARCHIVED
-            )
+            statement = statement.where(Candidate.status != CandidateStatus.ARCHIVED)
+            count_statement = count_statement.where(Candidate.status != CandidateStatus.ARCHIVED)
 
         # Apply date range filter
         if date_from is not None:
@@ -160,12 +154,8 @@ class CandidateRepository:
 
         # Apply minimum confidence filter
         if min_confidence is not None:
-            statement = statement.where(
-                Candidate.confidence_score >= min_confidence
-            )
-            count_statement = count_statement.where(
-                Candidate.confidence_score >= min_confidence
-            )
+            statement = statement.where(Candidate.confidence_score >= min_confidence)
+            count_statement = count_statement.where(Candidate.confidence_score >= min_confidence)
 
         # Apply skills filter (OR logic, case-insensitive)
         # Cast JSONB array to text and use ilike for partial matching
@@ -299,8 +289,12 @@ class CVDocumentRepository:
         statement = select(CVDocument).where(
             CVDocument.processing_status.in_(review_statuses)  # type: ignore[union-attr]
         )
-        count_statement = select(func.count()).select_from(CVDocument).where(
-            CVDocument.processing_status.in_(review_statuses)  # type: ignore[union-attr]
+        count_statement = (
+            select(func.count())
+            .select_from(CVDocument)
+            .where(
+                CVDocument.processing_status.in_(review_statuses)  # type: ignore[union-attr]
+            )
         )
 
         # Get total count
@@ -318,9 +312,7 @@ class CVDocumentRepository:
 
         return documents, total
 
-    async def find_by_gmail_message_id(
-        self, gmail_message_id: str
-    ) -> list[CVDocument]:
+    async def find_by_gmail_message_id(self, gmail_message_id: str) -> list[CVDocument]:
         """Retrieve all CV documents associated with a Gmail message ID.
 
         Args:

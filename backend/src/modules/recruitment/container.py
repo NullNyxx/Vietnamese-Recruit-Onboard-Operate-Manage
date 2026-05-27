@@ -274,14 +274,18 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
             )
 
             # Fetch email message to get gmail_message_id and user_id
-            from src.modules.gmail.domain.entities import EmailAttachment, EmailMessage
+            import httpx
+            import redis.asyncio as redis
+            from sqlmodel import select
+
             from src.modules.gmail.application.attachment_service import (
                 AttachmentMetadata,
                 AttachmentService,
             )
-            from src.modules.gmail.infrastructure.gmail_adapter import GmailAdapter
-            from src.modules.gmail.infrastructure.config import GmailSettings
+            from src.modules.gmail.domain.entities import EmailAttachment, EmailMessage
             from src.modules.gmail.infrastructure.audit_logger import AuditLogger
+            from src.modules.gmail.infrastructure.config import GmailSettings
+            from src.modules.gmail.infrastructure.gmail_adapter import GmailAdapter
             from src.modules.gmail.infrastructure.quota_tracker import QuotaTracker
             from src.modules.identity.infrastructure.config import AuthSettings
             from src.modules.identity.infrastructure.crypto_utils import CryptoUtils
@@ -289,10 +293,6 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
                 OAuthGrantRepository,
             )
             from src.modules.recruitment.application.cv_processor import AttachmentInput
-            from sqlmodel import select
-
-            import redis.asyncio as redis
-            import httpx
 
             # Get email message record
             stmt = select(EmailMessage).where(EmailMessage.id == email_message_id)
@@ -300,9 +300,7 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
             email_msg = result.scalars().first()
 
             if email_msg is None:
-                logger.error(
-                    "Email message not found for ARQ task: %s", email_message_id
-                )
+                logger.error("Email message not found for ARQ task: %s", email_message_id)
                 return
 
             gmail_message_id = email_msg.gmail_message_id
@@ -331,9 +329,7 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
             grant = await oauth_grant_repo.get_by_user_id(user_id)
 
             if grant is None or not grant.is_valid:
-                logger.error(
-                    "No valid Gmail grant for user %s, cannot process CV", user_id
-                )
+                logger.error("No valid Gmail grant for user %s, cannot process CV", user_id)
                 return
 
             # Decrypt access token
@@ -342,9 +338,7 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
             # Build Gmail adapter and AttachmentService to fetch binary data
             redis_client = ctx.get("redis_client")
             if redis_client is None:
-                redis_client = redis.from_url(
-                    auth_settings.redis_url, decode_responses=True
-                )
+                redis_client = redis.from_url(auth_settings.redis_url, decode_responses=True)
 
             quota_tracker = QuotaTracker(redis_client, gmail_settings)
 
@@ -408,9 +402,7 @@ async def arq_process_cv_from_email(ctx: dict, email_message_id: UUID) -> None:
                 )
 
             await session.commit()
-            logger.info(
-                "ARQ task completed: CV processing for email %s", email_message_id
-            )
+            logger.info("ARQ task completed: CV processing for email %s", email_message_id)
 
         except Exception:
             await session.rollback()

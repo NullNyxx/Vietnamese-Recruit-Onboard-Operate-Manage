@@ -198,9 +198,7 @@ class OAuthConfigManager:
         # Validate against Google OAuth discovery endpoint
         is_valid = await self.validate_credentials(client_id)
         if not is_valid:
-            raise OAuthConfigValidationError(
-                "Could not verify credentials with Google"
-            )
+            raise OAuthConfigValidationError("Could not verify credentials with Google")
 
         # Encrypt the client secret
         encrypted_secret = self._crypto.encrypt(client_secret)

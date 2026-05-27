@@ -93,9 +93,7 @@ class OAuthGrant(SQLModel, table=True):
     provider: str = Field(default="google", max_length=50, nullable=False)
     access_token_enc: str = Field(nullable=False)
     refresh_token_enc: str = Field(nullable=False)
-    scopes: list[str] = Field(
-        sa_column=Column(ARRAY(String), nullable=False)
-    )
+    scopes: list[str] = Field(sa_column=Column(ARRAY(String), nullable=False))
     token_expires_at: datetime = Field(
         sa_column=Column(DateTime(timezone=True), nullable=False),
     )

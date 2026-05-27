@@ -3,8 +3,6 @@
 Loads authentication settings from environment variables with the AUTH_ prefix.
 """
 
-from typing import Literal
-
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 

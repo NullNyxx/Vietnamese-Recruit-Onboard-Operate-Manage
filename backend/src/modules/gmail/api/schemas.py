@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 from src.modules.gmail.domain.enums import ConnectionStatus
 
-
 # ---------------------------------------------------------------------------
 # Connection schemas
 # ---------------------------------------------------------------------------

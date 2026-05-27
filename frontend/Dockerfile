@@ -1,4 +1,4 @@
-FROM node:22-slim
+FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -9,8 +9,8 @@ WORKDIR /app
 # Copy dependency files
 COPY frontend/package.json frontend/pnpm-lock.yaml* frontend/.npmrc* ./
 
-# Install dependencies (--ignore-scripts is safe for this project)
-RUN pnpm install --ignore-scripts
+# Install dependencies
+RUN pnpm install --frozen-lockfile
 
 # Copy application code
 COPY frontend/src/ ./src/
@@ -22,11 +22,12 @@ COPY frontend/postcss.config.js ./
 COPY frontend/tailwind.config.ts ./
 COPY frontend/components.json ./
 COPY frontend/.eslintrc.json ./
-COPY frontend/pnpm-workspace.yaml ./
+
+# Build for production
+RUN pnpm build
 
 EXPOSE 3000
 
 ENV HOSTNAME="0.0.0.0"
-ENV INTERNAL_API_URL="http://backend:8000"
 
-CMD ["pnpm", "dev"]
+CMD ["pnpm", "start"]

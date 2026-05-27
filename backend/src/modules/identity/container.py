@@ -8,14 +8,16 @@ and Redis connections.
 from __future__ import annotations
 
 import logging
+from collections.abc import AsyncGenerator
 from functools import lru_cache
-from typing import AsyncGenerator
 
 import redis.asyncio as redis
 from fastapi import Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
-from src.modules.employee.infrastructure.employee_repository import EmployeeRepository as EmployeeRepo
+from src.modules.employee.infrastructure.employee_repository import (
+    EmployeeRepository as EmployeeRepo,
+)
 from src.modules.identity.application.audit_service import AuditService
 from src.modules.identity.application.auth_service import AuthService
 from src.modules.identity.application.oauth_config_manager import OAuthConfigManager

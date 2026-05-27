@@ -23,9 +23,7 @@ def register_gmail_error_handlers(app: FastAPI) -> None:
     """
 
     @app.exception_handler(RateLimitedException)
-    async def _rate_limited_handler(
-        request: Request, exc: RateLimitedException
-    ) -> JSONResponse:
+    async def _rate_limited_handler(request: Request, exc: RateLimitedException) -> JSONResponse:
         """Handle RateLimitedException with Retry-After header.
 
         Args:
@@ -50,9 +48,7 @@ def register_gmail_error_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(GmailError)
-    async def _gmail_error_handler(
-        request: Request, exc: GmailError
-    ) -> JSONResponse:
+    async def _gmail_error_handler(request: Request, exc: GmailError) -> JSONResponse:
         """Handle GmailError exceptions and return a JSON error response.
 
         Args:

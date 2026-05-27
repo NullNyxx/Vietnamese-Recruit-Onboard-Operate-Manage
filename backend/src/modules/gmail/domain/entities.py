@@ -33,16 +33,10 @@ class EmailMessage(SQLModel, table=True):
     recipient_emails: list[str] = Field(
         default_factory=list, sa_column=Column(JSONB, nullable=False)
     )
-    cc_emails: list[str] = Field(
-        default_factory=list, sa_column=Column(JSONB, nullable=False)
-    )
-    received_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=False)
-    )
+    cc_emails: list[str] = Field(default_factory=list, sa_column=Column(JSONB, nullable=False))
+    received_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False))
     snippet: str = Field(default="", max_length=200, nullable=False)
-    label_ids: list[str] = Field(
-        default_factory=list, sa_column=Column(JSONB, nullable=False)
-    )
+    label_ids: list[str] = Field(default_factory=list, sa_column=Column(JSONB, nullable=False))
     has_attachments: bool = Field(default=False, nullable=False)
     raw_payload_enc: str | None = Field(default=None)
     processing_status: str = Field(default="unprocessed", max_length=20, nullable=False)
@@ -71,9 +65,7 @@ class SyncCursor(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
     user_id: UUID = Field(foreign_key="users.id", unique=True, nullable=False)
     history_id: str = Field(max_length=50, nullable=False)
-    last_poll_at: datetime = Field(
-        sa_column=Column(DateTime(timezone=True), nullable=False)
-    )
+    last_poll_at: datetime = Field(sa_column=Column(DateTime(timezone=True), nullable=False))
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False),
@@ -119,9 +111,7 @@ class EmailAttachment(SQLModel, table=True):
     __tablename__ = "email_attachments"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    email_message_id: UUID = Field(
-        foreign_key="email_messages.id", nullable=False, index=True
-    )
+    email_message_id: UUID = Field(foreign_key="email_messages.id", nullable=False, index=True)
     gmail_attachment_id: str = Field(max_length=255, nullable=False)
     filename: str = Field(max_length=255, nullable=False)
     mime_type: str = Field(max_length=100, nullable=False)
@@ -148,9 +138,7 @@ class GmailAuditLog(SQLModel, table=True):
     operation_type: str = Field(max_length=50, nullable=False)
     message_count: int = Field(default=0, nullable=False)
     success: bool = Field(nullable=False)
-    metadata_: dict | None = Field(
-        default=None, sa_column=Column("metadata", JSONB, nullable=True)
-    )
+    metadata_: dict | None = Field(default=None, sa_column=Column("metadata", JSONB, nullable=True))
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(UTC),
         sa_column=Column(DateTime(timezone=True), nullable=False, index=True),

@@ -29,10 +29,11 @@ from src.modules.identity.container import (
     get_crypto_utils,
     get_db_session,
     get_redis_client,
+)
+from src.modules.identity.container import (
     get_settings as get_auth_settings,
 )
 from src.modules.identity.infrastructure.oauth_grant_repository import OAuthGrantRepository
-
 
 # ---------------------------------------------------------------------------
 # Singleton infrastructure components

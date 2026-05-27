@@ -39,9 +39,7 @@ class WhitelistLoader:
             FileNotFoundError: If the whitelist file does not exist.
         """
         if not self._file_path.exists():
-            raise FileNotFoundError(
-                f"Whitelist file not found: {self._file_path}"
-            )
+            raise FileNotFoundError(f"Whitelist file not found: {self._file_path}")
 
         self._last_mtime = os.stat(self._file_path).st_mtime
         emails: set[str] = set()

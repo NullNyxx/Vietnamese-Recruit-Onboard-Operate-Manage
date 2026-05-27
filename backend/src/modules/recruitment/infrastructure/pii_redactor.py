@@ -6,7 +6,6 @@ Handles Vietnamese-specific PII patterns: CCCD/CMND, MST, bank accounts, salary 
 
 import re
 
-
 # Placeholder token for redacted content
 REDACTED_TOKEN = "[REDACTED]"
 
@@ -38,18 +37,14 @@ class PIIRedactor:
 
         # Comma/dot-formatted numbers >= 1,000,000 (e.g., 1,000,000 or 1.000.000)
         # These are likely salary figures in Vietnamese context
-        self._large_formatted_number_pattern = re.compile(
-            r"\b\d{1,3}(?:[.,]\d{3}){2,}\b"
-        )
+        self._large_formatted_number_pattern = re.compile(r"\b\d{1,3}(?:[.,]\d{3}){2,}\b")
 
         # Consecutive digit patterns (8-19 digits) for CCCD/CMND, MST, bank accounts
         # This single pattern covers:
         # - CCCD/CMND: 12 digits
         # - MST: 10-13 digits
         # - Bank accounts: 8-19 digits
-        self._consecutive_digits_pattern = re.compile(
-            r"\b\d{8,19}\b"
-        )
+        self._consecutive_digits_pattern = re.compile(r"\b\d{8,19}\b")
 
     def redact(self, text: str) -> str:
         """Replace PII patterns with [REDACTED] placeholder.
