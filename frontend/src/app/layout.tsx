@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { ThemeProvider } from "@/components/providers";
+import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -28,7 +28,7 @@ export default function RootLayout({
           fontFamily: "var(--font-inter), ui-sans-serif, system-ui, sans-serif",
         }}
       >
-        <ThemeProvider>
+        <Providers>
           {children}
           <Toaster
             position="bottom-right"
@@ -36,7 +36,7 @@ export default function RootLayout({
             closeButton
             visibleToasts={5}
           />
-        </ThemeProvider>
+        </Providers>
       </body>
     </html>
   );
