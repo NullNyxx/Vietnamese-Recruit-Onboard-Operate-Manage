@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/data-table";
-import { listPositions } from "@/lib/api/positions";
-import { listDepartments } from "@/lib/api/departments";
+import { usePositions } from "@/hooks/queries/use-positions";
+import { useDepartments } from "@/hooks/queries/use-departments";
 
 interface PositionRow {
   id: string;
@@ -17,47 +17,38 @@ interface PositionRow {
 }
 
 export default function PositionsPage() {
-  const [positions, setPositions] = useState<PositionRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: positions = [],
+    isLoading: posLoading,
+    error: posError,
+  } = usePositions();
+  const {
+    data: departments = [],
+    isLoading: deptsLoading,
+    error: deptsError,
+  } = useDepartments();
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [positionsList, departmentsList] = await Promise.all([
-        listPositions(),
-        listDepartments(),
-      ]);
+  const loading = posLoading || deptsLoading;
+  const error = posError ?? deptsError;
 
-      // Build department lookup map
-      const deptMap: Record<string, string> = {};
-      for (const dept of departmentsList) {
-        deptMap[dept.id] = dept.name;
-      }
+  const rows: PositionRow[] = useMemo(() => {
+    if (!positions.length) return [];
 
-      const rows: PositionRow[] = positionsList.map((pos) => ({
-        id: pos.id,
-        name: pos.name,
-        department_name: pos.department_id
-          ? deptMap[pos.department_id] || "—"
-          : "—",
-        description: "—",
-      }));
-
-      setPositions(rows);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Không thể tải danh sách chức vụ"
-      );
-    } finally {
-      setLoading(false);
+    // Build department lookup map
+    const deptMap: Record<string, string> = {};
+    for (const dept of departments) {
+      deptMap[dept.id] = dept.name;
     }
-  }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    return positions.map((pos) => ({
+      id: pos.id,
+      name: pos.name,
+      department_name: pos.department_id
+        ? deptMap[pos.department_id] || "—"
+        : "—",
+      description: "—",
+    }));
+  }, [positions, departments]);
 
   const columns: ColumnDef<PositionRow>[] = [
     {
@@ -89,9 +80,9 @@ export default function PositionsPage() {
       {/* DataTable */}
       <DataTable
         columns={columns}
-        data={positions}
+        data={rows}
         loading={loading}
-        error={error}
+        error={error?.message ?? null}
         toolbar={
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Users,
@@ -19,16 +18,8 @@ import {
   Mail,
 } from "lucide-react";
 
-import { employeesApi, departmentsApi, positionsApi } from "@/lib/api";
 import { useCurrentUser } from "@/hooks/use-current-user";
-
-// ─── Types ──────────────────────────────────────────────────────────────────
-interface DashboardStats {
-  employees: number;
-  departments: number;
-  positions: number;
-  activeToday: number;
-}
+import { useDashboardStats } from "@/hooks/queries";
 
 // ─── Pulse Dot ──────────────────────────────────────────────────────────────
 function PulseDot({ color }: { color: string }) {
@@ -222,37 +213,8 @@ function ActivityItem({
 
 // ─── Main Dashboard ─────────────────────────────────────────────────────────
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats>({
-    employees: 0,
-    departments: 0,
-    positions: 0,
-    activeToday: 0,
-  });
-  const [loading, setLoading] = useState(true);
+  const { data: stats, isLoading: loading } = useDashboardStats();
   const { user } = useCurrentUser();
-
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const [employeesRes, departments, positions] = await Promise.all([
-          employeesApi.listEmployees({ page: 1, page_size: 1 }),
-          departmentsApi.listDepartments(),
-          positionsApi.listPositions(),
-        ]);
-        setStats({
-          employees: employeesRes.total,
-          departments: departments.length,
-          positions: positions.length,
-          activeToday: 0,
-        });
-      } catch {
-        // Keep defaults
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
 
   const greeting = () => {
     const hour = new Date().getHours();
@@ -290,7 +252,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <AIStatCard
           title="Nhân viên"
-          value={stats.employees}
+          value={stats?.employees ?? 0}
           subtitle="Active workforce"
           icon={Users}
           color="#e4f222"
@@ -299,7 +261,7 @@ export default function DashboardPage() {
         />
         <AIStatCard
           title="Phòng ban"
-          value={stats.departments}
+          value={stats?.departments ?? 0}
           subtitle="Organizational units"
           icon={Building2}
           color="#5e6ad2"
@@ -308,7 +270,7 @@ export default function DashboardPage() {
         />
         <AIStatCard
           title="Chức vụ"
-          value={stats.positions}
+          value={stats?.positions ?? 0}
           subtitle="Role definitions"
           icon={Briefcase}
           color="#02b8cc"

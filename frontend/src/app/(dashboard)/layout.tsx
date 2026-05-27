@@ -7,6 +7,8 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { MobileNav } from "@/components/mobile-nav";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CommandBar } from "@/components/command-bar";
+import { NavigationProgress } from "@/components/navigation-progress";
+import { PageTransition } from "@/components/page-transition";
 import { Button } from "@/components/ui/button";
 
 export default function DashboardLayout({
@@ -29,6 +31,9 @@ export default function DashboardLayout({
 
   return (
     <div className="flex h-screen overflow-hidden bg-[#08090a]">
+      {/* Navigation progress bar */}
+      <NavigationProgress />
+
       {/* Background subtle grid */}
       <div
         className="fixed inset-0 -z-10 opacity-[0.012]"
@@ -42,14 +47,14 @@ export default function DashboardLayout({
         }}
       />
 
-      {/* Sidebar */}
+      {/* Sidebar — persistent, never re-renders on navigation */}
       <div className="hidden md:block shrink-0">
         <AppSidebar />
       </div>
 
       {/* Main area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Header */}
+        {/* Header — persistent across navigations */}
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/[0.06] bg-[#08090a]/90 px-4 lg:px-6 backdrop-blur-xl">
           <MobileNav />
           <Breadcrumbs />
@@ -93,9 +98,9 @@ export default function DashboardLayout({
           </Button>
         </header>
 
-        {/* Main content */}
+        {/* Main content — only this area transitions */}
         <main className="relative flex-1 overflow-y-auto p-5 lg:p-8 has-[.gmail-fullbleed]:p-0 has-[.gmail-fullbleed]:overflow-hidden">
-          {children}
+          <PageTransition>{children}</PageTransition>
         </main>
       </div>
 

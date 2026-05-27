@@ -128,12 +128,22 @@ const config: Config = {
           from: { opacity: "0", transform: "scale(0.96)" },
           to: { opacity: "1", transform: "scale(1)" },
         },
+        "page-enter": {
+          from: { opacity: "0", transform: "translateY(2px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
+        },
       },
       animation: {
         "fade-in": "fade-in 200ms ease-out forwards",
         "slide-up": "slide-up 200ms ease-out forwards",
         "slide-in-left": "slide-in-from-left 200ms ease-out forwards",
         "scale-in": "scale-in 150ms ease-out forwards",
+        "page-enter": "page-enter 150ms ease-out forwards",
+        shimmer: "shimmer 2s linear infinite",
       },
     },
   },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 export type UserRole = "admin" | "user";
 
@@ -17,43 +17,47 @@ export interface CurrentUser {
   last_login: string;
 }
 
-interface UseCurrentUserResult {
-  user: CurrentUser | null;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
+export const currentUserQueryKey = ["current-user"] as const;
+
+async function fetchCurrentUser(): Promise<CurrentUser | null> {
+  const res = await fetch("/api/auth/me");
+  if (!res.ok) {
+    if (res.status === 401) return null;
+    throw new Error(`Failed to fetch user: ${res.status}`);
+  }
+  return res.json();
 }
 
-export function useCurrentUser(): UseCurrentUserResult {
-  const [user, setUser] = useState<CurrentUser | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+/**
+ * Cached current user hook — fetches once, shares across all components.
+ * No more re-fetching on every navigation.
+ */
+export function useCurrentUser() {
+  const queryClient = useQueryClient();
 
-  const fetchUser = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch("/api/auth/me");
-      if (!res.ok) {
-        if (res.status === 401) {
-          setUser(null);
-          return;
-        }
-        throw new Error(`Failed to fetch user: ${res.status}`);
-      }
-      const data: CurrentUser = await res.json();
-      setUser(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const {
+    data: user,
+    isLoading: loading,
+    error,
+  } = useQuery({
+    queryKey: currentUserQueryKey,
+    queryFn: fetchCurrentUser,
+    // User data is stable — keep fresh for 5 minutes
+    staleTime: 5 * 60 * 1000,
+    gcTime: 30 * 60 * 1000,
+    // Don't refetch on every window focus
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  });
 
-  useEffect(() => {
-    fetchUser();
-  }, [fetchUser]);
+  const refetch = async () => {
+    await queryClient.invalidateQueries({ queryKey: currentUserQueryKey });
+  };
 
-  return { user, loading, error, refetch: fetchUser };
+  return {
+    user: user ?? null,
+    loading,
+    error: error?.message ?? null,
+    refetch,
+  };
 }

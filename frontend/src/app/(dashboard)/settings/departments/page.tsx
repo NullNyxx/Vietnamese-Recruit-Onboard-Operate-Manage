@@ -1,12 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useMemo } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { DataTable, type ColumnDef } from "@/components/data-table";
-import { listDepartments } from "@/lib/api/departments";
-import { listEmployees } from "@/lib/api/employees";
+import { useDepartments } from "@/hooks/queries/use-departments";
+import { useEmployees } from "@/hooks/queries/use-employees";
 
 interface DepartmentRow {
   id: string;
@@ -17,47 +17,43 @@ interface DepartmentRow {
 }
 
 export default function DepartmentsPage() {
-  const [departments, setDepartments] = useState<DepartmentRow[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data: departments = [],
+    isLoading: deptsLoading,
+    error: deptsError,
+  } = useDepartments();
+  const {
+    data: employeesData,
+    isLoading: empsLoading,
+    error: empsError,
+  } = useEmployees({
+    page: 1,
+    page_size: 100,
+  });
 
-  const fetchData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [depts, employeesRes] = await Promise.all([
-        listDepartments(),
-        listEmployees({ page: 1, page_size: 100 }),
-      ]);
+  const loading = deptsLoading || empsLoading;
+  const error = deptsError ?? empsError;
 
-      // Count employees per department
-      const countMap: Record<string, number> = {};
-      for (const emp of employeesRes.items) {
+  const rows: DepartmentRow[] = useMemo(() => {
+    if (!departments.length) return [];
+
+    // Count employees per department
+    const countMap: Record<string, number> = {};
+    if (employeesData?.items) {
+      for (const emp of employeesData.items) {
         if (emp.department_id) {
           countMap[emp.department_id] = (countMap[emp.department_id] || 0) + 1;
         }
       }
-
-      const rows: DepartmentRow[] = depts.map((dept) => ({
-        id: dept.id,
-        name: dept.name,
-        description: dept.description,
-        employee_count: countMap[dept.id] || 0,
-      }));
-
-      setDepartments(rows);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Không thể tải danh sách phòng ban"
-      );
-    } finally {
-      setLoading(false);
     }
-  }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    return departments.map((dept) => ({
+      id: dept.id,
+      name: dept.name,
+      description: dept.description,
+      employee_count: countMap[dept.id] || 0,
+    }));
+  }, [departments, employeesData?.items]);
 
   const columns: ColumnDef<DepartmentRow>[] = [
     {
@@ -91,9 +87,9 @@ export default function DepartmentsPage() {
       {/* DataTable */}
       <DataTable
         columns={columns}
-        data={departments}
+        data={rows}
         loading={loading}
-        error={error}
+        error={error?.message ?? null}
         toolbar={
           <Button size="sm">
             <Plus className="mr-2 h-4 w-4" aria-hidden="true" />

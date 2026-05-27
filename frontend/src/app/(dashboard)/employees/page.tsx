@@ -1,14 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserPlus, FileSpreadsheet } from "lucide-react";
 
 import { DataTable, type ColumnDef } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { employeesApi, departmentsApi, positionsApi } from "@/lib/api";
-import type { Employee, Department, Position } from "@/lib/api/types";
+import { useEmployees } from "@/hooks/queries/use-employees";
+import { useDepartments } from "@/hooks/queries/use-departments";
+import { usePositions } from "@/hooks/queries/use-positions";
+import type { Employee } from "@/lib/api/types";
 
 interface EmployeeRow extends Record<string, unknown> {
   id: string;
@@ -43,65 +45,44 @@ const columns: ColumnDef<EmployeeRow>[] = [
 
 export default function EmployeesPage() {
   const router = useRouter();
-
-  const [data, setData] = useState<Employee[]>([]);
-  const [departments, setDepartments] = useState<Department[]>([]);
-  const [positions, setPositions] = useState<Position[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const [search, setSearch] = useState("");
 
-  // Fetch departments and positions once for name lookups
-  useEffect(() => {
-    departmentsApi.listDepartments().then(setDepartments).catch(() => {});
-    positionsApi.listPositions().then(setPositions).catch(() => {});
-  }, []);
+  // React Query — cached, deduplicated, background refetch
+  const {
+    data: employeesData,
+    isLoading,
+    error,
+  } = useEmployees({
+    page,
+    page_size: pageSize,
+    search: search || undefined,
+  });
 
-  const fetchEmployees = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await employeesApi.listEmployees({
-        page,
-        page_size: pageSize,
-        search: search || undefined,
-      });
-      setData(result.items);
-      setTotal(result.total);
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Không thể tải danh sách nhân viên"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize, search]);
-
-  useEffect(() => {
-    fetchEmployees();
-  }, [fetchEmployees]);
+  const { data: departments = [] } = useDepartments();
+  const { data: positions = [] } = usePositions();
 
   // Map employees to rows with department/position names
   const rows: EmployeeRow[] = useMemo(() => {
+    if (!employeesData?.items) return [];
+
     const deptMap = new Map(departments.map((d) => [d.id, d.name]));
     const posMap = new Map(positions.map((p) => [p.id, p.name]));
 
-    return data.map((emp) => ({
+    return employeesData.items.map((emp: Employee) => ({
       id: emp.id,
       full_name: emp.full_name,
       email: emp.email,
       department_name: emp.department_id
-        ? deptMap.get(emp.department_id) ?? "—"
+        ? (deptMap.get(emp.department_id) ?? "—")
         : "—",
       position_name: emp.position_id
-        ? posMap.get(emp.position_id) ?? "—"
+        ? (posMap.get(emp.position_id) ?? "—")
         : "—",
       is_active: emp.is_active,
     }));
-  }, [data, departments, positions]);
+  }, [employeesData?.items, departments, positions]);
 
   const handleSearch = useCallback((query: string) => {
     setSearch(query);
@@ -121,7 +102,7 @@ export default function EmployeesPage() {
     (row: EmployeeRow) => {
       router.push(`/employees/${row.id}`);
     },
-    [router]
+    [router],
   );
 
   const toolbar = (
@@ -153,9 +134,9 @@ export default function EmployeesPage() {
       <DataTable<EmployeeRow>
         columns={columns}
         data={rows}
-        loading={loading}
-        error={error}
-        pagination={{ page, pageSize, total }}
+        loading={isLoading}
+        error={error?.message ?? null}
+        pagination={{ page, pageSize, total: employeesData?.total ?? 0 }}
         searchPlaceholder="Tìm kiếm theo tên hoặc email..."
         onSearch={handleSearch}
         onPageChange={handlePageChange}

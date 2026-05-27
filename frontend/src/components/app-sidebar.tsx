@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft, ChevronRight, LogOut, Sparkles } from "lucide-react";
 
 import { useSidebar } from "@/hooks/use-sidebar";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { NavLink } from "@/components/nav-link";
 import {
   Tooltip,
   TooltipContent,
@@ -69,7 +69,7 @@ export function AppSidebar({ className }: AppSidebarProps) {
                 : pathname.startsWith(item.href);
 
             const linkContent = (
-              <Link
+              <NavLink
                 href={item.href}
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all",
@@ -84,7 +84,7 @@ export function AppSidebar({ className }: AppSidebarProps) {
                   aria-hidden="true"
                 />
                 {!collapsed && <span>{item.label}</span>}
-              </Link>
+              </NavLink>
             );
 
             if (collapsed) {
@@ -123,7 +123,7 @@ export function AppSidebar({ className }: AppSidebarProps) {
                 const isActive = pathname.startsWith(item.href);
 
                 const linkContent = (
-                  <Link
+                  <NavLink
                     href={item.href}
                     className={cn(
                       "flex items-center gap-3 rounded-lg px-3 py-2 text-[13px] font-medium transition-all",
@@ -138,7 +138,7 @@ export function AppSidebar({ className }: AppSidebarProps) {
                       aria-hidden="true"
                     />
                     {!collapsed && <span>{item.label}</span>}
-                  </Link>
+                  </NavLink>
                 );
 
                 if (collapsed) {
