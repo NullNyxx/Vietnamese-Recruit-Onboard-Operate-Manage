@@ -23,9 +23,6 @@ Format: `<type>/<short-description-in-english>`
 **Rules:**
 
 - ✅ Tiếng Anh, lowercase, dấu `-` ngăn cách
-- ❌ KHÔNG dùng tên người: `nguyen`, `hoang`
-- ❌ KHÔNG dùng tiếng Việt: `feat/Ting_luong`
-- ❌ KHÔNG dùng underscore: `feat/ting_luong`
 
 ```bash
 # ⚠️ LUÔN pull main mới nhất trước khi tạo branch
@@ -88,7 +85,6 @@ gh pr create --title "feat(payroll): implement salary calculation" --body "## Wh
 **PR Title:** Dùng format commit message
 
 - ✅ `feat(payroll): implement salary calculation module`
-- ❌ `Feat/ting luong`
 
 **PR Description template:**
 

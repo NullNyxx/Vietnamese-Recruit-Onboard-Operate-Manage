@@ -1,6 +1,11 @@
 # Database Migrations Map
 
-Tài liệu này map tất cả 26 alembic migrations trong project, cho thấy mỗi migration tạo/modify bảng nào và dependencies.
+Tài liệu này map tất cả 27 Alembic schema revisions trong project, cho thấy mỗi migration tạo/modify/drop bảng nào và dependencies.
+
+Current active schema excludes attendance, leave, payroll, and ESS persistence.
+Migration `027_drop_attendance_payroll_tables.py` drops tables introduced by
+`014` through `026`; `backend/alembic/versions/__init__.py` is counted as a
+migration package marker, not a schema revision.
 
 ## Tổng quan
 
@@ -32,6 +37,7 @@ Tài liệu này map tất cả 26 alembic migrations trong project, cho thấy 
 | 024     | payroll     | payroll_periods                                                 |
 | 025     | payroll     | payslips                                                        |
 | 026     | payroll     | position_salaries                                               |
+| 027     | retirement  | drops attendance, leave, payroll, and related tables            |
 
 ---
 
@@ -249,7 +255,7 @@ Tài liệu này map tất cả 26 alembic migrations trong project, cho thấy 
 
 ## Module Grouping
 
-### Identity Module (5 migrations)
+### Identity Module (7 migrations)
 
 - 001: users
 - 002: oauth_grants
@@ -273,6 +279,10 @@ Tài liệu này map tất cả 26 alembic migrations trong project, cho thấy 
 ### Recruitment Module (1 migration)
 
 - 009: candidates, candidate_cv, recruitment_pipeline, pipeline_stages
+
+### Retirement Module (1 migration)
+
+- 027: drops attendance, leave, payroll, and related tables
 
 ### Attendance Module (7 migrations)
 
@@ -311,6 +321,8 @@ Tài liệu này map tất cả 26 alembic migrations trong project, cho thấy 
 017 (work_schedules) ──► 006 (nullable)
                  │
 024 (payroll_periods) ──► 025
+
+027 (retirement) ───► drops 014-026 created tables
 ```
 
 ---

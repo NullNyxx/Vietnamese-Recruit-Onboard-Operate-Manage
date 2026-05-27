@@ -80,9 +80,11 @@ NEXT_PUBLIC_NEXTAUTH_URL=http://localhost:3000
 | `identity`     | Auth, OAuth, JWT, roles, whitelist, audit        |
 | `employee`     | Employee CRUD, departments, positions, documents |
 | `recruitment`  | Candidate pipeline, CV processing (AI)           |
-| `attendance`   | Check-in/out, schedules, leave, overtime         |
-| `payroll`      | Salary, payslips, Vietnamese tax calculation     |
-| `self_service` | Employee self-service (ESS)                      |
+| `gmail`        | Gmail connection, sending, sync metadata         |
+
+Archived specs exist for `attendance`, `payroll`, and `self_service`, but those
+modules are not active in the current backend after migration
+`027_drop_attendance_payroll_tables.py`.
 
 ## Development
 

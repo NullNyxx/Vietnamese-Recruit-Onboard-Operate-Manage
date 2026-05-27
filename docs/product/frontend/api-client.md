@@ -164,6 +164,10 @@ export async function deleteEmployee(id: string): Promise<void> {
 
 **File:** `src/lib/api/ess.ts`
 
+**Note (2026-05-27):** ESS, attendance, and payroll persistence were retired by
+migration `027_drop_attendance_payroll_tables.py`. The following client samples
+are retained as archived reference only and do not map to active backend routes.
+
 ```typescript
 // Dashboard data
 export interface DashboardData {
@@ -245,6 +249,10 @@ export async function createOvertimeRequest(
 ### Attendance API (Admin)
 
 **File:** `src/lib/api/attendance.ts`
+
+**Note (2026-05-27):** Attendance routes and tables are retired in the current
+backend. Keep this sample for future reintroduction, not for current API
+implementation.
 
 ```typescript
 // Get all attendance records
@@ -546,7 +554,10 @@ async function handleCreate(data: CreateEmployeeData) {
 | PUT    | `/api/v1/employees/{id}` | Update employee      |
 | DELETE | `/api/v1/employees/{id}` | Soft delete employee |
 
-### ESS (Employee Self-Service)
+### ESS (Employee Self-Service, Retired Reference)
+
+These routes are archived examples only. They are not active backend routes in
+the current application state.
 
 | Method | Endpoint                           | Description           |
 | ------ | ---------------------------------- | --------------------- |
@@ -557,7 +568,10 @@ async function handleCreate(data: CreateEmployeeData) {
 | GET    | `/api/v1/ess/leave/requests`       | Get my leave requests |
 | POST   | `/api/v1/ess/leave/requests`       | Create leave request  |
 
-### Admin - Leave
+### Admin - Leave (Retired Reference)
+
+These routes are archived examples only. They are not active backend routes in
+the current application state.
 
 | Method | Endpoint                              | Description       |
 | ------ | ------------------------------------- | ----------------- |

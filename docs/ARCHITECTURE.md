@@ -1,10 +1,11 @@
 # Architecture
 
-No application stack is selected yet.
-
-No application code exists yet. This document defines generic architecture
-questions and boundary rules that future implementation should adapt after a
-user-provided spec and stack decision exist.
+Vroom HR is a FastAPI + Next.js application with PostgreSQL, Redis, MinIO, and
+Google/OpenAI integrations. Backend code lives under `backend/src/modules/` and
+currently contains active modules for identity, employee, Gmail, and
+recruitment. Attendance, leave, payroll, and ESS are retired from the active
+backend as of migration `027_drop_attendance_payroll_tables.py`; their product
+specs remain archived under `docs/product/`.
 
 ## Discovery Before Shape
 
@@ -30,42 +31,19 @@ domain
               <- app surfaces
 ```
 
-## Candidate Structure
+## Backend Module Structure
 
 ```text
-app/
-  domain/
-    entities/
-    value-objects/
-    repositories/
-    services/
-
-  application/
-    commands/
-    queries/
-    handlers/
-
-  infrastructure/
-    database/
-    logging/
-    notifications/
-
-  interface/
-    controllers/
-    dto/
-    presenters/
-    routes/
-    middlewares/
-
-surfaces/
-  browser/
-  mobile/
-  desktop/
-  cli/
+backend/src/modules/<module_name>/
+├── api/            # FastAPI routers, schemas, error handlers
+├── application/    # Service layer and use cases
+├── domain/         # SQLModel entities, enums, exceptions
+├── infrastructure/ # Repositories, provider clients, config
+└── container.py    # FastAPI dependency wiring
 ```
 
-This is a thinking template, not a scaffold. Create real folders only when a
-story enters implementation and the selected stack needs them.
+New backend modules must follow this structure unless an ADR explicitly chooses
+a different boundary.
 
 ## Dependency Rule
 

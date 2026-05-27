@@ -73,11 +73,12 @@ Currently using URL-based versioning:
 ├── /admin/         → Admin-only endpoints
 ├── /employees/     → Employee CRUD
 ├── /candidates/    → Recruitment
-├── /attendance/    → Check-in/out, leave, overtime
-├── /payroll/       → Salary, payslips
-├── /gmail/         → Gmail integration
-└── /ess/           → Employee self-service
+└── /gmail/         → Gmail integration
 ```
+
+Attendance, leave, payroll, and ESS routes are not active in the current
+backend. Migration `027_drop_attendance_payroll_tables.py` retired their tables;
+their specs remain archived under `docs/product/` for future reintroduction.
 
 ## Response Format
 

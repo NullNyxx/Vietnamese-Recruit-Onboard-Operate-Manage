@@ -7,9 +7,9 @@ Vroom HR implements rate limiting at multiple levels to protect the API from abu
 | Endpoint Type               | Limit       | Window     | Scope           |
 | --------------------------- | ----------- | ---------- | --------------- |
 | Login                       | 5 requests  | 60 seconds | Per IP address  |
-| ESS (Employee Self-Service) | 60 requests | 60 seconds | Per employee ID |
 | Gmail API                   | 5 requests  | 60 seconds | Per user        |
 | Sync Operations             | Variable    | Variable   | Per operation   |
+| ESS (retired)               | 60 requests | 60 seconds | Per employee ID |
 
 ## Implementation
 
@@ -54,9 +54,11 @@ class AuthSettings(BaseSettings):
     rate_limit_login_window_seconds: int = 60  # Window in seconds
 ```
 
-### ESS Rate Limiting
+### ESS Rate Limiting (Retired Reference)
 
-Configured in `backend/src/modules/self_service/api/rate_limiter.py`:
+ESS code is not active in the current backend. Migration
+`027_drop_attendance_payroll_tables.py` retired ESS-related persistence. The old
+design referenced `backend/src/modules/self_service/api/rate_limiter.py`:
 
 ```python
 class ESSRateLimiter:

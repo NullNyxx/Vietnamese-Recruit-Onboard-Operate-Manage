@@ -1,6 +1,9 @@
 # Caching Strategy
 
-Vroom HR uses Redis for caching to improve performance and reduce database load.
+Vroom HR uses Redis for rate limiting and selected cache-backed workflows.
+Attendance and leave-balance caching described below is retired in the current
+backend after migration `027_drop_attendance_payroll_tables.py`; keep it as
+reference material only until attendance is reintroduced.
 
 ## Overview
 
@@ -8,11 +11,11 @@ Vroom HR uses Redis for caching to improve performance and reduce database load.
 | ------------- | ------------------------------------ | ---------------- | ------------------------ |
 | Leave Balance | `leave_balance:{employee_id}:{year}` | 5 minutes (300s) | On submit/approve/reject |
 
-## Current Implementation
+## Retired Implementation Reference
 
 ### Leave Balance Cache
 
-The most significant caching is for employee leave balances:
+Employee leave balance caching belonged to the retired attendance module:
 
 **Location**: `backend/src/modules/attendance/application/balance_service.py`
 
@@ -98,8 +101,8 @@ REDIS_PASSWORD=  # Optional
 | Pattern              | Description                 | TTL     |
 | -------------------- | --------------------------- | ------- |
 | `rate_limit:login:*` | Login rate limit per IP     | 60s     |
-| `rate_limit:ess:*`   | ESS rate limit per employee | 60s     |
-| `leave_balance:*`    | Employee leave balances     | 300s    |
+| `rate_limit:ess:*`   | Retired ESS rate limit per employee | 60s     |
+| `leave_balance:*`    | Retired employee leave balances     | 300s    |
 | `oauth:token:*`      | Encrypted OAuth tokens      | Session |
 | `whitelist:*`        | Email whitelist cache       | 3600s   |
 

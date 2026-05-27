@@ -1,14 +1,11 @@
 # Product Docs
 
-This directory is intentionally generic and mostly empty in Harness v0.
+This directory contains Vroom HR product contracts and module specs.
 
-When a user provides a project spec, derive smaller product contract files here
-instead of keeping one large spec as the living plan. Name files by the product
-domains that actually exist in that spec, for example `overview.md`,
-`billing.md`, `workflows.md`, `permissions.md`, or `api-conventions.md`.
-
-Do not create domain files before the spec just to fill the folder. Empty
-structure is healthier than fake product truth.
+Active backend modules are identity, employee, Gmail, and recruitment. Specs for
+attendance, payroll, and self-service remain here as archived reference material
+because migration `027_drop_attendance_payroll_tables.py` retired their active
+backend tables and routes.
 
 ## Update Rule
 

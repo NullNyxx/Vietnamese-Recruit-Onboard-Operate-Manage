@@ -1,8 +1,8 @@
 # Vroom HR — Product Overview
 
 Vroom HR (Vietnamese Recruit-Onboard-Operate-Manage) là nền tảng quản lý nhân
-sự toàn diện cho doanh nghiệp Việt Nam, bao gồm tuyển dụng, onboarding, vận
-hành nhân sự, chấm công, nghỉ phép, và tính lương theo luật Việt Nam.
+sự cho doanh nghiệp Việt Nam, tập trung hiện tại vào tuyển dụng, onboarding,
+vận hành hồ sơ nhân sự, Gmail integration, và quản trị danh tính.
 
 ## Tech Stack
 
@@ -16,7 +16,7 @@ hành nhân sự, chấm công, nghỉ phép, và tính lương theo luật Vi�
 | AI             | OpenAI API (CV parsing)                                      |
 | Auth           | Google OAuth2 + PKCE, JWT (cookie-based)                     |
 | Infra          | Docker Compose                                               |
-| Migrations     | Alembic (26 migrations)                                      |
+| Migrations     | Alembic (27 schema revisions; 027 retires attendance/payroll)|
 | Testing        | pytest, Hypothesis, Vitest, fast-check                       |
 
 ## Modules
@@ -52,7 +52,15 @@ hành nhân sự, chấm công, nghỉ phép, và tính lương theo luật Vi�
 - AI-powered CV parsing (OpenAI)
 - Recruitment metrics & audit logs
 
-### 5. Attendance (`backend/src/modules/attendance/`)
+## Retired Modules
+
+Migration `027_drop_attendance_payroll_tables.py` removed attendance, leave,
+payroll, and related tables from active application state. Product specs remain
+under `docs/product/attendance/`, `docs/product/payroll/`, and
+`docs/product/self-service/` as archived/reference material until those modules
+are reintroduced by a new story.
+
+### Attendance (`backend/src/modules/attendance/`)
 
 - Check-in/out
 - Manual records
@@ -61,11 +69,11 @@ hành nhân sự, chấm công, nghỉ phép, và tính lương theo luật Vi�
 - Overtime requests
 - Email report distribution
 
-### 6. Leave Management (within attendance module)
+### Leave Management (within attendance module)
 
 - Leave types, balances, requests
 
-### 7. Payroll (`backend/src/modules/payroll/`)
+### Payroll (`backend/src/modules/payroll/`)
 
 - Salary configs & allowances
 - Dependents (tax deduction)
@@ -75,7 +83,7 @@ hành nhân sự, chấm công, nghỉ phép, và tính lương theo luật Vi�
 - Email distribution
 - Position-based salaries
 
-### 8. Self-Service / ESS (`backend/src/modules/self_service/`)
+### Self-Service / ESS (`backend/src/modules/self_service/`)
 
 - Employee self-service portal
 - Audit middleware
@@ -93,14 +101,17 @@ module/
 └── container.py   # Dependency injection wiring
 ```
 
-## Database (26 tables)
+## Active Database Tables (18 tables)
 
 users, oauth_grants, refresh_tokens, departments, positions, employees,
 employee_documents, email_messages, candidates, cv_documents,
 recruitment_audit_logs, whitelist_entries, oauth_configs, audit_logs,
-leave_types, leave_balances, leave_requests, work_schedules,
-attendance_records, overtime_requests, holidays, salary_configs,
-allowances, dependents, payroll_periods, payslips, position_salaries
+sync_cursors, gmail_label_mappings, email_attachments, gmail_audit_logs
+
+Retired by migration 027: leave_types, leave_balances, leave_requests,
+work_schedules, attendance_records, overtime_requests, holidays,
+salary_configs, allowances, dependents, payroll_periods, payslips,
+position_salaries.
 
 ## API Prefixes
 
@@ -114,11 +125,4 @@ allowances, dependents, payroll_periods, payslips, position_salaries
 - `/api/recruitment/candidates/` — Recruitment
 - `/api/recruitment/cv-review/` — AI CV review
 - `/api/recruitment/metrics/` — Analytics
-- `/api/attendance/` — Attendance
-- `/api/attendance/leave/` — Leave
-- `/api/attendance/overtime/` — Overtime
-- `/api/attendance/schedules/` — Schedules
-- `/api/payroll/` — Payroll
-- `/api/payroll/salary/` — Salary config
-- `/api/ess/` — Employee self-service
 - `/health` — Health check
