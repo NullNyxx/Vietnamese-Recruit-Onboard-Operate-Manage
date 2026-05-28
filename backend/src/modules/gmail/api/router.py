@@ -7,10 +7,12 @@ sending, and attachment retrieval. All endpoints require authentication.
 
 from __future__ import annotations
 
+import asyncio
 import base64
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
+from fastapi.responses import JSONResponse
 
 from src.modules.gmail.api.schemas import (
     ConnectionStatusResponse,
@@ -539,9 +541,164 @@ async def fetch_attachments(
 
 
 # ---------------------------------------------------------------------------
-# Helper functions
+# Classification endpoints
 # ---------------------------------------------------------------------------
 
+
+@router.post(
+    "/classify",
+    response_model=None,
+    responses={
+        401: {"model": ErrorResponse},
+        403: {"model": ErrorResponse},
+    },
+)
+async def classify_emails(
+    current_user: CurrentUserDep,
+    email_repo: EmailRepositoryDep,
+    limit: int = Query(default=5, ge=1, le=20, description="Max emails to classify per request"),
+) -> dict | JSONResponse:
+    """Trigger AI classification for all unclassified emails.
+
+    Finds emails with processing_status='unprocessed' or category=NULL
+    and runs the two-tier classification pipeline (rules + AI).
+    This is useful for classifying emails that were synced before
+    the classification feature was enabled.
+
+    Args:
+        current_user: The authenticated user.
+        email_repo: The email repository.
+
+    Returns:
+        Dictionary with classified_count and total_unclassified,
+        or a 504 JSONResponse if the request times out.
+    """
+    from src.modules.gmail.infrastructure.config import GmailSettings
+
+    settings = GmailSettings()  # type: ignore[call-arg]
+
+    async def _do_classify() -> dict:
+        from sqlmodel import select
+
+        from src.modules.gmail.application.classification_service import (
+            ClassificationService,
+        )
+        from src.modules.gmail.application.rules_classifier import RulesClassifier
+        from src.modules.gmail.domain.entities import (
+            EmailMessage as EmailMessageEntity,
+        )
+        from src.modules.gmail.infrastructure.ai_classifier import AIClassifier
+        from src.modules.gmail.infrastructure.audit_logger import AuditLogger
+
+        statement = (
+            select(EmailMessageEntity)
+            .where(EmailMessageEntity.user_id == current_user.id)
+            .where(
+                (EmailMessageEntity.processing_status == "unprocessed")
+                | (EmailMessageEntity.category.is_(None))  # type: ignore[union-attr]
+                | (EmailMessageEntity.category == "uncategorized")
+            )
+            .limit(limit)
+        )
+        result = await email_repo.session.execute(statement)
+        unclassified_emails = list(result.scalars().all())
+
+        # Also count total remaining for progress
+        from sqlalchemy import func
+
+        count_stmt = (
+            select(func.count())
+            .select_from(EmailMessageEntity)
+            .where(EmailMessageEntity.user_id == current_user.id)
+            .where(
+                (EmailMessageEntity.processing_status == "unprocessed")
+                | (EmailMessageEntity.category.is_(None))  # type: ignore[union-attr]
+                | (EmailMessageEntity.category == "uncategorized")
+            )
+        )
+        total_remaining_result = await email_repo.session.execute(count_stmt)
+        total_remaining = total_remaining_result.scalar() or 0
+
+        if not unclassified_emails:
+            return {
+                "classified_count": 0,
+                "total": 0,
+                "remaining": 0,
+                "message": "Tất cả email đã được phân loại",
+                "results": [],
+            }
+
+        import logging
+
+        classify_logger = logging.getLogger("gmail.classify")
+        classify_logger.info(
+            "Starting classification for %d emails (user=%s)",
+            len(unclassified_emails),
+            current_user.id,
+        )
+
+        # Run classification
+        rules_classifier = RulesClassifier()
+        ai_classifier = AIClassifier(settings)
+        audit_logger = AuditLogger(email_repo.session, settings)
+
+        classification_service = ClassificationService(
+            rules_classifier=rules_classifier,
+            ai_classifier=ai_classifier,
+            email_repo=email_repo,
+            audit_logger=audit_logger,
+            settings=settings,
+            session=email_repo.session,
+        )
+
+        classified_count = await classification_service.classify_batch(
+            user_id=current_user.id,
+            emails=unclassified_emails,
+        )
+
+        await email_repo.session.commit()
+
+        # Build results summary
+        results_summary = []
+        for email in unclassified_emails[:20]:  # Limit to first 20 for response size
+            results_summary.append({
+                "subject": email.subject[:60],
+                "category": email.category,
+            })
+
+        classify_logger.info(
+            "Classification complete: %d/%d emails classified",
+            classified_count,
+            len(unclassified_emails),
+        )
+
+        return {
+            "classified_count": classified_count,
+            "total": len(unclassified_emails),
+            "remaining": max(0, total_remaining - classified_count),
+            "message": (
+                f"AI đã phân loại {classified_count}/{len(unclassified_emails)} email"
+            ),
+            "results": results_summary,
+        }
+
+    try:
+        return await asyncio.wait_for(
+            _do_classify(),
+            timeout=settings.classification_request_timeout_seconds,
+        )
+    except TimeoutError:
+        return JSONResponse(
+            status_code=504,
+            content={
+                "detail": "Phân loại email bị timeout. Vui lòng thử lại với số lượng ít hơn."
+            },
+        )
+
+
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
 
 async def _get_user_access_token(user_id, connection_service: ConnectionService) -> str:
     """Retrieve the decrypted access token for a user.
