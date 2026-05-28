@@ -218,8 +218,7 @@ class ClassificationService:
             # AI failed — fall back to rules result even if low confidence
             latency_ms = int((time.monotonic() - start_time) * 1000)
             logger.warning(
-                "AI classification failed for email %s (%dms), "
-                "falling back to rules result: %s",
+                "AI classification failed for email %s (%dms), falling back to rules result: %s",
                 email.gmail_message_id,
                 latency_ms,
                 exc,

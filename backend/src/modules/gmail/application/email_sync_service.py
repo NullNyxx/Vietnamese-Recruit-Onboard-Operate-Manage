@@ -297,9 +297,11 @@ class EmailSyncService:
                 user_id=user_id, history_id=latest_history_id
             )
 
-        # Classify newly synced emails (async, non-blocking)
+        # Classify newly synced emails (async, non-blocking).
+        # Re-query from DB to get session-attached instances, since
+        # batch_upsert() uses Core INSERT and returns transient objects.
         if email_entities and self._settings.classification_enabled:
-            await self._classify_new_emails(user_id, email_entities)
+            await self._classify_new_emails(user_id, [e.gmail_message_id for e in email_entities])
 
         return persisted_count
 
@@ -454,24 +456,38 @@ class EmailSyncService:
             has_attachments=metadata.has_attachments,
         )
 
-    async def _classify_new_emails(
-        self, user_id: UUID, emails: list[EmailMessage]
-    ) -> None:
+    async def _classify_new_emails(self, user_id: UUID, gmail_message_ids: list[str]) -> None:
         """Classify newly synced emails using the two-tier classification pipeline.
 
-        Runs classification in a non-blocking manner. Individual email
-        classification failures are logged but do not affect the sync result.
+        Re-queries emails from the database to get session-attached instances,
+        avoiding integrity errors from transient objects returned by batch_upsert.
 
         Args:
             user_id: The UUID of the user who owns the emails.
-            emails: List of EmailMessage entities to classify.
+            gmail_message_ids: List of Gmail message IDs to classify.
         """
         try:
+            from sqlmodel import select
+
             from src.modules.gmail.application.classification_service import (
                 ClassificationService,
             )
             from src.modules.gmail.application.rules_classifier import RulesClassifier
+            from src.modules.gmail.domain.entities import EmailMessage as EmailMessageEntity
             from src.modules.gmail.infrastructure.ai_classifier import AIClassifier
+
+            # Re-query persisted emails from DB to get session-attached instances
+            statement = (
+                select(EmailMessageEntity)
+                .where(EmailMessageEntity.user_id == user_id)
+                .where(EmailMessageEntity.gmail_message_id.in_(gmail_message_ids))
+                .where(EmailMessageEntity.processing_status == "unprocessed")
+            )
+            result = await self._email_repo.session.execute(statement)
+            emails = list(result.scalars().all())
+
+            if not emails:
+                return
 
             rules_classifier = RulesClassifier()
             ai_classifier = AIClassifier(self._settings)
@@ -485,21 +501,15 @@ class EmailSyncService:
                 session=self._email_repo.session,
             )
 
-            # Only classify emails that are still unprocessed
-            unprocessed = [
-                e for e in emails if e.processing_status == "unprocessed"
-            ]
-
-            if unprocessed:
-                classified_count = await classification_service.classify_batch(
-                    user_id=user_id, emails=unprocessed
-                )
-                logger.info(
-                    "Classified %d/%d new emails for user %s",
-                    classified_count,
-                    len(unprocessed),
-                    user_id,
-                )
+            classified_count = await classification_service.classify_batch(
+                user_id=user_id, emails=emails
+            )
+            logger.info(
+                "Classified %d/%d new emails for user %s",
+                classified_count,
+                len(emails),
+                user_id,
+            )
         except Exception as exc:
             # Classification failure should never break the sync pipeline
             logger.error(
@@ -508,4 +518,3 @@ class EmailSyncService:
                 exc,
                 exc_info=True,
             )
-

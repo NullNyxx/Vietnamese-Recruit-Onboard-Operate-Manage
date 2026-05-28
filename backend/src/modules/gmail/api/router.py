@@ -590,14 +590,13 @@ async def classify_emails(
         from src.modules.gmail.infrastructure.ai_classifier import AIClassifier
         from src.modules.gmail.infrastructure.audit_logger import AuditLogger
 
+        # Only select emails that haven't been classified yet.
+        # Exclude "classified" processing_status to avoid re-queuing
+        # terminal "uncategorized" results indefinitely.
         statement = (
             select(EmailMessageEntity)
             .where(EmailMessageEntity.user_id == current_user.id)
-            .where(
-                (EmailMessageEntity.processing_status == "unprocessed")
-                | (EmailMessageEntity.category.is_(None))  # type: ignore[union-attr]
-                | (EmailMessageEntity.category == "uncategorized")
-            )
+            .where(EmailMessageEntity.processing_status == "unprocessed")
             .limit(limit)
         )
         result = await email_repo.session.execute(statement)
@@ -610,11 +609,7 @@ async def classify_emails(
             select(func.count())
             .select_from(EmailMessageEntity)
             .where(EmailMessageEntity.user_id == current_user.id)
-            .where(
-                (EmailMessageEntity.processing_status == "unprocessed")
-                | (EmailMessageEntity.category.is_(None))  # type: ignore[union-attr]
-                | (EmailMessageEntity.category == "uncategorized")
-            )
+            .where(EmailMessageEntity.processing_status == "unprocessed")
         )
         total_remaining_result = await email_repo.session.execute(count_stmt)
         total_remaining = total_remaining_result.scalar() or 0
@@ -661,10 +656,12 @@ async def classify_emails(
         # Build results summary
         results_summary = []
         for email in unclassified_emails[:20]:  # Limit to first 20 for response size
-            results_summary.append({
-                "subject": email.subject[:60],
-                "category": email.category,
-            })
+            results_summary.append(
+                {
+                    "subject": email.subject[:60],
+                    "category": email.category,
+                }
+            )
 
         classify_logger.info(
             "Classification complete: %d/%d emails classified",
@@ -676,9 +673,7 @@ async def classify_emails(
             "classified_count": classified_count,
             "total": len(unclassified_emails),
             "remaining": max(0, total_remaining - classified_count),
-            "message": (
-                f"AI đã phân loại {classified_count}/{len(unclassified_emails)} email"
-            ),
+            "message": (f"AI đã phân loại {classified_count}/{len(unclassified_emails)} email"),
             "results": results_summary,
         }
 
@@ -690,15 +685,14 @@ async def classify_emails(
     except TimeoutError:
         return JSONResponse(
             status_code=504,
-            content={
-                "detail": "Phân loại email bị timeout. Vui lòng thử lại với số lượng ít hơn."
-            },
+            content={"detail": "Phân loại email bị timeout. Vui lòng thử lại với số lượng ít hơn."},
         )
 
 
 # ---------------------------------------------------------------------------
 # Helper functions
 # ---------------------------------------------------------------------------
+
 
 async def _get_user_access_token(user_id, connection_service: ConnectionService) -> str:
     """Retrieve the decrypted access token for a user.
