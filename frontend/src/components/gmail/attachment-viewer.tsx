@@ -32,6 +32,7 @@ function getMimeTypeIcon(mimeType: string) {
     return <FileText className="h-5 w-5 text-blue-500" />;
   }
   if (mimeType.startsWith("image/")) {
+    // eslint-disable-next-line jsx-a11y/alt-text -- This is a Lucide icon component, not an <img> tag
     return <Image className="h-5 w-5 text-green-500" />;
   }
   return <File className="h-5 w-5 text-gray-500" />;
@@ -46,7 +47,7 @@ export function AttachmentViewer({
   hasAttachments,
 }: AttachmentViewerProps) {
   const [attachments, setAttachments] = React.useState<AttachmentMetadata[]>(
-    []
+    [],
   );
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

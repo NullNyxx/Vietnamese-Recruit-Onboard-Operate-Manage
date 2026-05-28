@@ -116,6 +116,7 @@ export interface EmailMessage {
   snippet: string;
   label_ids: string[];
   has_attachments: boolean;
+  category: string | null;
 }
 
 export interface MessageBodyResponse {

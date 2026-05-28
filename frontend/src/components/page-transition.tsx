@@ -40,11 +40,11 @@ export function PageTransition({ children }: PageTransitionProps) {
 
   return (
     <div
-      className={
+      className={`h-full ${
         transitionStage === "enter"
           ? "animate-page-enter"
           : "opacity-100 translate-y-0"
-      }
+      }`}
     >
       {displayChildren}
     </div>

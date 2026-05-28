@@ -4,7 +4,7 @@ import * as React from "react";
 import { Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { EmailMessage } from "@/lib/api/types";
-import { formatRelativeDate, getLabelCategory, LABEL_COLORS } from "./utils";
+import { formatRelativeDate, CATEGORY_META } from "./utils";
 
 // ---------------------------------------------------------------------------
 // Props
@@ -80,14 +80,17 @@ export function EmailList({
 
   // Sort emails by received_at descending (newest first)
   const sortedEmails = [...emails].sort(
-    (a, b) => new Date(b.received_at).getTime() - new Date(a.received_at).getTime()
+    (a, b) =>
+      new Date(b.received_at).getTime() - new Date(a.received_at).getTime(),
   );
 
   // Empty state
   if (sortedEmails.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-sm text-gray-500 dark:text-gray-400">Không có email nào</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
+          Không có email nào
+        </p>
       </div>
     );
   }
@@ -96,11 +99,6 @@ export function EmailList({
     <div className="flex flex-col gap-1 overflow-y-auto p-2">
       {sortedEmails.map((email) => {
         const isSelected = email.id === selectedId;
-
-        // Extract VroomHR label categories
-        const labelCategories = email.label_ids
-          .map(getLabelCategory)
-          .filter((cat): cat is string => cat !== null && cat in LABEL_COLORS);
 
         return (
           <button
@@ -112,7 +110,7 @@ export function EmailList({
               "hover:bg-gray-50 dark:hover:bg-gray-700",
               isSelected
                 ? "border-blue-300 bg-blue-50 dark:border-blue-600 dark:bg-blue-900/30"
-                : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+                : "border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800",
             )}
           >
             {/* Header: sender + date */}
@@ -145,24 +143,19 @@ export function EmailList({
               {truncateSnippet(email.snippet)}
             </p>
 
-            {/* Label badges */}
-            {labelCategories.length > 0 && (
+            {/* Category badge */}
+            {email.category && CATEGORY_META[email.category] && (
               <div className="mt-2 flex flex-wrap gap-1">
-                {labelCategories.map((category) => {
-                  const colors = LABEL_COLORS[category];
-                  return (
-                    <span
-                      key={category}
-                      className={cn(
-                        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                        colors.bg,
-                        colors.text
-                      )}
-                    >
-                      {category}
-                    </span>
-                  );
-                })}
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium",
+                    CATEGORY_META[email.category].bg,
+                    CATEGORY_META[email.category].text,
+                  )}
+                >
+                  <span>{CATEGORY_META[email.category].icon}</span>
+                  {CATEGORY_META[email.category].label}
+                </span>
               </div>
             )}
           </button>
