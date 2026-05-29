@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class",
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,14 +9,19 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
-        heading: [
-          "var(--font-inter)",
+        sans: [
+          "var(--font-public-sans)",
           "ui-sans-serif",
           "system-ui",
           "sans-serif",
         ],
-        body: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"],
+        heading: ["var(--font-fraunces)", "Georgia", "Cambria", "serif"],
+        label: [
+          "var(--font-space-grotesk)",
+          "ui-sans-serif",
+          "system-ui",
+          "sans-serif",
+        ],
         mono: [
           "Berkeley Mono",
           "ui-monospace",
@@ -76,25 +80,6 @@ const config: Config = {
           "4": "hsl(var(--chart-4))",
           "5": "hsl(var(--chart-5))",
         },
-        // Design system direct colors
-        "pitch-black": "#08090a",
-        graphite: "#0f1011",
-        "deep-slate": "#161718",
-        "charcoal-grey": "#23252a",
-        "muted-ash": "#323334",
-        gunmetal: "#383b3f",
-        porcelain: "#f7f8f8",
-        "light-steel": "#d0d6e0",
-        "storm-cloud": "#8a8f98",
-        "fog-grey": "#62666d",
-        "neon-lime": "#e4f222",
-        "aether-blue": "#5e6ad2",
-        "forest-green": "#008d2c",
-        "cyan-spark": "#02b8cc",
-        emerald: "#27a644",
-        "warning-red": "#eb5757",
-        "deep-violet": "#6366f1",
-        amethyst: "#8b5cf6",
       },
       borderRadius: {
         lg: "var(--radius-lg)",
@@ -103,10 +88,10 @@ const config: Config = {
         xl: "var(--radius-xl)",
       },
       boxShadow: {
-        sm: "rgba(0, 0, 0, 0.4) 0px 2px 4px 0px",
-        md: "rgba(0, 0, 0, 0.2) 0px 0px 12px 0px inset",
-        subtle: "rgb(35, 37, 42) 0px 0px 0px 1px inset",
-        xl: "rgba(8, 9, 10, 0.6) 0px 4px 32px 0px",
+        sm: "0 1px 2px rgba(0, 0, 0, 0.05)",
+        md: "0 2px 4px rgba(0, 0, 0, 0.08)",
+        subtle: "0 1px 3px rgba(0, 0, 0, 0.06)",
+        xl: "0 4px 8px rgba(0, 0, 0, 0.1)",
       },
       spacing: {
         "4.5": "18px",
