@@ -248,21 +248,26 @@ function GmailPageContent() {
     setClassifyProgress("Đang chuẩn bị phân loại...");
 
     let totalClassified = 0;
-    const totalToClassify = emails.filter(
-      (e) => !e.category || e.category === "uncategorized",
-    ).length;
+    let totalToClassify: number | null = null;
 
     try {
       // Process in batches of 5 to avoid proxy timeout
-      let remaining = totalToClassify;
+      let remaining = 1; // Start with non-zero to enter loop
       while (remaining > 0) {
+        const result = await gmailApi.classifyBatch(5);
+
+        // On first batch, capture the real total from backend
+        if (totalToClassify === null) {
+          totalToClassify = result.remaining + result.classified_count;
+        }
+
+        totalClassified += result.classified_count;
+        remaining = result.remaining;
+
+        // Update progress with accurate numbers
         setClassifyProgress(
           `AI đang phân loại... (${totalClassified}/${totalToClassify})`,
         );
-
-        const result = await gmailApi.classifyBatch(5);
-        totalClassified += result.classified_count;
-        remaining = result.remaining;
 
         // If nothing was classified in this batch, stop
         if (result.classified_count === 0) break;
@@ -275,7 +280,7 @@ function GmailPageContent() {
       setClassifyProgress(null);
       if (totalClassified > 0) {
         addToast(
-          `Đã phân loại ${totalClassified}/${totalToClassify} email (có lỗi)`,
+          `Đã phân loại ${totalClassified}/${totalToClassify ?? "?"} email (có lỗi)`,
           "error",
         );
         await fetchEmails();
@@ -285,7 +290,7 @@ function GmailPageContent() {
     } finally {
       setClassifying(false);
     }
-  }, [addToast, emails, fetchEmails, handleApiError]);
+  }, [addToast, fetchEmails, handleApiError]);
 
   // --- Determine if connected ---
   const isConnected = connectionStatus === "connected";
@@ -293,15 +298,9 @@ function GmailPageContent() {
   return (
     <div className="gmail-fullbleed flex flex-col h-full overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 py-3 sm:px-6">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6">
         <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-            Hộp thư
-          </h1>
-          <span className="hidden sm:inline-flex items-center gap-1 rounded-full bg-[#e4f222]/10 px-2 py-0.5 text-[10px] font-semibold text-[#e4f222]">
-            <Sparkles className="h-3 w-3" />
-            AI phân loại
-          </span>
+          <h1 className="text-xl font-semibold text-foreground">Hộp thư</h1>
         </div>
         {isConnected && (
           <div className="flex items-center gap-2">
@@ -314,11 +313,8 @@ function GmailPageContent() {
                   type="button"
                   onClick={handleClassify}
                   disabled={classifying}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#e4f222]/30 bg-[#e4f222]/10 px-3 py-1.5 text-xs font-medium text-[#e4f222] hover:bg-[#e4f222]/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
-                  <Sparkles
-                    className={`h-3.5 w-3.5 ${classifying ? "animate-spin" : ""}`}
-                  />
                   {classifying
                     ? "Đang phân loại..."
                     : `Phân loại (${emails.filter((e) => !e.category || e.category === "uncategorized").length})`}
@@ -354,21 +350,21 @@ function GmailPageContent() {
         <div className="flex flex-1 flex-col overflow-hidden relative min-h-0">
           {/* Classification progress overlay */}
           {classifying && classifyProgress && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#08090a]/80 backdrop-blur-sm">
-              <div className="flex flex-col items-center gap-4 rounded-xl border border-white/[0.08] bg-[#12141a] px-8 py-6 shadow-2xl">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#e4f222]/10">
-                  <Sparkles className="h-6 w-6 text-[#e4f222] animate-pulse" />
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-background/80">
+              <div className="flex flex-col items-center gap-4 rounded-xl border border-border bg-card px-8 py-6 shadow-md">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <Sparkles className="h-6 w-6 text-primary animate-pulse" />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-[#f7f8f8]">
+                  <p className="text-sm font-medium text-foreground">
                     AI đang phân loại email
                   </p>
-                  <p className="mt-1 text-xs text-[#8a8f98]">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {classifyProgress}
                   </p>
                 </div>
-                <div className="w-48 h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full bg-[#e4f222] rounded-full animate-pulse w-2/3" />
+                <div className="w-48 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full bg-primary rounded-full animate-pulse w-2/3" />
                 </div>
               </div>
             </div>
@@ -386,12 +382,12 @@ function GmailPageContent() {
           <div className="flex flex-1 min-h-0 overflow-hidden">
             {/* Left panel: Connection + Email List */}
             <div
-              className={`flex flex-col border-r border-gray-200 dark:border-gray-700 ${
+              className={`flex flex-col border-r border-border ${
                 selectedEmailId ? "hidden lg:flex" : "flex"
               } w-full lg:w-[380px] lg:shrink-0 h-full`}
             >
               {/* Connection status bar (compact) */}
-              <div className="border-b border-gray-200 dark:border-gray-700 px-3 py-2">
+              <div className="border-b border-border px-3 py-2">
                 <ConnectionPanel
                   status={connectionStatus}
                   email={connectedEmail}
@@ -446,10 +442,10 @@ function GmailPageContent() {
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <div className="text-center">
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-muted-foreground">
                       Chọn một email để xem nội dung
                     </p>
-                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                    <p className="mt-1 text-xs text-muted-foreground">
                       Email được AI phân loại tự động sau khi đồng bộ
                     </p>
                   </div>
@@ -465,7 +461,7 @@ function GmailPageContent() {
         <button
           type="button"
           onClick={handleComposeOpen}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white shadow-lg transition-colors hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2 rounded-full bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-colors hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-background"
           aria-label="Soạn email mới"
         >
           <PenSquare className="h-5 w-5" />

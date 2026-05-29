@@ -5,8 +5,19 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Trash2, Download, FileText, Upload } from "lucide-react";
-import type { Employee, EmployeeDocument, Department, Position } from "@/lib/api/types";
-import { getEmployee, listDocuments, uploadDocument, downloadDocument, deleteDocument } from "@/lib/api/employees";
+import type {
+  Employee,
+  EmployeeDocument,
+  Department,
+  Position,
+} from "@/lib/api/types";
+import {
+  getEmployee,
+  listDocuments,
+  uploadDocument,
+  downloadDocument,
+  deleteDocument,
+} from "@/lib/api/employees";
 import { listDepartments } from "@/lib/api/departments";
 import { listPositions } from "@/lib/api/positions";
 
@@ -43,7 +54,9 @@ export default function EmployeeDetailPage() {
         setDepartments(depts);
         setPositions(pos);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load employee");
+        setError(
+          err instanceof Error ? err.message : "Failed to load employee",
+        );
       } finally {
         setLoading(false);
       }
@@ -73,7 +86,12 @@ export default function EmployeeDetailPage() {
     setUploading(true);
     setUploadError(null);
     try {
-      const doc = await uploadDocument(id, uploadFile, uploadType, uploadDescription || undefined);
+      const doc = await uploadDocument(
+        id,
+        uploadFile,
+        uploadType,
+        uploadDescription || undefined,
+      );
       setDocuments((prev) => [...prev, doc]);
       setUploadFile(null);
       setUploadDescription("");
@@ -101,7 +119,8 @@ export default function EmployeeDetailPage() {
   };
 
   const handleDeleteDocument = async (docId: string) => {
-    if (!window.confirm("Are you sure you want to delete this document?")) return;
+    if (!window.confirm("Are you sure you want to delete this document?"))
+      return;
     try {
       await deleteDocument(docId);
       setDocuments((prev) => prev.filter((d) => d.id !== docId));
@@ -133,12 +152,20 @@ export default function EmployeeDetailPage() {
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push("/employees")}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.push("/employees")}
+          >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-foreground">{employee.full_name}</h1>
-            <p className="text-sm text-muted-foreground">{employee.employee_code}</p>
+            <h1 className="text-2xl font-bold text-foreground">
+              {employee.full_name}
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {employee.employee_code}
+            </p>
           </div>
         </div>
         <Link href={`/employees/${id}/edit`}>
@@ -146,38 +173,65 @@ export default function EmployeeDetailPage() {
         </Link>
       </div>
 
-     {/* Employee Details */}
+      {/* Employee Details */}
       <div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         {/* Personal Info Card */}
         <div className="rounded-md border border-border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Personal Information</h2>
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
+            Personal Information
+          </h2>
           <dl className="space-y-3">
             <DetailRow label="Full Name" value={employee.full_name} />
             <DetailRow label="Email" value={employee.email} />
             <DetailRow label="Phone" value={employee.phone || "—"} />
-            <DetailRow label="Date of Birth" value={employee.date_of_birth || "—"} />
-            <DetailRow label="Gender" value={employee.gender ? employee.gender.charAt(0).toUpperCase() + employee.gender.slice(1) : "—"} />
+            <DetailRow
+              label="Date of Birth"
+              value={employee.date_of_birth || "—"}
+            />
+            <DetailRow
+              label="Gender"
+              value={
+                employee.gender
+                  ? employee.gender.charAt(0).toUpperCase() +
+                    employee.gender.slice(1)
+                  : "—"
+              }
+            />
             <DetailRow label="ID Number" value={employee.id_number || "—"} />
             <DetailRow label="Address" value={employee.address || "—"} />
           </dl>
         </div>
 
-       
         {/* Employment Info Card */}
         <div className="rounded-md border border-border bg-card p-6">
-          <h2 className="mb-4 text-lg font-semibold text-foreground">Employment Information</h2>
+          <h2 className="mb-4 text-lg font-semibold text-foreground">
+            Employment Information
+          </h2>
           <dl className="space-y-3">
-            <DetailRow label="Department" value={getDepartmentName(employee.department_id)} />
-            <DetailRow label="Position" value={getPositionName(employee.position_id)} />
+            <DetailRow
+              label="Department"
+              value={getDepartmentName(employee.department_id)}
+            />
+            <DetailRow
+              label="Position"
+              value={getPositionName(employee.position_id)}
+            />
             <DetailRow label="Start Date" value={employee.start_date || "—"} />
-            <DetailRow label="Contract Type" value={formatContractType(employee.contract_type)} />
+            <DetailRow
+              label="Contract Type"
+              value={formatContractType(employee.contract_type)}
+            />
             <DetailRow label="Tax Code" value={employee.tax_code || "—"} />
             <DetailRow
               label="Status"
               value={
-                <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
-                  employee.is_active ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                }`}>
+                <span
+                  className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                    employee.is_active
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                  }`}
+                >
                   {employee.is_active ? "Active" : "Inactive"}
                 </span>
               }
@@ -186,14 +240,17 @@ export default function EmployeeDetailPage() {
         </div>
       </div>
 
-
       {/* Documents Section */}
       <div className="rounded-md border border-border bg-card p-6">
-        <h2 className="mb-4 text-lg font-semibold text-foreground">Documents</h2>
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
+          Documents
+        </h2>
 
         {/* Document List */}
         {documents.length === 0 ? (
-          <p className="mb-4 text-sm text-muted-foreground">No documents uploaded yet.</p>
+          <p className="mb-4 text-sm text-muted-foreground">
+            No documents uploaded yet.
+          </p>
         ) : (
           <div className="mb-6 space-y-2">
             {documents.map((doc) => (
@@ -206,18 +263,31 @@ export default function EmployeeDetailPage() {
                   <div>
                     <p className="text-sm font-medium">{doc.file_name}</p>
                     <p className="text-xs text-muted-foreground">
-                      {doc.document_type} • {formatFileSize(doc.file_size)} • {new Date(doc.uploaded_at).toLocaleDateString()}
+                      {doc.document_type} • {formatFileSize(doc.file_size)} •{" "}
+                      {new Date(doc.uploaded_at).toLocaleDateString()}
                     </p>
                     {doc.description && (
-                      <p className="text-xs text-muted-foreground">{doc.description}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {doc.description}
+                      </p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleDownload(doc)} title="Download">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDownload(doc)}
+                    title="Download"
+                  >
                     <Download className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" size="icon" onClick={() => handleDeleteDocument(doc.id)} title="Delete">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteDocument(doc.id)}
+                    title="Delete"
+                  >
                     <Trash2 className="h-4 w-4 text-destructive" />
                   </Button>
                 </div>
@@ -227,7 +297,10 @@ export default function EmployeeDetailPage() {
         )}
 
         {/* Upload Form */}
-        <form onSubmit={handleUpload} className="rounded-md border border-dashed border-border p-4">
+        <form
+          onSubmit={handleUpload}
+          className="rounded-md border border-dashed border-border p-4"
+        >
           <h3 className="mb-3 flex items-center gap-2 text-sm font-medium">
             <Upload className="h-4 w-4" />
             Upload Document
@@ -239,7 +312,10 @@ export default function EmployeeDetailPage() {
           )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
-              <label htmlFor="doc_file" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="doc_file"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 File
               </label>
               <input
@@ -250,7 +326,10 @@ export default function EmployeeDetailPage() {
               />
             </div>
             <div>
-              <label htmlFor="doc_type" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="doc_type"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 Document Type
               </label>
               <select
@@ -267,7 +346,10 @@ export default function EmployeeDetailPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="doc_desc" className="mb-1 block text-xs font-medium text-muted-foreground">
+              <label
+                htmlFor="doc_desc"
+                className="mb-1 block text-xs font-medium text-muted-foreground"
+              >
                 Description (optional)
               </label>
               <input
@@ -292,11 +374,19 @@ export default function EmployeeDetailPage() {
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: React.ReactNode;
+}) {
   return (
     <div className="flex items-start justify-between gap-4">
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="text-sm font-medium text-foreground text-right">{value}</dd>
+      <dd className="text-sm font-medium text-foreground text-right">
+        {value}
+      </dd>
     </div>
   );
 }

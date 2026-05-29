@@ -31,11 +31,7 @@ const columns: ColumnDef<EmployeeRow>[] = [
     header: "Trạng thái",
     cell: (row) => (
       <span
-        className={
-          row.is_active
-            ? "text-green-600 dark:text-green-400"
-            : "text-muted-foreground"
-        }
+        className={row.is_active ? "text-green-600" : "text-muted-foreground"}
       >
         {row.is_active ? "Đang làm" : "Đã nghỉ"}
       </span>
