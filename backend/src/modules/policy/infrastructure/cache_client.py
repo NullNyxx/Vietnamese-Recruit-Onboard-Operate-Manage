@@ -87,9 +87,7 @@ class PolicyCacheClient:
             )
             return None
 
-    async def set_active_policy(
-        self, tenant_id: str, snapshot: dict[str, Any]
-    ) -> None:
+    async def set_active_policy(self, tenant_id: str, snapshot: dict[str, Any]) -> None:
         """Store the active policy snapshot in cache with TTL.
 
         Args:

@@ -537,9 +537,7 @@ class PolicyService:
             await self._enforce_legal_minimums(rule.template_rule_id, filtered_updates)
 
         # Perform the update
-        updated_rule = await self.policy_repo.update_rule(
-            tenant_id, rule_id, filtered_updates
-        )
+        updated_rule = await self.policy_repo.update_rule(tenant_id, rule_id, filtered_updates)
         if updated_rule is None:
             raise PolicyRuleNotFoundError()
 
@@ -642,9 +640,7 @@ class PolicyService:
         # Retrieve the original template
         template = await self.template_repo.get_template_by_uuid(rule.template_rule_id)
         if template is None:
-            raise PolicyRuleNotFoundError(
-                message="Associated policy template not found"
-            )
+            raise PolicyRuleNotFoundError(message="Associated policy template not found")
 
         # Restore template default values
         reset_data: dict[str, Any] = {
@@ -656,9 +652,7 @@ class PolicyService:
             "enabled": template.enabled,
         }
 
-        updated_rule = await self.policy_repo.update_rule(
-            tenant_id, rule_id, reset_data
-        )
+        updated_rule = await self.policy_repo.update_rule(tenant_id, rule_id, reset_data)
         if updated_rule is None:
             raise PolicyRuleNotFoundError()
 
@@ -689,81 +683,98 @@ class PolicyService:
 
         if "name" in updates:
             if not isinstance(updates["name"], str):
-                errors.append({
-                    "field": "name",
-                    "reason": "Must be a string",
-                    "value": updates["name"],
-                })
+                errors.append(
+                    {
+                        "field": "name",
+                        "reason": "Must be a string",
+                        "value": updates["name"],
+                    }
+                )
             elif len(updates["name"]) == 0:
-                errors.append({
-                    "field": "name",
-                    "reason": "Must not be empty",
-                    "value": updates["name"],
-                })
+                errors.append(
+                    {
+                        "field": "name",
+                        "reason": "Must not be empty",
+                        "value": updates["name"],
+                    }
+                )
             elif len(updates["name"]) > _MAX_NAME_LENGTH:
-                errors.append({
-                    "field": "name",
-                    "reason": f"Must not exceed {_MAX_NAME_LENGTH} characters",
-                    "value": updates["name"],
-                })
+                errors.append(
+                    {
+                        "field": "name",
+                        "reason": f"Must not exceed {_MAX_NAME_LENGTH} characters",
+                        "value": updates["name"],
+                    }
+                )
 
         if "description" in updates:
             if not isinstance(updates["description"], str):
-                errors.append({
-                    "field": "description",
-                    "reason": "Must be a string",
-                    "value": updates["description"],
-                })
+                errors.append(
+                    {
+                        "field": "description",
+                        "reason": "Must be a string",
+                        "value": updates["description"],
+                    }
+                )
             elif len(updates["description"]) > _MAX_DESCRIPTION_LENGTH:
-                errors.append({
-                    "field": "description",
-                    "reason": (
-                        f"Must not exceed {_MAX_DESCRIPTION_LENGTH} characters"
-                    ),
-                    "value": updates["description"],
-                })
+                errors.append(
+                    {
+                        "field": "description",
+                        "reason": (f"Must not exceed {_MAX_DESCRIPTION_LENGTH} characters"),
+                        "value": updates["description"],
+                    }
+                )
 
         if "priority" in updates:
             priority = updates["priority"]
             if not isinstance(priority, int) or isinstance(priority, bool):
-                errors.append({
-                    "field": "priority",
-                    "reason": "Must be an integer",
-                    "value": priority,
-                })
+                errors.append(
+                    {
+                        "field": "priority",
+                        "reason": "Must be an integer",
+                        "value": priority,
+                    }
+                )
             elif priority < _MIN_PRIORITY or priority > _MAX_PRIORITY:
-                errors.append({
-                    "field": "priority",
-                    "reason": (
-                        f"Must be between {_MIN_PRIORITY} and "
-                        f"{_MAX_PRIORITY} inclusive"
-                    ),
-                    "value": priority,
-                })
+                errors.append(
+                    {
+                        "field": "priority",
+                        "reason": (
+                            f"Must be between {_MIN_PRIORITY} and {_MAX_PRIORITY} inclusive"
+                        ),
+                        "value": priority,
+                    }
+                )
 
         if "enabled" in updates:
             if not isinstance(updates["enabled"], bool):
-                errors.append({
-                    "field": "enabled",
-                    "reason": "Must be a boolean",
-                    "value": updates["enabled"],
-                })
+                errors.append(
+                    {
+                        "field": "enabled",
+                        "reason": "Must be a boolean",
+                        "value": updates["enabled"],
+                    }
+                )
 
         if "rule_condition" in updates:
             if not isinstance(updates["rule_condition"], dict):
-                errors.append({
-                    "field": "rule_condition",
-                    "reason": "Must be an object",
-                    "value": updates["rule_condition"],
-                })
+                errors.append(
+                    {
+                        "field": "rule_condition",
+                        "reason": "Must be an object",
+                        "value": updates["rule_condition"],
+                    }
+                )
 
         if "rule_action" in updates:
             if not isinstance(updates["rule_action"], dict):
-                errors.append({
-                    "field": "rule_action",
-                    "reason": "Must be an object",
-                    "value": updates["rule_action"],
-                })
+                errors.append(
+                    {
+                        "field": "rule_action",
+                        "reason": "Must be an object",
+                        "value": updates["rule_action"],
+                    }
+                )
 
         if errors:
             raise PolicyValidationError(
@@ -799,9 +810,7 @@ class PolicyService:
         if "rule_action" in updates and isinstance(updates["rule_action"], dict):
             action_params = updates["rule_action"].get("parameters", {})
             if isinstance(action_params, dict):
-                self._check_params_against_constraints(
-                    action_params, legal_constraints
-                )
+                self._check_params_against_constraints(action_params, legal_constraints)
 
         # Check rule_condition value for legal minimums
         if "rule_condition" in updates and isinstance(updates["rule_condition"], dict):
