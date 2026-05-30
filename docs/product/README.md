@@ -12,8 +12,5 @@ backend tables and routes.
 When behavior changes:
 
 1. Update the affected product doc.
-2. Update or create the story packet.
-3. Update durable proof status with `scripts/harness story add` or
-   `scripts/harness story update`.
-4. Record a decision if the change affects architecture, scope, risk, or a
-   previously settled product rule.
+2. Record a decision in `docs/decisions/` if the change affects architecture,
+   scope, risk, or a previously settled product rule.

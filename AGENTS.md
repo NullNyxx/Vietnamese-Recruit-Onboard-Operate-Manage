@@ -8,7 +8,7 @@ Nền tảng quản lý nhân sự cho doanh nghiệp Việt Nam (Recruit-Onboar
 
 1. Đọc `docs/product/overview.md` — tổng quan project, modules, tech stack
 2. Đọc `docs/product/tech-stack.md` — commands, conventions, patterns
-3. Đọc `docs/FEATURE_INTAKE.md` — phân loại task trước khi code
+3. Đọc `docs/ARCHITECTURE.md` — architecture rules
 4. Tuân thủ module architecture: `api/ → application/ → domain/ → infrastructure/`
 
 ### Tech Stack
@@ -31,14 +31,11 @@ Thư mục `docs/` có cấu trúc cố định. KHÔNG tạo thư mục hoặc 
 ```
 docs/
 ├── product/          ← Product docs (overview, guides, feature specs)
-├── stories/          ← Story packets (work items theo template)
+├── technical/        ← Cross-cutting technical references
 ├── decisions/        ← Architecture Decision Records (ADRs)
 ├── templates/        ← Templates (KHÔNG SỬA)
-├── HARNESS.md        ← Operating model (KHÔNG SỬA)
-├── FEATURE_INTAKE.md ← Intake rules (KHÔNG SỬA)
-├── ARCHITECTURE.md   ← Architecture rules (KHÔNG SỬA)
-├── TEST_MATRIX.md    ← Validation matrix
-└── HARNESS_BACKLOG.md← Backlog
+├── ARCHITECTURE.md   ← Architecture rules
+└── README.md         ← Documentation map
 ```
 
 **Ví dụ SAI:**
@@ -50,23 +47,10 @@ docs/
 **Ví dụ ĐÚNG:**
 
 - ✅ `docs/product/payroll-guide.md` — hướng dẫn sử dụng
-- ✅ `docs/stories/US-042-attendance-checkin.md` — story packet
+- ✅ `docs/product/attendance-checkin.md` — feature spec
 - ✅ `docs/decisions/0006-payroll-tax-formula.md` — ADR
 
-### 2. KHÔNG viết tiến độ/task list vào markdown
-
-Dùng Harness DB thay vì tạo file checklist:
-
-```bash
-# Thêm story
-scripts/harness story add --id "US-042" --title "Attendance check-in" --lane normal
-
-# Cập nhật status
-scripts/harness story update --id "US-042" --status in_progress
-scripts/harness story update --id "US-042" --status implemented --unit 1
-```
-
-### 3. PHẢI tuân thủ module architecture
+### 2. PHẢI tuân thủ module architecture
 
 Mọi code mới trong backend PHẢI theo cấu trúc:
 
@@ -88,17 +72,7 @@ backend/src/modules/<module_name>/
 └── container.py           # DI wiring (FastAPI Depends)
 ```
 
-### 4. PHẢI phân loại task trước khi code
-
-Đọc `docs/FEATURE_INTAKE.md` và xác định:
-
-- **Tiny** (0-1 risk flags): patch trực tiếp
-- **Normal** (2-3 flags): cần story file
-- **High-risk** (4+ flags hoặc hard gate): cần story folder + human confirm
-
-Hard gates (luôn high-risk): auth, authorization, data loss, audit/security, external provider.
-
-### 5. Git Branch & Commit Convention
+### 3. Git Branch & Commit Convention
 
 **Branch format:** `<type>/<short-description-in-english>`
 
@@ -131,7 +105,7 @@ Scopes: `identity`, `employee`, `gmail`, `recruitment`, `attendance`, `payroll`,
 - ✅ Tiếng Anh, imperative mood ("add" not "added"), dưới 72 ký tự
 - ❌ KHÔNG viết tiếng Việt, KHÔNG trộn type (`feat/ fix ...`)
 
-### 6. GitHub Workflow
+### 4. GitHub Workflow
 
 ```bash
 # 1. LUÔN pull main mới nhất trước khi bắt đầu
@@ -172,34 +146,6 @@ git branch -d feature/my-feature-name
 
 ---
 
-## Workflow cho mỗi task
-
-```
-1. Classify    → docs/FEATURE_INTAKE.md
-2. Record      → scripts/harness intake --type <type> --summary "<text>" --lane <lane>
-3. Story       → scripts/harness story add (nếu normal/high-risk)
-4. Implement   → Code theo architecture rules
-5. Validate    → Run tests, lint, typecheck
-6. Trace       → scripts/harness trace --summary "<text>" --outcome <outcome>
-7. Friction    → scripts/harness backlog add (nếu gặp vấn đề)
-```
-
----
-
-## Harness CLI
-
-```bash
-scripts/harness query stats          # Tổng quan DB
-scripts/harness query matrix         # Story validation status
-scripts/harness intake --type "change_request" --summary "..." --lane "normal"
-scripts/harness story add --id "US-XXX" --title "..." --lane "normal"
-scripts/harness story update --id "US-XXX" --status "implemented"
-scripts/harness trace --summary "..." --outcome "completed"
-scripts/harness backlog add --title "..." --pain "..."
-```
-
----
-
 ## Key Conventions
 
 - Tất cả API routes bắt đầu bằng `/api/`
@@ -210,16 +156,3 @@ scripts/harness backlog add --title "..." --pain "..."
 - Vietnamese tax: personal deduction 11M VND/month, dependent 4.4M/person
 - Insurance: employee 10.5% (BHXH 8% + BHYT 1.5% + BHTN 1%)
 - Work days per month: 26 (for salary calculation)
-
-<!-- HARNESS:BEGIN -->
-
-## Harness
-
-This repo uses Harness. Before work, read:
-
-- `docs/HARNESS.md`
-- `docs/FEATURE_INTAKE.md`
-- `docs/ARCHITECTURE.md`
-- `scripts/harness query matrix`
-
-<!-- HARNESS:END -->
