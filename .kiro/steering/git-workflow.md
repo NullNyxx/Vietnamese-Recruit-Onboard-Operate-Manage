@@ -36,9 +36,9 @@ feature/payroll-tax-calculator
 feature/recruitment-cv-parsing
 fix/alembic-migration-multiple-heads
 fix/dark-mode-employee-detail
-chore/setup-harness-v1
+chore/update-ruff-config
 chore/add-codeowners
-refactor/move-harness-to-subfolder
+refactor/extract-tax-service
 docs/add-product-overview
 ```
 

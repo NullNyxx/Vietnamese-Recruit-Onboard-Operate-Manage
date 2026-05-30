@@ -310,4 +310,4 @@ class NewErrorCodeError(EmployeeError):
 
 3. **Cập nhật docs/technical/error-codes.md**
 
-4. **Thêm vào TEST_MATRIX.md nếu là business logic error**
+4. **Thêm test case** nếu là business logic error

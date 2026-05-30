@@ -4,8 +4,8 @@
 
 ### 1. Nhận task
 
-- Đọc `docs/FEATURE_INTAKE.md` để phân loại (tiny/normal/high-risk)
-- Nếu dùng AI Agent: agent sẽ tự classify và record intake
+- Đọc `docs/ARCHITECTURE.md` để hiểu architecture rules
+- Xác định phạm vi và mức độ rủi ro trước khi code
 
 ### 2. Tạo branch
 
@@ -156,7 +156,6 @@ Nếu bạn dùng AI Agent (Codex CLI, Cursor, Claude Code, Kiro...):
 2. Agent PHẢI tuân thủ branch naming + commit convention
 3. Agent KHÔNG được tạo docs ngoài cấu trúc cho phép
 4. Agent PHẢI push lên branch mới, KHÔNG push vào main
-5. Nếu dùng Harness: record intake → story → trace
 
 ---
 

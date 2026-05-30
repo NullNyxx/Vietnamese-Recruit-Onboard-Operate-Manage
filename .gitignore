@@ -47,9 +47,3 @@ Thumbs.db
 
 # ---- MCP (local config) ----
 .mcp.json
-
-# Harness durable layer (WAL files are runtime-only)
-harness.db-wal
-harness.db-shm
-# Harness CLI binary (downloaded per-platform)
-scripts/bin/harness-cli

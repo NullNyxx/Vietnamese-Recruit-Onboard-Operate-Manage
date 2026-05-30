@@ -66,28 +66,6 @@ docker compose up -d postgres redis  # local dev
 docker compose up -d                 # full stack
 ```
 
-## Harness Usage
-
-Project sử dụng Harness framework. Trước khi làm việc:
-
-1. Đọc `docs/HARNESS.md` để hiểu quy trình
-2. Phân loại task theo `docs/FEATURE_INTAKE.md`
-3. Dùng CLI để ghi nhận:
-
-```bash
-# WSL required (bash script + sqlite3)
-wsl -- /bin/bash -c "cd /mnt/c/Users/NullNyx/Projects/Vietnamese-Recruit-Onboard-Operate-Manage && /bin/bash scripts/harness <command>"
-
-# Common commands:
-scripts/harness intake --type <type> --summary "<text>" --lane <lane>
-scripts/harness story add --id <id> --title "<text>" --lane <lane>
-scripts/harness story update --id <id> --status <status>
-scripts/harness trace --summary "<text>" --outcome <outcome>
-scripts/harness query matrix
-scripts/harness query stats
-scripts/harness backlog add --title "<name>" --pain "<what was hard>"
-```
-
 ## Important Conventions
 
 - Tất cả API routes bắt đầu bằng `/api/`
@@ -103,6 +81,4 @@ scripts/harness backlog add --title "<name>" --pain "<what was hard>"
 
 - #[[file:docs/product/overview.md]] — Full product overview
 - #[[file:docs/product/tech-stack.md]] — Tech stack & commands
-- #[[file:docs/HARNESS.md]] — Harness operating model
-- #[[file:docs/FEATURE_INTAKE.md]] — Feature intake & risk lanes
 - #[[file:docs/ARCHITECTURE.md]] — Architecture rules
