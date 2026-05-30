@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
 import {
   Users,
@@ -61,24 +62,30 @@ function QuickAction({
   );
 }
 
+// ─── Helpers ────────────────────────────────────────────────────────────────
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Chào buổi sáng";
+  if (hour < 18) return "Chào buổi chiều";
+  return "Chào buổi tối";
+}
+
 // ─── Main Dashboard ─────────────────────────────────────────────────────────
 export default function DashboardPage() {
   const { data: stats, isLoading: loading } = useDashboardStats();
   const { user } = useCurrentUser();
+  const [greeting, setGreeting] = React.useState("");
 
-  const greeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return "Chào buổi sáng";
-    if (hour < 18) return "Chào buổi chiều";
-    return "Chào buổi tối";
-  };
+  React.useEffect(() => {
+    setGreeting(getGreeting());
+  }, []);
 
   return (
     <div className="space-y-8 max-w-[1440px] mx-auto overflow-x-hidden">
       {/* ─── Welcome ─────────────────────────────────────────────────────── */}
       <div>
         <h1 className="font-heading text-[24px] font-medium text-[#1A1C1E]">
-          {greeting()}
+          {greeting}
           {user?.email ? `, ${user.email.split("@")[0]}` : ""}
         </h1>
         <p className="mt-1 font-sans text-base leading-[1.6] text-[#6C7278]">
