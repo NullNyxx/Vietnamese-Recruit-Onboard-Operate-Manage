@@ -91,15 +91,15 @@ export function VersionDiff({ versionA, versionB, onBack }: VersionDiffProps) {
 
       {/* Summary badges */}
       <div className="flex items-center gap-2 flex-wrap">
-        <Badge className="bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300 border-0">
+        <Badge className="bg-green-100 text-green-800 border-0">
           <Plus className="h-3 w-3 mr-1" aria-hidden="true" />
           {diff.rules_added.length} thêm
         </Badge>
-        <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300 border-0">
+        <Badge className="bg-amber-100 text-amber-800 border-0">
           <Pencil className="h-3 w-3 mr-1" aria-hidden="true" />
           {diff.rules_modified.length} sửa
         </Badge>
-        <Badge className="bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 border-0">
+        <Badge className="bg-red-100 text-red-800 border-0">
           <Minus className="h-3 w-3 mr-1" aria-hidden="true" />
           {diff.rules_removed.length} xóa
         </Badge>
@@ -151,10 +151,10 @@ export function VersionDiff({ versionA, versionB, onBack }: VersionDiffProps) {
 type DiffVariant = "added" | "modified" | "removed" | "unchanged";
 
 const variantStyles: Record<DiffVariant, string> = {
-  added: "border-l-green-500 bg-green-50/50 dark:bg-green-900/10",
-  modified: "border-l-amber-500 bg-amber-50/50 dark:bg-amber-900/10",
-  removed: "border-l-red-500 bg-red-50/50 dark:bg-red-900/10",
-  unchanged: "border-l-gray-300 bg-gray-50/50 dark:bg-gray-800/30",
+  added: "border-l-green-500 bg-green-50/50",
+  modified: "border-l-amber-500 bg-amber-50/50",
+  removed: "border-l-red-500 bg-red-50/50",
+  unchanged: "border-l-gray-300 bg-gray-50/50",
 };
 
 function DiffSection({

@@ -152,7 +152,7 @@ export function PolicyRuleEditor({
           {isOverridden && (
             <Badge
               variant="outline"
-              className="border-amber-500 text-amber-600 dark:text-amber-400 text-xs"
+              className="border-amber-500 text-amber-600 text-xs"
             >
               Đã thay đổi
             </Badge>

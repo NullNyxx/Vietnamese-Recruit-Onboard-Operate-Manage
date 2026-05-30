@@ -162,7 +162,7 @@ function PolicyRuleRow({
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium truncate">{rule.name}</span>
           {rule.is_custom && (
-            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
+            <span className="inline-flex items-center rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-700">
               Tùy chỉnh
             </span>
           )}

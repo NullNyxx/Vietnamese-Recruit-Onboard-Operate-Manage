@@ -111,20 +111,20 @@ export function PublishDialog({
           <div className="rounded-md bg-muted p-4 space-y-2">
             <p className="text-sm font-medium">Tóm tắt thay đổi</p>
             <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-md bg-green-50 dark:bg-green-900/20 p-2">
-                <p className="text-lg font-bold text-green-700 dark:text-green-400">
+              <div className="rounded-md bg-green-50 p-2">
+                <p className="text-lg font-bold text-green-700">
                   {changeSummary.added}
                 </p>
                 <p className="text-xs text-muted-foreground">Thêm mới</p>
               </div>
-              <div className="rounded-md bg-amber-50 dark:bg-amber-900/20 p-2">
-                <p className="text-lg font-bold text-amber-700 dark:text-amber-400">
+              <div className="rounded-md bg-amber-50 p-2">
+                <p className="text-lg font-bold text-amber-700">
                   {changeSummary.modified}
                 </p>
                 <p className="text-xs text-muted-foreground">Đã sửa</p>
               </div>
-              <div className="rounded-md bg-gray-100 dark:bg-gray-800 p-2">
-                <p className="text-lg font-bold text-gray-700 dark:text-gray-300">
+              <div className="rounded-md bg-gray-100 p-2">
+                <p className="text-lg font-bold text-gray-700">
                   {changeSummary.disabled}
                 </p>
                 <p className="text-xs text-muted-foreground">Đã tắt</p>
