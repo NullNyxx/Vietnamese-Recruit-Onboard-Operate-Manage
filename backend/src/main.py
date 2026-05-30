@@ -26,11 +26,6 @@ from src.modules.identity.api.error_handler import (  # noqa: E402
     register_auth_error_handlers,
 )
 from src.modules.identity.api.router import router as auth_router  # noqa: E402
-from src.modules.policy.api.error_handler import (  # noqa: E402
-    register_policy_error_handlers,
-)
-from src.modules.policy.api.evaluation_router import evaluation_router  # noqa: E402
-from src.modules.policy.api.router import policy_router  # noqa: E402
 from src.modules.recruitment.api.candidate_router import candidate_router  # noqa: E402
 from src.modules.recruitment.api.cv_review_router import cv_review_router  # noqa: E402
 from src.modules.recruitment.api.error_handler import (  # noqa: E402
@@ -98,8 +93,6 @@ app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(employee_router)
 app.include_router(gmail_router)
-app.include_router(policy_router)
-app.include_router(evaluation_router)
 app.include_router(candidate_router)
 app.include_router(cv_review_router)
 app.include_router(metrics_router)
@@ -109,7 +102,6 @@ register_auth_error_handlers(app)
 register_employee_error_handlers(app)
 register_gmail_error_handlers(app)
 register_recruitment_error_handlers(app)
-register_policy_error_handlers(app)
 
 
 @app.get("/health")
